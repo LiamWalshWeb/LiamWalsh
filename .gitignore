@@ -4,7 +4,7 @@
 _cache/*
  
 # Ignore all log files in _logs/ dir, if logging enabled
-
+_logs/*
 
 # System Files
 .DS_Store
