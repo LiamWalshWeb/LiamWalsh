@@ -2,14 +2,14 @@
   "CodeKitInfo" : "This is a CodeKit project configuration file. It is designed to sync project settings across multiple machines. Modifying the contents of this file can be a poor life decision if you don't know what you're doing. This file is not useful unless accompanied by the project that created it in CodeKit. For more information, see: http:\/\/incident57.com\/codekit",
   "creatorBuild" : "8403",
   "files" : {
-    "\/templates\/humble-tribute.html" : {
+    "\/css\/ie.css" : {
       "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
+      "ignore" : 1,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/templates\/humble-tribute.html",
+      "inputAbbreviatedPath" : "\/css\/ie.css",
       "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
+      "fileType" : 16
     },
     "\/scss\/module\/_reusable.scss" : {
       "ignoreWasSetByUser" : 0,
@@ -133,14 +133,16 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 16
     },
-    "\/layouts\/tribute.html" : {
+    "\/img\/favicons\/touch-icon-ipad.png" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/layouts\/tribute.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
+      "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
+      "processed" : 0,
+      "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
+      "initialSize" : 2723,
+      "fileType" : 8192
     },
     "\/scss\/ie.scss" : {
       "ignoreWasSetByUser" : 0,
@@ -186,16 +188,14 @@
       "outputAbbreviatedPath" : "\/js\/denali-ck.js",
       "fileType" : 64
     },
-    "\/img\/favicons\/touch-icon-ipad.png" : {
+    "\/layouts\/tribute.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
-      "processed" : 0,
-      "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
-      "initialSize" : 2723,
-      "fileType" : 8192
+      "inputAbbreviatedPath" : "\/layouts\/tribute.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
     },
     "\/partials\/page-title.html" : {
       "ignoreWasSetByUser" : 0,
@@ -560,14 +560,14 @@
       "fileType" : 4,
       "debugStyle" : 0
     },
-    "\/css\/ie.css" : {
+    "\/templates\/humble-tribute.html" : {
       "ignoreWasSetByUser" : 0,
-      "ignore" : 1,
+      "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/css\/ie.css",
+      "inputAbbreviatedPath" : "\/templates\/humble-tribute.html",
       "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 16
+      "fileType" : 2048
     }
   },
   "manualImportLinks" : [
