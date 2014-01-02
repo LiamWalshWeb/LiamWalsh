@@ -426,18 +426,6 @@
       "fileType" : 4,
       "debugStyle" : 0
     },
-    "\/scss\/print.scss" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/scss\/print.scss",
-      "outputStyle" : 0,
-      "shouldRunBless" : 0,
-      "outputAbbreviatedPath" : "\/css\/print.css",
-      "fileType" : 4,
-      "debugStyle" : 0
-    },
     "\/templates\/default.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -457,6 +445,18 @@
       "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png",
       "initialSize" : 1446,
       "fileType" : 8192
+    },
+    "\/scss\/print.scss" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/scss\/print.scss",
+      "outputStyle" : 0,
+      "shouldRunBless" : 0,
+      "outputAbbreviatedPath" : "\/css\/print.css",
+      "fileType" : 4,
+      "debugStyle" : 0
     },
     "\/templates\/404.html" : {
       "ignoreWasSetByUser" : 0,
