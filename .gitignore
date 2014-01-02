@@ -1,10 +1,10 @@
 # Statamic #
 ######################
 # Ignore all files in _cache dir
-_cache/
+_cache/*
  
 # Ignore all log files in _logs/ dir, if logging enabled
-_logs/
+_logs/*
 
 # System Files
 .DS_Store
