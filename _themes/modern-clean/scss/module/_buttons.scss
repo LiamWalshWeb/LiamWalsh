@@ -1,0 +1,12 @@
+.button {
+	background-color: $colour-base;
+	color: $background-colour;
+	display: inline-block;
+	list-style: none;
+	padding: 0.75em 1em;
+	text-decoration: none;
+	&:hover, &:focus {
+		background-color: $colour-base-alt;
+		color: $background-colour;
+	}
+}

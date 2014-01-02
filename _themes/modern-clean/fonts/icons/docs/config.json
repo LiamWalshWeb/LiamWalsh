@@ -1,0 +1,383 @@
+{
+  "name": "",
+  "glyphs": [
+    {
+      "search": [
+        "plus"
+      ],
+      "code": 43,
+      "from": 43,
+      "uid": "70370693ada58ef0a60fa0984fe8d52a",
+      "css": "plus",
+      "orig_css": "plus",
+      "orig_code": 43,
+      "src": "entypo"
+    },
+    {
+      "search": [
+        "minus"
+      ],
+      "code": 45,
+      "from": 45,
+      "uid": "1256e3054823e304d7e452a589cf8bb8",
+      "css": "minus",
+      "orig_css": "minus",
+      "orig_code": 45,
+      "src": "entypo"
+    },
+    {
+      "search": [
+        "w3c"
+      ],
+      "code": 51,
+      "uid": "288a62ca532f76053c4a834ba3746ea2",
+      "css": "w3c",
+      "orig_css": "w3c",
+      "orig_code": 51,
+      "src": "zocial",
+      "from": 51
+    },
+    {
+      "search": [
+        "html5"
+      ],
+      "code": 53,
+      "uid": "d4d52a448819e8d5e849b8126416b640",
+      "css": "html5",
+      "orig_css": "html5",
+      "orig_code": 53,
+      "src": "zocial",
+      "from": 53
+    },
+    {
+      "search": [
+        "wordpress"
+      ],
+      "code": 54,
+      "uid": "0636c283a9822288a767609062bbf4a4",
+      "css": "wordpress",
+      "orig_css": "wordpress",
+      "orig_code": 54,
+      "src": "zocial",
+      "from": 119
+    },
+    {
+      "search": [
+        "home"
+      ],
+      "code": 104,
+      "uid": "513ac180ff85bd275f2b736720cbbf5e",
+      "css": "home",
+      "orig_css": "home",
+      "orig_code": 104,
+      "src": "entypo",
+      "from": 8962
+    },
+    {
+      "search": [
+        "keyboard"
+      ],
+      "code": 9000,
+      "uid": "005a38f6af74b31aeb817fedb09d2175",
+      "css": "keyboard",
+      "orig_css": "keyboard",
+      "orig_code": 9000,
+      "src": "entypo",
+      "from": 9000
+    },
+    {
+      "search": [
+        "mail",
+        "email"
+      ],
+      "code": 9993,
+      "uid": "e335adbc2d898c7d85d40c507796e7b4",
+      "css": "mail",
+      "orig_css": "mail",
+      "orig_code": 9993,
+      "src": "entypo",
+      "from": 9993
+    },
+    {
+      "search": [
+        "code"
+      ],
+      "code": 59156,
+      "uid": "b6f32db98a3de777f5ae3005191b1831",
+      "css": "code",
+      "orig_css": "code",
+      "orig_code": 59156,
+      "src": "entypo",
+      "from": 59156
+    },
+    {
+      "search": [
+        "arrow",
+        "down"
+      ],
+      "code": 59236,
+      "uid": "289b5f92f23acf1059c93fbf401c1ad5",
+      "css": "down-open-big",
+      "orig_css": "down-open-big",
+      "orig_code": 59236,
+      "src": "entypo",
+      "from": 59236
+    },
+    {
+      "search": [
+        "arrow",
+        "left"
+      ],
+      "code": 59237,
+      "uid": "884cfc3e6e2d456dd2a2ca0dbb9e6337",
+      "css": "left-open-big",
+      "orig_css": "left-open-big",
+      "orig_code": 59237,
+      "src": "entypo",
+      "from": 59237
+    },
+    {
+      "search": [
+        "arrow",
+        "right"
+      ],
+      "code": 59238,
+      "uid": "004882ab2d5c418c5b2060e80596279b",
+      "css": "right-open-big",
+      "orig_css": "right-open-big",
+      "orig_code": 59238,
+      "src": "entypo",
+      "from": 59238
+    },
+    {
+      "search": [
+        "arrow",
+        "up"
+      ],
+      "code": 59239,
+      "uid": "0805cca616b3c12714f35af4d0912c10",
+      "css": "up-open-big",
+      "orig_css": "up-open-big",
+      "orig_code": 59239,
+      "src": "entypo",
+      "from": 59239
+    },
+    {
+      "search": [
+        "brush"
+      ],
+      "code": 59290,
+      "uid": "39c4d0e225a1263a398a47523cb5b9bd",
+      "css": "brush",
+      "orig_css": "brush",
+      "orig_code": 59290,
+      "src": "entypo",
+      "from": 59290
+    },
+    {
+      "search": [
+        "browser",
+        "firefox"
+      ],
+      "code": 59456,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva"
+      },
+      "uid": "62c089cb34e74b3a1200bc7f5314eb4e",
+      "css": "firefox",
+      "orig_css": "firefox",
+      "orig_code": 59456,
+      "src": "fontelico",
+      "from": 59456
+    },
+    {
+      "search": [
+        "browser",
+        "chrome"
+      ],
+      "code": 59457,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva"
+      },
+      "uid": "9c2b737b16ae2c8d66b7bfd29ba5ecd8",
+      "css": "chrome",
+      "orig_css": "chrome",
+      "orig_code": 59457,
+      "src": "fontelico",
+      "from": 59457
+    },
+    {
+      "search": [
+        "browser",
+        "opera"
+      ],
+      "code": 59458,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva"
+      },
+      "uid": "45861dd1e5ce4fde338bcccf01eeb808",
+      "css": "opera",
+      "orig_css": "opera",
+      "orig_code": 59458,
+      "src": "fontelico",
+      "from": 59458
+    },
+    {
+      "search": [
+        "browser",
+        "ie",
+        "bullshit",
+        "crap"
+      ],
+      "code": 59459,
+      "meta": {
+        "email": "berbentseva_angela@yahoo.com",
+        "author": "Angela Berbentseva"
+      },
+      "uid": "2a46f1d1c9bd036e17a74e46613c1636",
+      "css": "ie",
+      "orig_css": "ie",
+      "orig_code": 59459,
+      "src": "fontelico",
+      "from": 59459
+    },
+    {
+      "search": [
+        "twitter",
+        "social",
+        "logo"
+      ],
+      "code": 62217,
+      "uid": "d090355c31f497b61d676416c1fd39fb",
+      "css": "twitter",
+      "orig_css": "twitter",
+      "orig_code": 62217,
+      "src": "entypo",
+      "from": 62217
+    },
+    {
+      "search": [
+        "facebook",
+        "social",
+        "logo"
+      ],
+      "code": 62220,
+      "uid": "bc50457410acf467b8b5721240768742",
+      "css": "facebook",
+      "orig_css": "facebook",
+      "orig_code": 62220,
+      "src": "entypo",
+      "from": 62220
+    },
+    {
+      "search": [
+        "linkedin",
+        "social",
+        "logo"
+      ],
+      "code": 62232,
+      "uid": "7132e1233bc16cd1b6efe7e29d3613a5",
+      "css": "linkedin",
+      "orig_css": "linkedin",
+      "orig_code": 62232,
+      "src": "entypo",
+      "from": 62232
+    },
+    {
+      "search": [
+        "dribbble",
+        "social",
+        "logo"
+      ],
+      "code": 62235,
+      "uid": "e8d13cd05bd63219329b2b61835d776c",
+      "css": "dribbble",
+      "orig_css": "dribbble",
+      "orig_code": 62235,
+      "src": "entypo",
+      "from": 62235
+    },
+    {
+      "search": [
+        "globe"
+      ],
+      "code": 127758,
+      "uid": "6a12c2b74456ea21cc984e11dec227a1",
+      "css": "globe",
+      "orig_css": "globe",
+      "orig_code": 127758,
+      "src": "entypo",
+      "from": 127758
+    },
+    {
+      "search": [
+        "profile",
+        "contact",
+        "user"
+      ],
+      "code": 128100,
+      "uid": "bbd66ef66bb8fa9edde54d9a90b89150",
+      "css": "user",
+      "orig_css": "user",
+      "orig_code": 128100,
+      "src": "entypo",
+      "from": 128100
+    },
+    {
+      "search": [
+        "tv",
+        "screen",
+        "monitor"
+      ],
+      "code": 109,
+      "uid": "b7a336095aa4535c3689cb557edf23db",
+      "css": "monitor",
+      "orig_css": "monitor",
+      "orig_code": 109,
+      "src": "entypo",
+      "from": 128187
+    },
+    {
+      "search": [
+        "mobile",
+        "iphone"
+      ],
+      "code": 77,
+      "uid": "767fede84586366cd7d6c835be745454",
+      "css": "mobile",
+      "orig_css": "mobile",
+      "orig_code": 77,
+      "src": "entypo",
+      "from": 128241
+    },
+    {
+      "search": [
+        "camera",
+        "photo"
+      ],
+      "code": 128247,
+      "uid": "85017ab6ca074831a8de771b40e9640c",
+      "css": "camera",
+      "orig_css": "camera",
+      "orig_code": 128247,
+      "src": "entypo",
+      "from": 128247
+    },
+    {
+      "search": [
+        "rocket",
+        "fly"
+      ],
+      "code": 128640,
+      "uid": "9c7fd7637a41b59a358cb70893f945a5",
+      "css": "rocket",
+      "orig_css": "rocket",
+      "orig_code": 128640,
+      "src": "entypo",
+      "from": 128640
+    }
+  ]
+}

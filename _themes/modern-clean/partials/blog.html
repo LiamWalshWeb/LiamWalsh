@@ -1,0 +1,73 @@
+{{ get_content from="blog" }}
+	{{ if current_url !== url }}
+		<h2 class="section-header breaker">
+			<span class="constrain">{{ title }}</span>
+		</h2>
+	{{ endif }}
+	<div class="row constrain body-section">
+		<section class="span-2-3 gutter blog-list list-article">
+			{{ entries:listing folder="{url}" limit="{blog_limit}" }}
+				{{ if total_results }}
+					<article class="blog-post list-item box box-padded">
+						<h3><a href="{{ url }}">{{ title }}</a></h3>
+						<time datetime="{{ datestamp|format:Y-m-d }}">{{ date }}</time>
+						<div class="post-excerpt">
+							{{ excerpt }}
+							<a href="{{ url }}">Read more &rarr;</a>
+						</div>
+						{{ if categories }}
+							<ul class="list-tags">
+							{{ categories }}
+								<li class="tag">{{ name }}</li>
+							{{ /categories }}
+							</ul>
+						{{ endif }}
+					</article>
+				{{ else }}
+					<article class="blog-post list-item box box-padded">
+						<h3>No Blog Posts Found</h3>
+					</article>
+				{{ endif }}
+			{{ /entries:listing }}
+		</section>
+		<aside class="span-1-3 blog-aside box box-aside">
+			<h4>Categories</h4>
+			{{ taxonomy:listing folder="{url}" type="categories" sort_by="name" sort_dir="asc" }}
+				{{ if total_results }}
+					{{ if first }}
+						<ul class="blog-taxonomies">
+					{{ endif }}
+						<li><a href="{{ url }}">{{ name|title }}</a></li>
+					{{ if last }}
+						</ul>
+					{{ endif }}
+				{{ else }}
+					<p>No categories found</p>
+				{{ endif }}
+			{{ /taxonomy:listing }}
+			<h4>Archive</h4>
+			{{ entries:listing folder="{url}" offset="{blog_limit}" group_by_date="F Y" }}
+				{{ if total_results }}
+					{{ if grouped_date }}
+						{{ if !first }}
+						</ul>
+						{{ endif }}
+
+						<h5>{{ grouped_date }}</h5>
+						<ul class="blog-taxonomies">
+					{{ endif }}
+
+					<li>
+						{{ datestamp|format:jS }} - <a href="{{ url }}">{{ title }}</a>
+					</li>
+
+					{{ if last }}
+						</ul>
+					{{ endif }}
+				{{ else }}
+					<p>The archive is empty</p>
+				{{ endif }}
+			{{ /entries:listing }}
+		</aside>
+	</div>
+{{ /get_content }}

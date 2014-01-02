@@ -1,0 +1,17 @@
+<header class="page-header">
+	<h1 class="page-title"{{ if page_image }} style="background-image: url({{ transform src="{page_image}" height="400" width="800" }});"{{ endif }}>
+		<span class="constrain">
+			{{ if !segment_1 }}
+				{{ _site_name }}
+			{{ else }}
+				{{ title }}
+			{{ endif }}
+		</span>
+	</h1>
+	{{ if !segment_1 }}
+		<p class="header-caption">
+			<span class="constrain">{{ site_motto }}</span>
+		</p>
+	{{ endif }}
+	{{ theme:partial src="navigation" }}
+</header>

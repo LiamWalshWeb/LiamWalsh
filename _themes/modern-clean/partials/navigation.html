@@ -1,0 +1,12 @@
+<nav class="page-navigation">
+	<ul class="navigation-list constrain">
+		<li class="navigation-item">
+			<a href="{{ homepage }}"{{ if !segment_1 }} class="current"{{ endif }}>Home</a>
+		</li>
+		{{ nav from="/" max_depth="2" }}
+		<li class="navigation-item">
+			<a href="{{ url }}"{{ if is_current || is_parent }} class="current"{{ endif }}>{{ title }}</a>
+		</li>
+		{{ /nav }}	
+	</ul>
+</nav>

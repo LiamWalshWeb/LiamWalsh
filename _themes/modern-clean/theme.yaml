@@ -1,0 +1,33 @@
+###########################################################################################
+#
+#  THEME VARIABLES
+#
+###########################################################################################
+
+# Site Settings
+site_motto: Web Designer, Web Developer, Web Enthusiast
+email_address: walshlv.business@gmail.com
+
+link_twitter: //twitter.com/LiamWalshWeb
+link_facebook: //www.facebook.com/LiamWalshWeb
+link_google: //plus.google.com/u/0/100139072860465339140/posts/p/pub
+link_github: //github.com/LiamWalshWeb
+
+# Theme name
+theme_name: Modern Clean
+
+# Comments + Disqus
+disqus_account: changeme
+show_comments: no
+
+# Google Analytics
+google_analytics: UA-29173059-4
+
+# Humble Tributes
+tributes_limit: 6
+
+# Blog
+blog_limit: 5
+
+# Work
+work_limit: 5

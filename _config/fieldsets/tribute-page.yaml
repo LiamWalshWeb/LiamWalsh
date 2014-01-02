@@ -1,0 +1,48 @@
+fields:
+  page_image:
+    display: Page Image
+    required: true
+    type: file
+    allowed: [png, gif, jpg, jpeg]
+    destination: assets/page/img
+
+  html_content:
+    display: HTML
+    required: true
+    type: redactor
+    image_dir: assets/tributes/html
+
+  css_file:
+    display: CSS
+    required: true
+    type: file
+    allowed: [css]
+    destination: assets/tributes/css
+
+  css_images:
+    display: CSS Images
+    type: grid
+    starting_rows: 1
+    fields:
+      image:
+        type: file
+        required: true
+        allowed: [png, gif, jpg, jpeg]
+        destination: assets/tributes/css/img
+      alt:
+        type: text
+
+  js_file:
+    display: Javascript
+    instructions: jQuery included if given
+    required: false
+    type: file
+    allowed: [js]
+    destination: assets/tributes/js
+
+  content:
+    display: Content
+    type: redactor
+    image_dir: assets/tributes/content/img
+
+hide: true

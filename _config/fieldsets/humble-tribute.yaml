@@ -1,0 +1,19 @@
+title: Humble Tribute
+
+fields:
+  _template:
+    display: Template
+    type: templates
+
+  page_image:
+    display: Page Image
+    required: true
+    type: file
+    allowed: [png, gif, jpg, jpeg]
+    destination: assets/page/img
+
+  content:
+    display: Page Content
+    required: true
+    default:
+    type: redactor

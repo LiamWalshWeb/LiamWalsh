@@ -1,0 +1,21 @@
+{{ if prev || next }}
+<div class="pagination-container constrain box box-padded box-push">
+	<h3 class="pagination-heading">More Related</h3>
+	<ul class="pagination-list navigation-list">
+		{{ if prev }}
+			{{ get_content from ="{prev}" }}
+				<li class="pagination-item navigation-item">
+					<a class="button" href="{{ url }}">&laquo; {{ title }}</a>
+				</li>
+			{{ /get_content }}
+		{{ endif }}
+		{{ if next }}
+			{{ get_content from ="{next}" }}
+				<li class="pagination-item navigation-item">
+					<a class="button" href="{{ url }}">{{ title }} &raquo;</a>
+				</li>
+			{{ /get_content }}
+		{{ endif }}
+	</ul>
+</div>
+{{ endif }}

@@ -1,0 +1,17 @@
+{
+  "name": "ascent-statamic-admin-theme",
+  "version": "1.0.0",
+  "description": "Ascent Admin Theme for Statamic",
+  "main": "Gruntfile.js",
+  "author": "Statamic",
+  "homepage": "http://statamic.com",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-watch": "~0.4.4",
+    "grunt-contrib-sass": "~0.4.1",
+    "grunt-contrib-livereload": "~0.1.2"
+  }
+}

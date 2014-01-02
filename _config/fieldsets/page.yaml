@@ -1,0 +1,17 @@
+title: Basic Page
+
+fields:
+  _template:
+    display: Template
+    type: templates
+
+  page_image:
+    display: Page Image
+    type: file
+    allowed: [png, gif, jpg, jpeg]
+    destination: assets/page/img
+
+  content:
+    display: Page Content
+    required: true
+    type: redactor

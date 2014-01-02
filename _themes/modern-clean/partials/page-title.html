@@ -1,0 +1,9 @@
+{{ if !segment_1 }}
+	{{ _site_name }} - {{ site_motto }}
+{{ else }}
+	{{ if taxonomy_slug }}
+		{{ taxonomy_slug|title }} | {{ _site_name }}
+	{{ else }}
+		{{ title }} | {{ _site_name }}
+	{{ endif }}
+{{ endif }}

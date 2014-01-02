@@ -1,0 +1,30 @@
+.blog-list {
+	
+}
+
+.blog-post {
+
+}
+
+.blog-aside {
+	border: 1em solid $colour-base;
+	padding: 1.5em;
+	@include bp(smallest) {
+		padding: 1em;
+	}
+}
+
+.blog-taxonomies {
+	list-style: none;
+	margin: 1em auto;
+	padding: 0 0 0 1em;
+	li {
+
+	}
+}
+
+.pagination-container {
+	.pagination-heading {
+		
+	}
+}

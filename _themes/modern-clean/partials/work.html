@@ -1,0 +1,32 @@
+{{ get_content from="work" }}
+	{{ if current_url !== url }}
+		<h2 class="section-header breaker">
+			<span class="constrain">{{ title }}</span>
+		</h2>
+	{{ endif }}
+	{{ entries:listing folder="{url}" limit="{work_limit}" }}
+		{{ if total_results }}
+			<div class="row {{ switch between="row-normal|row-reverse" }} work-item" style="background-image: url({{ transform src="{work_image}" action="smart" height="400" width="500" quality="10" blur="10" }});">
+				<div class="constrain row">
+					<article class="span-2-3 work-info box box-padded">
+						<h3><a href="{{ url }}">{{ title }}</a></h3>
+						<div>
+							{{ excerpt }}
+						</div>
+						{{ if skills }}
+							<ul class="work-skills list-tags">
+								{{ skills }}
+								<li class="skill tag">{{ name }}</li>
+								{{ /skills }}
+							</ul>
+						{{ endif }}
+					</article>
+				</div>
+			</div>
+		{{ else }}
+			<div class="row box box-padded box-push">
+				<h3>No Work Found</h3>
+			</div>		
+		{{ endif }}
+	{{ /entries:listing }}
+{{ /get_content }}

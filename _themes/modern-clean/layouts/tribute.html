@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{{ theme:partial src="page-title" }}</title>
+        <meta name="description" content="">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="cleartype" content="on">
+
+        {{# Favicons #}}
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ theme:img src="favicons/apple-touch-icon-144x144-precomposed.png" }}">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ theme:img src="favicons/apple-touch-icon-114x114-precomposed.png" }}">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{ theme:img src="favicons/apple-touch-icon-72x72-precomposed.png" }}">
+        <link rel="apple-touch-icon-precomposed" href="{{ theme:img src="favicons/apple-touch-icon-57x57-precomposed.png" }}">
+        <link rel="shortcut icon" href="{{ theme:img src="favicons/apple-touch-icon.png" }}">
+
+        {{# Tile icon for Win8 (144x144 + tile color) #}}
+        <meta name="msapplication-TileImage" content="{{ theme:img src="favicons/apple-touch-icon-144x144-precomposed.png" }}">
+        <meta name="msapplication-TileColor" content="#222222">
+
+
+        {{# For iOS web apps. Delete if not needed. https://github.com/h5bp/mobile-boilerplate/issues/94 #}}
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="">
+        
+        {{# Stylesheets #}}
+        {{ if css_file }}
+            <link rel="stylesheet" href="{{ css_file }}" />
+        {{ endif }}
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        {{ layout_content }}
+
+        {{# Scripts #}}
+
+        {{ if js_file }}
+            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+            <script>window.jQuery || document.write('<script src="{{ theme:js src="vendor/jquery-1.10.2.min.js" }}"><\/script>')</script>
+            <script src="{{ js_file }}"></script>
+        {{ endif }}
+
+        {{# Google Analytics: change UA-XXXXX-X to be your site's ID. #}}
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','{{ google_analytics }}');ga('send','pageview');
+        </script>
+    </body>
+</html>

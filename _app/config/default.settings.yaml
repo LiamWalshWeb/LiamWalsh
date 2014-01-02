@@ -1,0 +1,57 @@
+_license_key:
+_language: en
+_site_root: /
+_site_name: Another Awesome Statamic Site
+_content_root: _content
+_site_url: http://statamic.com
+_theme: denali
+_entry_timestamps: false
+_date_format: 'F jS, Y'
+_time_format: 'g:i.s a'
+_timezone: America/New_York
+_taxonomy:
+  - categories
+  - tags
+_taxonomy_slugify: false
+_content_type: markdown
+_enable_smartypants: true
+_theme_cache_bust: false
+_allow_php: false
+_yaml_mode: loose
+_parse_order:
+  - content
+  - tags
+_environments:
+  dev:
+    - 'http://localhost*'
+    - '*.dev'
+    - '*.localip'
+  live:
+    - '*.com'
+
+_log_enabled: true
+_log_level: debug
+_log_file_path: _logs
+_log_file_prefix: site
+
+_admin_enabled: false
+_admin_path: admin
+_admin_theme: trailhead
+_admin_nav:
+  dashboard: false
+  pages: true
+  members: true
+  account: true
+  system: true
+  logs: true
+  help: true
+  view_site: true
+  logout: true
+_admin_start_page: system
+_enable_add_top_level_page: true
+
+_cookies.secret_key: TAME_ONE_POINT_FIVE_WILDS
+_cookies.lifetime: 3 months
+_cookies.cipher: MCRYPT_RIJNDAEL_256
+_cookies.cipher_mode: MCRYPT_MODE_CBC
+_public_path: /

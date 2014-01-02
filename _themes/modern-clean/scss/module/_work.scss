@@ -1,0 +1,54 @@
+.work-item {
+	background: $background-colour no-repeat top center;
+	background-size: cover;
+	padding: 5em 1em 1em;
+	@include bp(smallest) {
+		padding: 2em 0;
+	}
+	@include bp(medium) {
+		padding: 3em 0;
+	}
+}
+
+.work-info {
+	position: relative;
+}
+
+.work-image {
+	a {
+		display: block;
+	}
+	.work-caption {
+		color: lighten(black, 50%);
+		margin-top: 1em;
+	}
+}
+
+.span-2-3 {
+	.work-skills {
+		@include bp(smallest) {
+			margin: 0;
+			position: absolute;
+			top: 0;
+			right: -6.75em;
+			width: 7em;
+		}
+		.skill {
+			@include bp(smallest) {
+				border: 0.25em solid $background-colour;
+				display: block;
+				margin: 0 auto 0.5em;
+			}
+		}
+	}
+}
+
+.row-reverse {
+	.span-2-3 {
+		.work-skills {
+			@include bp(smallest) {
+				left: -6.75em;
+			}
+		}
+	}
+}
