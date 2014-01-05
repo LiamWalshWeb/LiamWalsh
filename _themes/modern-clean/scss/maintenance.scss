@@ -1,0 +1,45 @@
+// Include Base
+@import "base/_vars.scss";
+@import "base/_breakpoints.scss";
+
+html, body {
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+
+body {
+	padding: 1em;
+	@include bp(smallest) {
+		padding: 3em;
+	}
+	@include bp(medium) {
+		padding: 4em;
+	}
+	@include bp(biggest) {
+		padding: 4.5em;
+	}
+}
+
+.maintenance-container {
+	background: $background-colour;
+	color: $colour-base;
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.maintenance-image {
+	height: auto !important;
+	margin: 0 auto;
+	width: auto;
+	max-width: 100%;
+}
+
+.maintenance-title {
+	text-indent: -1.2em;
+}
+
+.maintenance-message {
+	
+}

@@ -36,38 +36,38 @@
         <link rel="stylesheet" href="{{ theme:css }}" />
     </head>
     <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+        {{ if maintenance_mode }}
+            {{ theme:partial src="maintenance" }}
+        {{ else }}
+            {{ theme:partial src="page-header" }}
 
-        {{ theme:partial src="page-header" }}
+            <div class="page-body">
+                {{ layout_content }}
+            </div>
 
-        <div class="page-body">
-            {{ layout_content }}
-        </div>
+            {{ theme:partial src="page-footer" }}
 
-        {{ theme:partial src="page-footer" }}
+            {{# Scripts #}}
 
-        {{# Scripts #}}
+            {{# <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+            <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+            <script src="js/plugins.js"></script>
+            <script src="js/main.js"></script> #}}
 
-        {{# <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
-        <script src="js/plugins.js"></script>
-        <script src="js/main.js"></script> #}}
+            {{# Google Analytics: change UA-XXXXX-X to be your site's ID. #}}
+            <script>
+                (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+                function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+                e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+                e.src='//www.google-analytics.com/analytics.js';
+                r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+                ga('create','{{ google_analytics }}');ga('send','pageview');
+            </script>
 
-        {{# Google Analytics: change UA-XXXXX-X to be your site's ID. #}}
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','{{ google_analytics }}');ga('send','pageview');
-        </script>
-
-        {{# Including maps if needed #}}
-        {{ if include_maps }}
-            {{ location:start_maps }}
+            {{# Including maps if needed #}}
+            {{ if include_maps }}
+                {{ location:start_maps }}
+            {{ endif }}
         {{ endif }}
     </body>
 </html>
