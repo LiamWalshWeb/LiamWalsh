@@ -36,7 +36,7 @@
         <link rel="stylesheet" href="{{ theme:css }}" />
     </head>
     <body>
-        {{ if maintenance_mode }}
+        {{ if maintenance_mode && !logged_in }}
             {{ theme:partial src="maintenance" }}
         {{ else }}
             {{ theme:partial src="page-header" }}

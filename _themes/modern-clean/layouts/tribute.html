@@ -36,7 +36,7 @@
         {{ endif }}
     </head>
     <body>
-        {{ if maintenance_mode }}
+        {{ if maintenance_mode && !logged_in }}
             {{ theme:partial src="maintenance" }}
         {{ else }}
             {{ layout_content }}
