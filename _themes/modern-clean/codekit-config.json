@@ -127,6 +127,18 @@
       "fileType" : 4,
       "debugStyle" : 0
     },
+    "\/scss\/module\/_icon-fonts.scss" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 1,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/scss\/module\/_icon-fonts.scss",
+      "outputStyle" : 0,
+      "shouldRunBless" : 0,
+      "outputAbbreviatedPath" : "\/css\/_icon-fonts.css",
+      "fileType" : 4,
+      "debugStyle" : 0
+    },
     "\/templates\/work.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
