@@ -19,3 +19,9 @@
 	</ul>
 </div>
 {{ endif }}
+
+{{ if !is_dev }}
+<div class="pagination-container constrain box box-padded box-push">
+	{{ disqus:comments account="{ disqus_account }" }}
+</div>
+{{ endif }}

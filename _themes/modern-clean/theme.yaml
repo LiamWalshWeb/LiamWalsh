@@ -21,8 +21,8 @@ link_github: //github.com/LiamWalshWeb
 theme_name: Modern Clean
 
 # Comments + Disqus
-disqus_account: changeme
-show_comments: no
+disqus_account: LiamWalsh
+show_comments: yes
 
 # Google Analytics
 google_analytics: UA-29173059-4

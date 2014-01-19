@@ -5,4 +5,5 @@
 ###########################################################################################
 
 # Just an example use case
-# enable_analytics: no
+enable_analytics: false
+enable_disqus: false

@@ -55,6 +55,7 @@
             <script src="js/main.js"></script> #}}
 
             {{# Google Analytics: change UA-XXXXX-X to be your site's ID. #}}
+            {{ if !is_dev }}
             <script>
                 (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
                 function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
@@ -63,6 +64,7 @@
                 r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
                 ga('create','{{ google_analytics }}');ga('send','pageview');
             </script>
+            {{ endif }}
 
             {{# Including maps if needed #}}
             {{ if include_maps }}
