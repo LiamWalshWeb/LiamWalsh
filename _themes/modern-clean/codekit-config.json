@@ -157,6 +157,15 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 16
     },
+    "\/layouts\/tribute.html" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/layouts\/tribute.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
+    },
     "\/img\/favicons\/touch-icon-ipad.png" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -167,15 +176,6 @@
       "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
       "initialSize" : 2723,
       "fileType" : 8192
-    },
-    "\/layouts\/tribute.html" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/layouts\/tribute.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
     },
     "\/scss\/module\/_sections.scss" : {
       "ignoreWasSetByUser" : 0,
@@ -444,15 +444,6 @@
       "fileType" : 4,
       "debugStyle" : 0
     },
-    "\/templates\/default.html" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/templates\/default.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
-    },
     "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -463,6 +454,15 @@
       "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png",
       "initialSize" : 1446,
       "fileType" : 8192
+    },
+    "\/templates\/default.html" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/templates\/default.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
     },
     "\/partials\/page-footer.html" : {
       "ignoreWasSetByUser" : 0,
