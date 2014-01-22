@@ -8,7 +8,7 @@ class Fieldtype_File extends Fieldtype
     if ($this->field_data) {
       $html .= "<div class='file-exists'>";
         if (File::isImage(Path::fromAsset($this->field_data))) {
-          $html .= "<img src='{$this->field_data}' height='58'>";
+          $html .= "<img src='" . Path::toAsset($this->field_data) . "' height='58'>";
         }
         $html .= "<p>".basename($this->field_data)."</p>";
         $html .= "<a class='btn btn-small btn-remove-file' href='#'>Remove</a>";

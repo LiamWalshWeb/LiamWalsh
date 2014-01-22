@@ -937,10 +937,16 @@ table.log {
   }
 }
 
-.required label, .required li {color:$red;}
+.required > label {
+  color: $red;
+}
 
 
 #publish-submit {margin-bottom: 50px;}
+
+.field {
+  position: relative;
+}
 
 .input-text, .input-date, .input-time {
   input {
@@ -1106,7 +1112,7 @@ code textarea {
 
   .ss-icon {
     right:1%;
-    top:42px;
+    top:15px;
     opacity:.5;
     position:absolute;
     z-index:2;

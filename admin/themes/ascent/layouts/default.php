@@ -65,7 +65,7 @@
           <li>
             <a href="<?php echo $app->urlFor("member")."?name={$name}"; ?>">
               <img src="<?php echo $current_user->get_gravatar(26) ?>" height="26" width="26" class="avatar" />
-              <span class="name"><?php echo $current_user->get_full_name() ?></span>
+              <span class="name"><?php echo Localization::fetch('account') ?></span>
             </a>
           </li>
           <?php endif ?>
@@ -74,7 +74,7 @@
           <li>
             <a href="<?php echo $app->config['_site_root']; ?>">
               <span class="ss-icon">link</span>
-              <span class="title">View Site</span>
+              <span class="title"><?php echo Localization::fetch('view_site')?></span>
             </a>
           </li>
           <?php endif ?>
@@ -83,7 +83,7 @@
           <li>
             <a href="<?php echo $app->urlFor("logout"); ?>">
               <span class="ss-icon">logout</span>
-              <span class="title">Logout</span>
+              <span class="title"><?php echo Localization::fetch('logout')?></span>
             </a>
           </li>
           <?php endif ?>
@@ -104,7 +104,7 @@
       <?php echo Localization::fetch('up_to_date')?>
     <?php endif ?>
   <?php else: ?>
-    <a href="http://store.statamic.com">This site is unlicensed. Please purchase and enter your license key.</a>
+    <a href="http://store.statamic.com"><?php echo Localization::fetch('site_unlicensed')?></a>
   <?php endif ?>
   </span>
 </div>

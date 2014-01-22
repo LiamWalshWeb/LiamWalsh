@@ -33,7 +33,7 @@ class Parser
     protected $callbackBlockRegex = '';
 
     protected $noparseRegex = '';
-    
+
     protected $recursiveRegex = '';
 
     protected $conditionalRegex = '';
@@ -176,7 +176,7 @@ class Parser
                         foreach ($loop_data as $loop_key => $loop_value) {
                             $index++;
 
-                            $new_loop = array($loop_key => $loop_value);
+                            $new_loop = (is_array($loop_value)) ? $loop_value : array($loop_key => $loop_value);
 
                             // is the value an array?
                             if ( ! is_array($loop_value)) {
@@ -194,6 +194,9 @@ class Parser
                             $loop_value['total_results']  = $total_results;
                             $loop_value['first']          = ($index === 1) ? true : false;
                             $loop_value['last']           = ($index === $loop_value['total_results']) ? true : false;
+
+                            // merge this local data with callback data before performing actions
+                            $loop_value = array_merge(self::$callbackData, $loop_value);
 
                             // perform standard actions
                             $str = $this->extractLoopedTags($match[2][0], $loop_value, $callback);
@@ -292,7 +295,7 @@ class Parser
      * Parses all Callback tags, and sends them through the given $callback.
      *
      * @param  string $text           Text to parse
-     * @param  array  $data  An array of data to use
+     * @param  array  $data           An array of data to use
      * @param  mixed  $callback       Callback to apply to each tag
      * @return string
      */
@@ -848,7 +851,11 @@ class Parser
         $this->variableLoopRegex = '/\{\{\s*('.$this->variableRegex.')\s*\}\}(.*?)\{\{\s*\/\1\s*\}\}/ms';
         $this->variableTagRegex = '/\{\{\s*('.$this->variableRegex.')\s*\}\}/m';
 
-        $this->callbackBlockRegex = '/\{\{\s*('.$this->variableRegex.')(\s.*?)\}\}(.*?)\{\{\s*\/\1\s*\}\}/ms';
+        // <statamic>
+        // make the space-anything after the variable regex optional, this allows
+        // users to use {{tags}} in addition to {{ tags }} -- weird, I know
+        $this->callbackBlockRegex = '/\{\{\s*('.$this->variableRegex.')(\s.*?)?\}\}(.*?)\{\{\s*\/\1\s*\}\}/ms';
+        // </statamic>
 
         $this->recursiveRegex = '/\{\{\s*\*recursive\s*('.$this->variableRegex.')\*\s*\}\}/ms';
 
@@ -1027,7 +1034,35 @@ class Parser
                     $modifier_params = array_splice($parts, 1);
                 }
 
-                if ($modifier_name == 'trim') {
+                // Array modifiers
+                if ($modifier_name == 'list') {
+                    $data = join(", ", $data);
+
+                } elseif ($modifier_name == 'spaced_list') {
+                    $data = join(" ", $data);
+
+                } elseif ($modifier_name == 'option_list') {
+                    $data = join("|", $data);
+
+                } elseif ($modifier_name == 'unordered_list') {
+                    $data = "<ol><li>" . join("</li><li>", $data) . "</li></ol>";
+
+                } elseif ($modifier_name == 'ordered_list') {
+                    $data = "<ul><li>" . join("</li><li>", $data) . "</li></ul>";
+
+                } elseif ($modifier_name == 'sentence_list') {
+                    $data = \Helper::makeSentenceList($data);
+
+                } elseif ($modifier_name == 'ampersand_list') {
+                    $data = \Helper::makeSentenceList($data, "&", false);
+
+                } elseif ($modifier_name == 'sanitize') {
+                    $data = htmlentities($data);
+
+                } elseif ($modifier_name == 'json') {
+                    $data = json_encode($data);
+
+                } elseif ($modifier_name == 'trim') {
                     $data = trim($data);
 
                 } elseif ($modifier_name == 'img') {
@@ -1048,7 +1083,8 @@ class Parser
                     $data = strtolower($data);
 
                 } else if ($modifier_name == 'slugify') {
-                    $data = \Slug::make($data);
+                    $delimiter = array_get($modifier_params, 0, '-');
+                    $data = \Slug::make($data, array('delimiter' => $delimiter));
 
                 } else if ($modifier_name == 'deslugify') {
                     $data = trim(preg_replace('~[-_]~', ' ', $data), " ");

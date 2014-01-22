@@ -109,15 +109,19 @@
         <?php if ($type == 'date'): ?>
         <div class="input-block input-date date required" data-value="<?php print date("Y-m-d", $datestamp) ?>">
           <label><?php echo Localization::fetch('publish_date') ?></label>
-          <span class="ss-icon">calendar</span>
-          <input name="page[meta][publish-date]" tabindex="<?php print tabindex(); ?>" type="text" id="publish-date"  value="<?php print date("Y-m-d", $datestamp) ?>" class="datepicker" />
+          <div class="field">
+            <span class="ss-icon">calendar</span>
+            <input name="page[meta][publish-date]" tabindex="<?php print tabindex(); ?>" type="text" id="publish-date"  value="<?php print date("Y-m-d", $datestamp) ?>" class="datepicker" />
+          </div>
         </div>
 
         <?php if (Config::getEntryTimestamps()) { ?>
         <div class="input-block input-time time required bootstrap-timepicker" data-date="<?php print date("h:i a", $timestamp) ?>" data-date-format="h:i a">
           <label><?php echo Localization::fetch('publish_time') ?></label>
-          <span class="ss-icon">clock</span>
-          <input name="page[meta][publish-time]" tabindex="<?php print tabindex(); ?>" type="text" id="publish-time" class="timepicker" value="<?php print date("h:i a", $timestamp) ?>" />
+          <div class="field">
+            <span class="ss-icon">clock</span>
+            <input name="page[meta][publish-time]" tabindex="<?php print tabindex(); ?>" type="text" id="publish-time" class="timepicker" value="<?php print date("h:i a", $timestamp) ?>" />
+          </div>
         </div>
         <?php } ?>
 

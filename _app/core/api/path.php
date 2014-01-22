@@ -146,13 +146,19 @@ class Path
         // if we don't want entry timestamps, handle things manually
         if (!Config::getEntryTimestamps()) {
             $file     = substr($path, strrpos($path, "/"));
-            $path     = preg_replace(Pattern::ORDER_KEY, "", substr($path, 0, -strlen($file) + 1));
+            
+            // trim path if needed
+            if (-strlen($file) + 1 !== 0) {
+                $path = substr($path, 0, -strlen($file) + 1);
+            }
+            
+            $path     = preg_replace(Pattern::ORDER_KEY, "", $path);
             $pattern  = (preg_match(Pattern::DATE, $file)) ? Pattern::DATE : Pattern::ORDER_KEY;
             $file     = preg_replace($pattern, "", $file);
 
             return Path::tidy($path . $file);
         }
-
+        
         // otherwise, just remove all order-keys
         return preg_replace(Pattern::ORDER_KEY, "", $path);
     }

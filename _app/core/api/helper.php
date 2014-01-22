@@ -38,12 +38,18 @@ class Helper
      * Creates a random string
      *
      * @param int  $length  Length of string to return
+     * @param bool  $expanded  When true, uses a more complete list of characters
      * @return string
      */
-    public static function getRandomString($length=32)
+    public static function getRandomString($length=32, $expanded=false)
     {
         $string = '';
         $characters = "BCDFGHJKLMNPQRSTVWXYZbcdfghjklmnpqrstvwxwz0123456789";
+        
+        if ($expanded) {
+            $characters = "ABCDEFGHIJKLMNPOQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789!@#$%^&*()~[]{}`';?><,./|+-=_";
+        }
+        
         $upper_limit = strlen($characters) - 1;
 
         for (; $length > 0; $length--) {
@@ -308,5 +314,30 @@ class Helper
         }
 
         return array_unique($output);
+    }
+    
+    
+    /**
+     * Creates a hash value for the arguments passed
+     * 
+     * @param mixed  ...  Arguments to include in hash
+     * @return string
+     */
+    public static function makeHash()
+    {
+        $args = func_get_args();
+        $data = array();
+        
+        // loop through arguments, adding flattened versions to $data
+        foreach ($args as $arg) {
+            if (is_array($arg)) {
+                array_push($data, join("|", $arg));
+            } else {
+                array_push($data, $arg);
+            }
+        }
+        
+        // return a hash of the flattened $data array
+        return md5(join('%', $data));
     }
 }

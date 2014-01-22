@@ -285,6 +285,50 @@ class ContentSet
                                 } elseif (!in_array($values, $field)) {
                                     throw new Exception("Does not fit condition");
                                 }
+                                
+                            // greater than or equal to comparisons
+                            } elseif ($instructions['type'] == "greater than or equal to") {
+                                // if this isn't set, it's not greater than or equal to
+                                if (!$field) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                                if (is_array($field) || is_array($values) || !is_numeric($field) || !is_numeric($values) || $field < $values) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                            // greater than to comparisons
+                            } elseif ($instructions['type'] == "greater than") {
+                                // if this isn't set, it's not less than
+                                if (!$field) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                                if (is_array($field) || is_array($values) || !is_numeric($field) || !is_numeric($values) || $field <= $values) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                            // less than or equal to comparisons
+                            } elseif ($instructions['type'] == "less than or equal to") {
+                                // if this isn't set, it's not less than or equal to
+                                if (!$field) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                                if (is_array($field) || is_array($values) || !is_numeric($field) || !is_numeric($values) || $field > $values) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                            // less than to comparisons
+                            } elseif ($instructions['type'] == "less than") {
+                                // if this isn't set, it's not less than
+                                if (!$field) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                                
+                                if (is_array($field) || is_array($values) || !is_numeric($field) || !is_numeric($values) || $field >= $values) {
+                                    throw new Exception("Does not fit condition");
+                                }
 
                             // not-equal comparisons
                             } elseif ($instructions['type'] == "not equal") {
@@ -321,6 +365,20 @@ class ContentSet
                                         throw new Exception("Does not fit condition");
                                     }
                                 } elseif (!in_array($field, $values)) {
+                                    throw new Exception("Does not fit condition");
+                                }
+                            } elseif ($instructions['type'] == "not in") {
+                                if (!isset($field)) {
+                                    throw new Exception("Does not fit condition");
+                                }
+
+                                if (is_array($field)) {
+                                    foreach ($field as $option) {
+                                        if (in_array($option, $values)) {
+                                            throw new Exception("Does not fit condition");
+                                        }
+                                    }
+                                } elseif (in_array($field, $values)) {
                                     throw new Exception("Does not fit condition");
                                 }
                             }
@@ -479,11 +537,12 @@ class ContentSet
      * Prepares the data for use in loops
      *
      * @param bool  $parse_content  Parse content? This is a performance hit.
+     * @param bool  $override_flag  Override `prepared` flag and re-loop?
      * @return void
      */
-    public function prepare($parse_content=true)
+    public function prepare($parse_content=true, $override_flag=false)
     {
-        if ($this->prepared) {
+        if ($this->prepared && !$override_flag) {
             return;
         }
 
@@ -536,7 +595,8 @@ class ContentSet
             'list_helpers'    => (isset($given_content['list_helpers']))    ? $given_context['list_helpers']    : true,
             'context_urls'    => (isset($given_context['context_urls']))    ? $given_context['context_urls']    : true,
             'total_found'     => (isset($given_context['total_found']))     ? $given_context['total_found']     : null,
-            'group_by_date'   => (isset($given_context['group_by_date']))   ? $given_context['group_by_date']   : null
+            'group_by_date'   => (isset($given_context['group_by_date']))   ? $given_context['group_by_date']   : null,
+            'merge_with_data' => (isset($given_context['merge_with_data'])) ? $given_context['merge_with_data'] : true
         );
 
         // set up helper variables
@@ -640,7 +700,42 @@ class ContentSet
             }
 
             // update content with supplemented data merged with global config data
-            $this->content[$content_key] = array_merge(Config::getAll(), $data);
+            if ($context['merge_with_data']) {
+                $this->content[$content_key] = array_merge(Config::getAll(), $data);
+		    } else {
+                $this->content[$content_key] = $data;
+            }
+        }
+    }
+
+
+    /**
+     * Custom-supplement content
+     *
+     * @param string $key Key to supplement
+     * @param callable $callback Callback that returns the value to set
+     * @return void
+     */
+    public function customSupplement($key, $callback)
+    {
+        foreach ($this->content as $content_key => $content_value) {
+            $this->content[$content_key][$key] = call_user_func($callback, $this->content[$content_key]['url']);
+        }
+    }
+
+
+    /**
+     * Custom-filter content
+     *
+     * @param string  $callback  Callback that, when returning false, removes content from list
+     * @return void
+     */
+    public function customFilter($callback)
+    {
+        foreach ($this->content as $content_key => $content_value) {
+            if (!call_user_func($callback, $this->content[$content_key])) {
+                unset($this->content[$content_key]);
+            }
         }
     }
 
@@ -658,6 +753,17 @@ class ContentSet
             $this->supplement();
         }
         $this->prepare($parse_content);
+        return $this->content;
+    }
+    
+    
+    /**
+     * Extracts data without altering it
+     * 
+     * @return array
+     */
+    public function extract()
+    {
         return $this->content;
     }
 }

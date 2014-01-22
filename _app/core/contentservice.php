@@ -23,7 +23,13 @@ class ContentService
         }
 
         self::$cache_loaded = true;
-        self::$cache = unserialize(File::get(BASE_PATH . "/_cache/_app/content/content.php"));
+        self::$cache = unserialize(File::get(Path::tidy(BASE_PATH . "/_cache/_app/content/content.php")));
+
+        if (!is_array(self::$cache)) {
+            // something has gone wrong, log a message and set to an empty array
+            self::$cache = array();
+            Log::fatal('Could not find or access your cache.', 'core', 'ContentService');
+        }
     }
 
 

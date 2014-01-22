@@ -15,15 +15,34 @@ class Plugin_theme extends Plugin
   public function partial()
   {
     $src = $this->fetchParam('src', null, null, false, false);
+    $extensions = array(".html", ".md", ".markdown", ".textile");
+    $output = null;
 
     if ($src) {
-      $src .= ".html";
+      foreach ($extensions as $extension) {
+        $full_src = $this->theme_root . 'partials/' . ltrim($src . $extension, '/');
+          
+        if (File::exists($full_src)) {
+          Statamic_View::$_dataStore = array_merge(Statamic_View::$_dataStore, $this->attributes);
 
-      $partial_path = $this->theme_root . 'partials/' . ltrim($src, '/');
-      if (File::exists($partial_path)) {
-        Statamic_View::$_dataStore = array_merge(Statamic_View::$_dataStore, $this->attributes);
+          $output = Parse::template(file_get_contents($full_src), Statamic_View::$_dataStore, 'Statamic_View::callback');
 
-        return Parse::template(file_get_contents($partial_path), Statamic_View::$_dataStore, 'Statamic_View::callback');
+          // parse contents if needed
+          if ($extension == ".md" || $extension == ".markdown") {
+            $output = Markdown($output);
+          } elseif ($extension == ".textile") {
+            $textile = new Textile();
+            $output = $textile->TextileThis($output);
+          }
+        }
+      }
+        
+      if (Config::get('enable_smartypants')) {
+        $output = SmartyPants($output, 2);
+      }
+        
+      if ($output) {
+        return $output;
       }
     }
 

@@ -140,7 +140,7 @@ class Plugin_Get_Files extends Plugin
             $finder->depth($depth);
         }
 
-        $matches = $finder->files();
+        $matches = $finder->files()->followLinks();
 
         /*
         |--------------------------------------------------------------------------

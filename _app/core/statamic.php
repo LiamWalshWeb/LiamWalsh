@@ -124,7 +124,8 @@ class Statamic
         ->notName('routes.yaml')
         ->notName('vanity.yaml')
         ->notName('settings.yaml')
-        ->depth(0);
+        ->depth(0)
+        ->followLinks();
 
       if (iterator_count($files) > 0) {
         foreach ($files as $file) {
@@ -153,7 +154,8 @@ class Statamic
       $theme_files = $finder->files()
         ->in($theme_files_location)
         ->name('*.yaml')
-        ->depth(0);
+        ->depth(0)
+        ->followLinks();
 
       if (iterator_count($theme_files) > 0) {
         foreach ($theme_files as $file) {
@@ -161,6 +163,19 @@ class Statamic
         }
       }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Environment Configs and Variables
+    |--------------------------------------------------------------------------
+    |
+    | Environments settings explicitly overwrite any existing settings, and
+    | therefore must be loaded late. We also set a few helper variables
+    | to make working with environments even easier.
+    |
+    */
+
+    Environment::establish($config);
 
     /*
     |--------------------------------------------------------------------------
@@ -218,8 +233,8 @@ class Statamic
     } else {
       $public_path = isset($config['_public_path']) ? $config['_public_path'] : '';
 
-      $config['theme_path'] = '_themes/'.$config['_theme']."/";
-      $config['templates.path'] = Path::tidy($public_path.'_themes/'.$config['_theme']."/");
+      $config['theme_path'] = $themes_path.'/'.$config['_theme'].'/';
+      $config['templates.path'] = Path::tidy($public_path.$themes_path.'/'.$config['_theme'].'/');
     }
 
     return $config;
@@ -334,6 +349,20 @@ class Statamic
     $app->config['username']  = $current_user ? $current_user->get_name() : FALSE;
     $app->config['is_admin']  = $current_user ? $current_user->has_role('admin') : FALSE;
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET and POST global vars
+    |--------------------------------------------------------------------------
+    |
+    | Use these at your own risk, of course. Don't be stupid.
+    |
+    */
+
+      $app->config['get'] = $_GET;
+      $app->config['post'] = $_POST;
+      $app->config['get_post'] = array_merge($_GET, $_POST);
+
     /**
      * @deprecated
      * The {{ user }} tag has been replaced by {{ member:profile }} and
@@ -345,19 +374,6 @@ class Statamic
       array('last_name' => $current_user->get_last_name()),
       array('bio' => $current_user->get_biography())
     ) : FALSE;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load Environment Configs and Variables
-    |--------------------------------------------------------------------------
-    |
-    | Environments settings explicitly overwrite any existing settings, and
-    | therefore must be loaded late. We also set a few helper variables
-    | to make working with environments even easier.
-    |
-    */
-
-    Environment::establish();
 
     $app->config['homepage'] = Config::getSiteRoot();
   }
@@ -1231,7 +1247,10 @@ class Statamic
   {
     $listings = array();
     $finder = new Finder();
-    $files  = $finder->files()->in(Config::getContentRoot())->name('fields.yaml');
+    $files  = $finder->files()
+      ->in(Config::getContentRoot())
+      ->name('fields.yaml')
+      ->followLinks();
 
     foreach ($files as $file) {
       $slug = str_replace(Config::getContentRoot().'/', '', $file->getPath());

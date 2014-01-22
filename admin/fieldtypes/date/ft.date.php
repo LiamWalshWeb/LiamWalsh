@@ -12,8 +12,10 @@ class Fieldtype_date extends Fieldtype
       'data-value' => HTML::convertSpecialCharacters($this->field_data)
     );
 
-    $html  =  "<span class='ss-icon'>date</span>";
+    $html  = '<div class="field">';
+    $html .=  "<span class='ss-icon'>date</span>";
     $html .= HTML::makeInput('text', $attributes, $this->is_required);
+    $html .= "</div>";
 
     return $html;
   }

@@ -49,7 +49,7 @@ class URL
             $url = Config::getSiteRoot() . '/' . $url;
         }
 
-        return self::format($url);
+        return self::sanitize(self::format($url));
     }
 
 
@@ -121,5 +121,17 @@ class URL
     public static function tidy($url)
     {
         return Path::tidy($url);
+    }
+    
+    
+    /**
+     * Sanitizes a URL
+     * 
+     * @param string  $url  URL to sanitize
+     * @return string
+     */
+    public static function sanitize($url)
+    {
+        return htmlentities(urldecode($url));
     }
 }

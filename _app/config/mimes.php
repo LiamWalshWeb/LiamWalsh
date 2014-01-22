@@ -93,5 +93,6 @@ return array(
     'xl'    => 'application/excel',
     'eml'   => 'message/rfc822',
     'json'  => array('application/json', 'text/json'),
+    'svg'   => 'image/svg+xml'
 
 );

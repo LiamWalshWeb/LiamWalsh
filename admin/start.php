@@ -29,6 +29,8 @@ $admin_app = new \Slim\Slim(array_merge($config, array('view' => new Statamic_Vi
 
 $admin_app->config = $config;
 
+$admin_app->config['_cookies.secret_key'] = Cookie::getSecretKey();
+
 /*
 |--------------------------------------------------------------------------
 | Cookies for the Monster
@@ -38,9 +40,12 @@ $admin_app->config = $config;
 |
 */
 
-$admin_app->add(new \Slim\Middleware\SessionCookie(
-  array('expires' => $config['_cookies.lifetime']))
-);
+//$admin_app->add(new \Slim\Middleware\SessionCookie(
+//  array('expires' => $config['_cookies.lifetime']))
+//);
+session_cache_limiter(false);
+session_start();
+
 
 /*
 |--------------------------------------------------------------------------

@@ -35,20 +35,20 @@ class Hook
             $files = $finder->files()
                 ->in($addons_path)
                 ->in(APP_PATH . '/core/tags')
-                ->name("hooks.*.php");
+                ->name("hooks.*.php")
+                ->followLinks();
 
-            foreach ($files as $file) {
-
+            foreach ($files as $file) {			
                 require_once $file->getRealPath();
+                
+                if (!is_callable(array('Hooks_' . $file->getRelativePath(), $namespace . '__' . $hook), false)) {
+                    continue;
+                }
 
                 $class_name = 'Hooks_' . $file->getRelativePath();
                 $hook_class = new $class_name();
 
                 $method = $namespace . '__' . $hook;
-
-                if ( ! method_exists($hook_class, $method)) {
-                    continue;
-                }
 
                 if ($type == 'cumulative') {
                     $response = $hook_class->$method($data);

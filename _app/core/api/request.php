@@ -207,7 +207,7 @@ class Request
      */
     public static function getPath($default=NULL)
     {
-        return Helper::pick(\Slim\Slim::getInstance()->request()->getPath(), $default);
+        return Helper::pick(URL::sanitize(\Slim\Slim::getInstance()->request()->getPath()), $default);
     }
 
 
@@ -219,7 +219,7 @@ class Request
      */
     public static function getURL($default=NULL)
     {
-        return Helper::pick(\Slim\Slim::getInstance()->request()->getUrl(), $default);
+        return Helper::pick(URL::sanitize(\Slim\Slim::getInstance()->request()->getUrl()), $default);
     }
 
 
@@ -243,7 +243,7 @@ class Request
      */
     public static function getReferrer($default=NULL)
     {
-        return Helper::pick(\Slim\Slim::getInstance()->request()->getReferrer(), $default);
+        return Helper::pick(URL::sanitize(\Slim\Slim::getInstance()->request()->getReferrer()), $default);
     }
 
 
@@ -267,6 +267,6 @@ class Request
      */
     public static function getResourceURI($default=NULL)
     {
-        return Helper::pick(\Slim\Slim::getInstance()->request()->getResourceUri(), $default);
+        return Helper::pick(URL::sanitize(\Slim\Slim::getInstance()->request()->getResourceUri()), $default);
     }
 }

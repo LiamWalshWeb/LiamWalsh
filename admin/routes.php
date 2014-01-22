@@ -115,23 +115,24 @@ $admin_app->post('/login', function() use ($admin_app) {
   $password = $login['password'];
 
   $errors = array();
+
   // Auth login
   // if success direct to admin homepage
   if (Statamic_Auth::login($username, $password)) {
 
     $user = Statamic_Auth::get_user($username);
 
-    if ( ! $user->is_password_encrypted()) {
-      $user->set_password($user->get_password(), true);
+    if ( ! $user->is_password_hashed()) {
+      $user->set_password($password, true);
       $user->save();
-      $errors = array('encrypted' => 'Password has been encrypted. Please login again.');
-    } else {
-      $redirect_to = Config::get('_admin_start_page', 'pages');
-      $app->redirect($app->urlFor($redirect_to));
+      Statamic_Auth::login($username, $password);
     }
 
+    $redirect_to = Config::get('_admin_start_page', 'pages');
+    $app->redirect($app->urlFor($redirect_to));
+
   } else {
-    $errors = array('error' => 'Incorrect username or password. Try again.');
+    $errors = array('error' => Localization::fetch('incorrect_username_password'));
   }
 
   $template_list = array("login");
@@ -342,7 +343,7 @@ $admin_app->post('/publish', function() use ($admin_app) {
       $errors = array();
 
       if ( ! $form_data['yaml']['title'] || $form_data['yaml']['title'] == '') {
-        $errors['title'] = 'is required';
+        $errors['title'] = Localization::fetch('is_required');
       }
 
       $slug = ($form_data['meta']['slug'] === '/') ? '/' : Slug::make($form_data['meta']['slug']);
@@ -351,20 +352,20 @@ $admin_app->post('/publish', function() use ($admin_app) {
       if ($index_file) {
         // some different validation rules
         if ($slug == '') {
-          $errors['slug'] = 'is required';
+          $errors['slug'] = Localization::fetch('is_required');
         } else {
           if ($slug != $form_data['original_slug']) {
             if ($form_data['type'] == 'none') {
               $file = $check_file = $content_root."/".$path."/".$slug."/page.".$content_type;
               $folders = Statamic::get_content_tree($path,1,1,false,false,true);
               if (Statamic_Validate::folder_slug_exists($folders, $slug)) {
-                $errors['slug'] = 'already exists';
+                $errors['slug'] = Localization::fetch('already_exists');
               }
             } else {
               $file = $content_root."/".dirname($path)."/page.".$content_type;
               $check_file = str_replace($form_data['original_slug'], $slug, $file);
               if (File::exists($check_file)) {
-                $errors['slug'] = 'already exists';
+                $errors['slug'] = Localization::fetch('already_exists');
               }
             }
 
@@ -373,7 +374,7 @@ $admin_app->post('/publish', function() use ($admin_app) {
       } elseif (isset($form_data['type']) && $form_data ['type'] == 'none') {
         $file = $content_root."/".$path."/".$slug.".".$content_type;
         if (File::exists($file)) {
-          $errors['slug'] = 'already exists';
+          $errors['slug'] = Localization::fetch('already_exists');
         }
       } else {
         if (isset($form_data['new'])) {
@@ -383,12 +384,12 @@ $admin_app->post('/publish', function() use ($admin_app) {
         }
 
         if ($slug == '') {
-          $errors['slug'] = 'is required';
+          $errors['slug'] = Localization::fetch('is_required');
         } else {
           // do we have this slug already?
           if (isset($form_data['new']) || $slug != $form_data['original_slug']) {
             if (Statamic_Validate::content_slug_exists($entries, $slug)) {
-              $errors['slug'] = 'already exists';
+              $errors['slug'] = Localization::fetch('already_exists');
             }
           }
         }
@@ -401,19 +402,19 @@ $admin_app->post('/publish', function() use ($admin_app) {
           // STANDARDIZE INPUT
           $datestamp = $form_data['meta']['publish-date'];
           if ($datestamp == '') {
-            $errors['datestamp'] = 'is required';
+            $errors['datestamp'] = Localization::fetch('is_required');
           }
 
           if (Config::getEntryTimestamps()) {
             $timestamp = $form_data['meta']['publish-time'];
             if ($timestamp == '') {
-              $errors['timestamp'] = 'is required';
+              $errors['timestamp'] = Localization::fetch('is_required');
             }
           }
         } elseif ($form_data['type'] == 'number') {
           $numeric = $form_data['meta']['publish-numeric'];
           if ($numeric == '') {
-            $errors['numeric'] = 'is required';
+            $errors['numeric'] = Localization::fetch('is_required');
           }
         }
       }
@@ -807,7 +808,12 @@ $admin_app->post('/publish', function() use ($admin_app) {
 
     if ($file !== $new_file) {
       if ($index_file) {
-        rename(dirname($file), dirname($new_file));
+        // If the page is an index file but not in a directory we want to rename the file not the parent directory.
+        if (dirname($file) != dirname($new_file)) {
+          rename(dirname($file), dirname($new_file));
+        } else {
+          rename($file, $new_file);
+        }
       } else {
         rename($file, $new_file);
       }
@@ -824,11 +830,11 @@ $admin_app->post('/publish', function() use ($admin_app) {
   */
 
   if ($form_data['type'] == 'none') {
-    $app->flash('success', 'Page saved successfully!');
+    $app->flash('success', Localization::fetch('page_saved'));
     $url = $app->urlFor('pages')."?path=".$folder;
     $app->redirect($url);
   } else {
-    $app->flash('success', 'Entry saved successfully!');
+    $app->flash('success', Localization::fetch('entry_saved'));
     $url = $app->urlFor('entries')."?path=".$folder;
     $app->redirect($url);
   }
@@ -851,9 +857,9 @@ $admin_app->map('/delete/entry', function() use ($admin_app) {
   }
 
   if ($count > 1) {
-    $admin_app->flash('success', 'Entries successfully deleted!');
+    $admin_app->flash('success', Localization::fetch('entries_deleted'));
   } else {
-    $admin_app->flash('success', 'Entry successfully deleted!');
+    $admin_app->flash('success', Localization::fetch('entry_deleted'));
   }
 
   $url = $admin_app->urlFor('entries')."?path=".dirname($path);
@@ -875,7 +881,7 @@ $admin_app->get('/delete/page', function() use ($admin_app) {
 
   if ($type == "folder" && Folder::exists($path)) {
     Folder::delete($path);
-    $admin_app->flash('success', 'Page successfully deleted!');
+    $admin_app->flash('success', Localization::fetch('page_deleted'));
 
   } else {
 
@@ -885,9 +891,9 @@ $admin_app->get('/delete/page', function() use ($admin_app) {
 
     if (File::exists($path)) {
       File::delete($path);
-      $admin_app->flash('success', 'Page successfully deleted!');
+      $admin_app->flash('success', Localization::fetch('page_deleted'));
     } else {
-      $admin_app->flash('failure', 'Unable to delete page.');
+      $admin_app->flash('failure', Localization::fetch('page_unable_delete'));
     }
   }
 
@@ -937,6 +943,7 @@ $admin_app->get('/publish', function() use ($admin_app) {
       if ($type == 'none') {
         $data['folder'] = $path;
         $data['full_slug'] = $path;
+        $data['slug'] = 'page';
       }
 
     } else {
@@ -944,7 +951,7 @@ $admin_app->get('/publish', function() use ($admin_app) {
       $folder = substr($path, 0, (-1*strlen($page))-1);
 
       if ( ! Content::exists($page, $folder)) {
-        $app->flash('error', 'Content not found!');
+        $app->flash('error', Localization::fetch('content_not_found'));
         $url = $app->urlFor('pages');
         $app->redirect($url);
 
@@ -981,7 +988,6 @@ $admin_app->get('/publish', function() use ($admin_app) {
       $data['status'] = array_get($data, 'status', Slug::getStatus($page));
     }
 
-    $content_root = $content_root;
     if ($data['slug'] != 'page' && File::exists("{$content_root}/{$folder}/fields.yaml")) {
 
       $fields_raw = file_get_contents("{$content_root}/{$folder}/fields.yaml");
@@ -1119,16 +1125,13 @@ $admin_app->get('/publish', function() use ($admin_app) {
   |
   */
 
-  $data['status_message']  = (isset($new)) ? Localization::fetch('new') : Localization::fetch('editing');
-  $data['status_message'] .= ' ';
-
   if ($data['type'] === 'none' || ($data['type'] === 'none' && $original_slug !== 'page')) {
-    $data['status_message'] .= Localization::fetch('page', null, true);
+    $data['status_message']  = (isset($new)) ? Localization::fetch('editing_page') : Localization::fetch('edit_page');
     $data['identifier'] = ($data['page'] === 'page') ? Path::pretty($data['folder']) : Path::pretty($data['full_slug']);
-  } else {
-    $data['status_message'] .= Localization::fetch('entry', null, true);
-    $data['identifier'] = ($new) ? Path::pretty($folder . '/') : Path::pretty($data['full_slug']);
-  }
+    } else {
+    $data['status_message']  = (isset($new)) ? Localization::fetch('new_entry') : Localization::fetch('editing_entry');
+    $data['identifier'] = (isset($new)) ? Path::pretty($folder . '/') : Path::pretty($data['full_slug']);
+ }
 
   if ($new) $data['status_message'] .=  ' ' . Localization::fetch('in', null, true);
 
@@ -1170,6 +1173,7 @@ $admin_app->post('/member', function() use ($admin_app) {
   $name = $admin_app->request()->get('name');
 
   $form_data = $admin_app->request()->post('member');
+  $original_name = (isset($form_data['original_name'])) ? $form_data['original_name'] : '';
 
   if ($form_data) {
     $errors = array();
@@ -1177,35 +1181,37 @@ $admin_app->post('/member', function() use ($admin_app) {
     if (isset($form_data['new'])) {
       $name = $form_data['name'];
       if ($name == '') {
-        $errors['name'] = 'is required';
-      } else {
-        if (Statamic_Auth::user_exists($name)) {
-          $errors['name'] = 'is already taken';
-        }
+        $errors[Localization::fetch('username')] = Localization::fetch('is_required');
+      } elseif (!statamic_user::is_valid_name($name)) {
+        $errors[Localization::fetch('username')] = Localization::fetch('already_exists');
+      } elseif (Statamic_Auth::user_exists($name)) {
+        $errors[Localization::fetch('username')] = Localization::fetch('already_exists');
       }
       if ((!isset($form_data['yaml']['password'])) || (!isset($form_data['yaml']['password']))) {
-        $errors['password'] = 'and confirmation is required';
+        $errors[Localization::fetch('password')] = Localization::fetch('password_confirmation_required');
       } else {
         if ($form_data['yaml']['password'] == '') {
           $errors['password'] = 'must be at least 1 character';
         } elseif ($form_data['yaml']['password'] != $form_data['yaml']['password_confirmation']) {
-          $errors['password'] = 'and confirmation do not match';
+          $errors[Localization::fetch('password')] = Localization::fetch('password_confirmation_match');
         }
       }
     } else {
       if ($form_data['name'] <> $form_data['original_name']) {
-        if (Statamic_Auth::user_exists($form_data['name'])) {
-          $errors['name'] = 'is already taken';
+        if (!statamic_user::is_valid_name($form_data['name'])) {
+          $errors[Localization::fetch('username')] = Localization::fetch('already_exists');
+        } elseif (Statamic_Auth::user_exists($form_data['name'])) {
+          $errors[Localization::fetch('username')] = Localization::fetch('already_exists');
         }
       }
 
       if (isset($form_data['yaml']['password'])) {
         if ((!isset($form_data['yaml']['password'])) || (!isset($form_data['yaml']['password']))) {
-          $errors['password'] = 'and confirmation is required';
+          $errors[Localization::fetch('password')] = Localization::fetch('password_confirmation_required');
         } else {
           if ($form_data['yaml']['password'] <> '') {
             if ($form_data['yaml']['password'] != $form_data['yaml']['password_confirmation']) {
-              $errors['password'] = 'and confirmation do not match';
+              $errors['password'] =  'and confirmation do not match';
             }
           }
         }
@@ -1224,7 +1230,7 @@ $admin_app->post('/member', function() use ($admin_app) {
       $data['roles'] = $form_data['yaml']['roles'];
       $data['biography'] =  $form_data['biography'];
       $data['original_name'] = $form_data['original_name'];
-      $data['status_message'] = 'Creating new member';
+      $data['status_message'] = Localization::fetch('creating_member');
 
       $template_list = array("member");
       Statamic_View::set_templates(array_reverse($template_list));
@@ -1238,7 +1244,7 @@ $admin_app->post('/member', function() use ($admin_app) {
       $user = new Statamic_User(array());
       $user->set_name($name);
     } else {
-      $user = Statamic_User::load($name);
+      $user = Statamic_User::load($original_name);
     }
 
     $user->set_first_name($form_data['yaml']['first_name']);
@@ -1259,12 +1265,16 @@ $admin_app->post('/member', function() use ($admin_app) {
     $user->save();
 
     // Rename?
-    if (!isset($form_data['new'])) {
-      $user->rename($form_data['name']);
+    if (!isset($form_data['new']) && $form_data['name'] <> $form_data['original_name']) {
+      try {
+        $user->rename($form_data['name']);
+      } catch (Exception $e) {
+        rd($e->getMessage());
+      }
     }
 
     // REDIRECT
-    $admin_app->flash('success', 'Member successfully saved!');
+    $admin_app->flash('success', Localization::fetch('member_saved'));
 
     $url = (CP_Helper::show_page('members')) ? $admin_app->urlFor('members') : $admin_app->urlFor('pages');
 
@@ -1302,7 +1312,7 @@ $admin_app->get('/member', function() use ($admin_app) {
     $data['email']          = '';
     $data['roles']          = '';
     $data['biography']      = '';
-    $data['status_message'] = "Creating new member";
+    $data['status_message'] = Localization::fetch('creating_member');
 
   } else {
     $user = Statamic_Auth::get_user($name);
@@ -1317,7 +1327,7 @@ $admin_app->get('/member', function() use ($admin_app) {
     $data['last_name'] = $user->get_last_name();
     $data['email'] = $user->get_email();
     $data['roles'] = $user->get_roles_list();
-    $data['status_message'] = "Editing member: ";
+    $data['status_message'] = Localization::fetch('editing_member');
 
     $data['biography'] =  $user->get_biography_raw();
 
@@ -1345,7 +1355,7 @@ $admin_app->get('/deletemember', function() use ($admin_app) {
   }
 
   // Redirect
-  $admin_app->flash('info', 'Member deleted');
+  $admin_app->flash('info', Localization::fetch('member_deleted'));
   $url = $admin_app->urlFor('members');
   $admin_app->redirect($url);
 })->name('deletemember');
@@ -1551,7 +1561,8 @@ $admin_app->get('/system/logs', function() use ($admin_app) {
     $logs = array_values($data['logs']);
 
     // check for a log file to capture
-    $data['load_date'] = (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])) ? $_GET['date'] : $logs[0]['raw_date'];
+    $load_date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
+    $data['load_date'] = ($load_date && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date'])) ? $_GET['date'] : $logs[0]['raw_date'];
 
     // load log
     try {
@@ -1577,6 +1588,7 @@ $admin_app->get('/system/logs', function() use ($admin_app) {
       }
 
       $data['records_exist'] = (bool) count($data['log']);
+      uksort($data['log'], array('Helper', 'compareValues'));  // sort the logs which may be out of order
       $data['log'] = array_reverse($data['log']);
     } catch (Exception $e) {
       // no extra steps needed
@@ -1647,7 +1659,7 @@ $admin_app->notFound(function() use ($admin_app) {
   authenticateForRole('admin');
   doStatamicVersionCheck($admin_app);
 
-  $admin_app->flash('error', "That page did not exist, so we sent you here instead.");
+  $admin_app->flash('error', Localization::fetch('admin_404'));
   $redirect_to = Config::get('_admin_404_page', $admin_app->urlFor('pages'));
   $admin_app->redirect($redirect_to);
 

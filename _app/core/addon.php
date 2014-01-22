@@ -34,6 +34,12 @@ abstract class Addon
     public $cache;
 
     /**
+     * Contextual blink object for this add-on
+     * @public ContextualBlink
+     */
+    public $blink;
+
+    /**
      * Related tasks object if it exists
      * @public Tasks
      */
@@ -90,6 +96,7 @@ abstract class Addon
         $this->css        = ContextualCSS::create($this);
         $this->js         = ContextualJS::create($this);
         $this->assets     = ContextualAssets::create($this);
+        $this->blink      = ContextualBlink::create($this);
     }
 
 
@@ -141,19 +148,62 @@ abstract class Addon
 
 
     /**
+     * Returns the config path for this add-on
+     * 
+     * @return string
+     */
+    public function getConfigPath()
+    {
+        return Config::getConfigPath() . '/add-ons/' . $this->addon_name . '/';
+    }
+
+
+    /**
      * Retrieves the config file for this Add-on
      *
      * @return mixed
      */
     public function getConfig()
     {
-        if (File::exists($file = Config::getConfigPath() . '/add-ons/' . $this->addon_name . '/' . $this->addon_name . '.yaml')) {
+        if (File::exists($file = $this->getConfigPath() . $this->addon_name . '.yaml')) {
             return YAML::parseFile($file);
         } elseif (File::exists($file = Config::getConfigPath() . '/add-ons/' . $this->addon_name . '.yaml')) {
             return YAML::parseFile($file);
         }
 
         return null;
+    }
+
+
+    /**
+     * Loads a given config file for this add-on
+     * 
+     * @param string  $path  Path to load relative to this add-on's config directory
+     * @param boolean  $log_error  Write an error message on fail?
+     * @param boolean  $throw_exception  Throw an exception on fail?
+     * @return array
+     * @throws Exception
+     */
+    public function loadConfigFile($path, $log_error=false, $throw_exception=false)
+    {
+        $path = trim($path);
+        $path .= (preg_match('/\.y[a]?ml$/i', $path, $matches)) ? '' : '.yaml';
+        
+        $full_path = $this->getConfigPath() . $path;
+        
+        if (!File::exists($full_path)) {
+            if ($log_error) {
+                $this->log->debug("Could not load config `" . $path . "`, file does not exist.");
+            }
+            
+            if ($throw_exception) {
+                throw new Exception("Could not load config `" . $path . "`, file does not exist.");
+            }
+            
+            return array();
+        }
+        
+        return YAML::parseFile($full_path);
     }
 
 
@@ -704,9 +754,13 @@ class ContextualCache extends ContextualObject
      */
     public function listAll($folder="")
     {
-        $path   = $this->contextualize($folder . "/");
+        $path = $this->contextualize($folder . "/");
+
         $finder = new Finder();
-        $files  = $finder->files()->in($path);
+        $files  = $finder->files()
+            ->in($path)
+            ->followLinks();
+
         $output = array();
 
         foreach ($files as $file) {
@@ -739,12 +793,20 @@ class ContextualCache extends ContextualObject
      * @return void
      */
     public function purgeOlderThan($seconds, $folder="")
-    {
+    {	    
         $this->isValidFilename($folder);
 
-        $path   = $this->contextualize($folder . "/");
+        $path  = $this->contextualize($folder . "/");
+	    
+	  if ($folder && !Folder::exists($path)) {
+		  return;
+	  }
+	    
         $finder = new Finder();
-        $files  = $finder->files()->in($path)->date("<= " . Date::format("F j, Y H:i:s", time() - $seconds));
+        $files  = $finder->files()
+            ->in($path)
+            ->date("<= " . Date::format("F j, Y H:i:s", time() - $seconds))
+            ->followLinks();
 
         foreach ($files as $file) {
             File::delete($file);
@@ -762,10 +824,17 @@ class ContextualCache extends ContextualObject
     public function purgeFromBefore($date, $folder="")
     {
         $this->isValidFilename($folder);
+        $path = $this->contextualize($folder . "/");
 
-        $path   = $this->contextualize($folder . "/");
+        if ($folder && !Folder::exists($path)) {
+            return;
+        }
+
         $finder = new Finder();
-        $files  = $finder->files()->in($path)->date("< " . Date::format("F j, Y H:i:s", $date));
+        $files  = $finder->files()
+            ->in($path)
+            ->date("< " . Date::format("F j, Y H:i:s", $date))
+            ->followLinks();
 
         foreach ($files as $file) {
             File::delete($file);
@@ -1006,5 +1075,73 @@ class ContextualAssets extends ContextualObject
     public static function create(Addon $context)
     {
         return new ContextualAssets($context);
+    }
+}
+
+
+
+/**
+ * ContextualBlink
+ * Store data only until the current page is done rendering
+ */
+class ContextualBlink extends ContextualObject
+{
+    /**
+     * Where pocket blink gets stored
+     */
+    public static $data = array();
+    
+
+    /**
+     * Gets blink data for a variable, or the $default if variable isn't set
+     * 
+     * @param string  $key  Key to retrieve
+     * @param mixed  $default  Default value to return
+     * @return void
+     */
+    public function get($key, $default=null)
+    {
+        if ($this->exists($key)) {
+            return self::$data[$key];
+        }
+        
+        return $default;
+    }
+    
+    
+    /**
+     * Sets blink data for a variable
+     * 
+     * @param string  $key  Key to set
+     * @param mixed  $value  Value to set
+     * @return void
+     */
+    public function set($key, $value)
+    {
+        self::$data[$key] = $value;
+    }
+    
+    
+    /**
+     * Checks if a $key exists in the blink data
+     * 
+     * @param string  $key  Key to set
+     * @return void
+     */
+    public function exists($key)
+    {
+        return isset(self::$data[$key]);
+    }
+
+
+    /**
+     * Creates a new ContextualBlink
+     *
+     * @param Addon  $context  Addon context for this object
+     * @return ContextualBlink
+     */
+    public static function create(Addon $context)
+    {
+        return new ContextualBlink($context);
     }
 }

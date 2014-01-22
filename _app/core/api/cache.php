@@ -270,7 +270,7 @@ class Cache
                     }
                 }
             }
-//rd($cache);
+
             if (File::put($cache_file, serialize($cache)) === false) {
                 if (!File::isWritable($cache_file)) {
                     Log::fatal("Cache folder is not writable.", "core", "content-cache");
@@ -283,6 +283,17 @@ class Cache
 
         File::put($time_file, $now);
         return true;
+    }
+
+
+    /**
+     * Get last cache update time
+     * 
+     * @return int
+     */
+    public static function getLastCacheUpdate()
+    {
+        return filemtime(BASE_PATH . "/_cache/_app/content/content.php");
     }
 
 

@@ -1,6 +1,6 @@
 <?php
 
-const STATAMIC_VERSION = '1.6.4';
+const STATAMIC_VERSION = '1.6.7';
 const APP_PATH = __DIR__;
 
 /*
@@ -83,6 +83,7 @@ require_once __DIR__ . '/vendor/Lex/Parser.php';
 
 require_once __DIR__ . '/core/api/cache.php';
 require_once __DIR__ . '/core/api/config.php';
+require_once __DIR__ . '/core/api/cookie.php';
 require_once __DIR__ . '/core/api/content.php';
 require_once __DIR__ . '/core/api/date.php';
 require_once __DIR__ . '/core/api/email.php';
@@ -94,6 +95,7 @@ require_once __DIR__ . '/core/api/hook.php';
 require_once __DIR__ . '/core/api/html.php';
 require_once __DIR__ . '/core/api/localization.php';
 require_once __DIR__ . '/core/api/parse.php';
+require_once __DIR__ . '/core/api/password.php';
 require_once __DIR__ . '/core/api/path.php';
 require_once __DIR__ . '/core/api/session.php';
 require_once __DIR__ . '/core/api/pattern.php';

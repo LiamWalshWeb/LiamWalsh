@@ -201,7 +201,8 @@ class Slug
      */
     public static function getStatus($slug)
     {
-        $slug = trim($slug, '/');
+        $slugParts = explode('/', $slug);
+        $slug = end($slugParts);
 
         if (substr($slug, 0, 2) === "__") {
             return 'draft';

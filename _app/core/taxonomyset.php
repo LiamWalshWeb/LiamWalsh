@@ -48,21 +48,28 @@ class TaxonomySet
     {
         $folders = array();
         $min_count = 0;
+        
+        $given_filters = $filters;
+        
+        $filters = array(
+            'min_count'    => (isset($given_filters['min_count']))    ? $given_filters['min_count'] : null,
+            'folders'      => (isset($given_filters['folders']))      ? $given_filters['folders'] : null,
+            'show_future'  => (isset($given_filters['show_future']))  ? $given_filters['show_future'] : null,
+            'show_past'    => (isset($given_filters['show_past']))    ? $given_filters['show_past'] : null,
+            'show_hidden'  => (isset($given_filters['show_hidden']))  ? $given_filters['show_hidden'] : null
+        );
 
-        if (isset($filters['folders'])) {
-            $folders = Helper::ensureArray($filters['folders']);
+        // fix folders to be an array
+        if (!is_null($filters['folders'])) {
+            $filters['folders'] = Helper::ensureArray($filters['folders']);
         }
 
-        if (isset($filters['min_count'])) {
+        if (!is_null($filters['min_count'])) {
             $min_count = (int) $filters['min_count'];
         }
 
         $data = $this->data;
         foreach ($data as $value => $parts) {
-            $filters = array(
-                'folders' => $folders
-            );
-
             $parts['content']->filter($filters);
             $parts['count'] = $parts['content']->count();
 

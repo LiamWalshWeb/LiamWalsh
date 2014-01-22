@@ -7,7 +7,7 @@ abstract class AbstractClient implements ClientInterface
     protected $ignoreErrors = true;
     protected $maxRedirects = 5;
     protected $timeout = 5;
-    protected $verifyPeer = true;
+    protected $verifyPeer = false;
     protected $proxy;
 
     public function setIgnoreErrors($ignoreErrors)

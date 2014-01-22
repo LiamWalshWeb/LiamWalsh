@@ -12,6 +12,8 @@
 */
 $config = Statamic::loadAllConfigs();
 
+$config['_cookies.secret_key'] = Cookie::getSecretKey();
+
 $config['log_enabled'] = TRUE;
 $config['log.level'] = Log::convert_log_level($config['_log_level']);
 $config['log.writer'] = new Statamic_Logwriter(
@@ -51,6 +53,17 @@ $app->config = $config;
 
 /*
 |--------------------------------------------------------------------------
+| Localization Initialization
+|--------------------------------------------------------------------------
+|
+| Starts up translations for any in-code language messages that need it
+|
+*/
+
+Localization::initialize();
+
+/*
+|--------------------------------------------------------------------------
 | Vanity URLs
 |--------------------------------------------------------------------------
 |
@@ -68,9 +81,9 @@ Statamic::processVanityURLs($config);
 |
 */
 
-$app->add(new \Slim\Middleware\SessionCookie(
-        array('expires' => $config['_cookies.lifetime']))
-);
+session_cache_limiter(false);
+session_start();
+
 
 /*
 |--------------------------------------------------------------------------

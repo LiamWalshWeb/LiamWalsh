@@ -27,7 +27,7 @@ class statamic_auth
 
     if ($u && $u->correct_password($password)) {
       $app = \Slim\Slim::getInstance();
-      $hash = $username.":".md5($u->get_encrypted_password().$app->config['_cookies.secret_key']);
+      $hash = $username.":".md5($u->get_hashed_password().$app->config['_cookies.secret_key']);
       $expire = $app->config['_cookies.lifetime'];
       $app->setEncryptedCookie('stat_auth_cookie', $hash, $expire);
 
@@ -79,7 +79,7 @@ class statamic_auth
       $user = self::get_user($username);
 
       if ($user) {
-        $hash = $username.":".md5($user->get_encrypted_password().$app->config['_cookies.secret_key']);
+        $hash = $username.":".md5($user->get_hashed_password().$app->config['_cookies.secret_key']);
 
         if ($cookie === $hash) {
           # validated

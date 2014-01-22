@@ -236,7 +236,7 @@ abstract class Fieldtype extends Addon
                 $field->fieldname  = $fieldname;
                 $field->field_data = $field_data;
                 $field->settings   = $settings;
-                $field_data        = $field->process();
+                $field_data        = $field->process($settings);
             }
 
         }

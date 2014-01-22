@@ -13,9 +13,11 @@ class Plugin_taxonomy extends Plugin
 
         // now filter that down to just what we want
         $taxonomy_set->filter(array(
-            "folders"   => $folders,
+            "folders"     => $folders,
             "show_hidden" => false,
-            "min_count" => $this->fetchParam('min_count', 1, 'is_numeric')
+            "min_count"   => $this->fetchParam('min_count', 1, 'is_numeric'),
+            "show_future" => $this->fetchParam('show_future', false, null, true, false),
+            "show_past"   => $this->fetchParam('show_past', true, null, true, false)
         ));
 
         // sort as needed

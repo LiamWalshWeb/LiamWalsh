@@ -12,7 +12,7 @@
 
   <div id="status-bar">
     <div class="status-block">
-      <span class="muted">Viewing all <?php echo Localization::fetch('entries', null, true)?> <?php echo Localization::fetch('in')?></span>
+      <span class="muted"><?php echo Localization::fetch('viewing_all')?> <?php echo Localization::fetch('entries', null, true)?> <?php echo Localization::fetch('in')?></span>
       <span class="folder">/<?php print $folder; ?>/</span>
     </div>
     <ul>
@@ -74,13 +74,13 @@
       <div class="input-status block-action pull-left" data-bind="css: {disabled: selectedEntries().length < 1}">
         <div class="input-select-wrap">
           <select data-bind="enable: selectedEntries().length > 0, selectedOptions: selectedAction">
-            <option value="">Take Action</option>
-            <option value="delete">Delete Entries</option>
+            <option value=""><?php echo Localization::fetch('take_action')?></option>
+            <option value="delete"><?php echo Localization::fetch('delete_entries')?></option>
           </select>
         </div>
       </div>
 
-      <input type="submit" class="btn pull-left" data-bind="visible: selectedAction() != '' && selectedEntries().length > 0" value="Yes, I'm Sure">
+       <input type="submit" class="btn pull-left" data-bind="visible: selectedAction() != '' && selectedEntries().length > 0" value="<?php echo Localization::fetch('confirm_delete')?>">
     </div>
   </form>
 

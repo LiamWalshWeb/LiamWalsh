@@ -151,9 +151,6 @@ class Statamic_View extends \Slim\View
    */
   public static function callback($name, $attributes, $content)
   {
-    $parser = new Lex\Parser();
-    $parser->cumulativeNoparse(true);
-
     $output = null;
 
     # single function plugins
@@ -213,7 +210,7 @@ class Statamic_View extends \Slim\View
       }
 
       if (is_array($output)) {
-        $output = $parser->parse($content, $output, array('Statamic_View', 'callback'));
+        $output = Parse::template($content, $output);
       }
     }
 

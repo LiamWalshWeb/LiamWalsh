@@ -87,7 +87,7 @@
 
               <?php if (Config::get('_enable_delete_page', true)):?>
                 <div class="page-delete">
-                  <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="Are you sure you wish to delete this page?">
+                  <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="<?php echo Localization::fetch('pagedelete_confirm')?>">
                     <span class="ss-icon">delete</span>
                   </a>
                 </div>
@@ -155,7 +155,7 @@
 
         <?php if (Config::get('_enable_delete_page', true)):?>
         <div class="page-delete">
-          <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="Are you sure you wish to delete this page?">
+          <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="<?php echo Localization::fetch('pagedelete_confirm')?>">
             <span class="ss-icon">delete</span>
           </a>
         </div>
