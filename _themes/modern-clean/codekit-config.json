@@ -283,15 +283,6 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
     },
-    "\/partials\/maintenance.html" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/partials\/maintenance.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
-    },
     "\/img\/favicons\/touch-icon-iphone4.png" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -302,6 +293,15 @@
       "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone4.png",
       "initialSize" : 1692,
       "fileType" : 8192
+    },
+    "\/partials\/maintenance.html" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/partials\/maintenance.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
     },
     "\/partials\/humble-tributes.html" : {
       "ignoreWasSetByUser" : 0,
@@ -371,6 +371,24 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
     },
+    "\/partials\/navigation.html" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/partials\/navigation.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
+    },
+    "\/config.rb" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/config.rb",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 32768
+    },
     "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -381,15 +399,6 @@
       "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png",
       "initialSize" : 3448,
       "fileType" : 8192
-    },
-    "\/config.rb" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/config.rb",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 32768
     },
     "\/scss\/base\/_normalize.scss" : {
       "ignoreWasSetByUser" : 0,
@@ -402,15 +411,6 @@
       "outputAbbreviatedPath" : "\/css\/_normalize.css",
       "fileType" : 4,
       "debugStyle" : 0
-    },
-    "\/partials\/navigation.html" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/partials\/navigation.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
     },
     "\/css\/maintenance.css" : {
       "ignoreWasSetByUser" : 0,

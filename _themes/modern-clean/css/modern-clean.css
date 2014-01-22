@@ -816,27 +816,31 @@ ul li {
   margin: 1em auto;
   padding: 0; }
   /* line 45, ../scss/module/_lists.scss */
+  .list-tags a {
+    color: white;
+    text-decoration: none; }
+  /* line 49, ../scss/module/_lists.scss */
   .list-tags .tag {
     background: #315397;
     color: white;
     display: inline-block;
     margin: 0 0.5em 0 0;
     padding: 0.5em 0.75em; }
-    /* line 51, ../scss/module/_lists.scss */
+    /* line 55, ../scss/module/_lists.scss */
     .list-tags .tag:last-child {
       margin-right: 0; }
 
-/* line 57, ../scss/module/_lists.scss */
+/* line 61, ../scss/module/_lists.scss */
 .list-social {
   text-align: center; }
-  /* line 59, ../scss/module/_lists.scss */
+  /* line 63, ../scss/module/_lists.scss */
   .list-social .social-item {
     display: inline-block;
     margin: 0 1em 0 0; }
-    /* line 62, ../scss/module/_lists.scss */
+    /* line 66, ../scss/module/_lists.scss */
     .list-social .social-item:last-child {
       margin-right: 0; }
-  /* line 66, ../scss/module/_lists.scss */
+  /* line 70, ../scss/module/_lists.scss */
   .list-social .social-link {
     display: inline-block;
     text-decoration: none; }

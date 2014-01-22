@@ -42,6 +42,10 @@ ul {
 	list-style: none;
 	margin: 1em auto;
 	padding: 0;
+	a {
+		color: $background-colour;
+		text-decoration: none;
+	}
 	.tag {
 		background: $colour-base;
 		color: $background-colour;
