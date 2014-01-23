@@ -2,14 +2,14 @@
   "CodeKitInfo" : "This is a CodeKit project configuration file. It is designed to sync project settings across multiple machines. Modifying the contents of this file can be a poor life decision if you don't know what you're doing. This file is not useful unless accompanied by the project that created it in CodeKit. For more information, see: http:\/\/incident57.com\/codekit",
   "creatorBuild" : "8403",
   "files" : {
-    "\/templates\/humble-tribute.html" : {
+    "\/css\/ie.css" : {
       "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
+      "ignore" : 1,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/templates\/humble-tribute.html",
+      "inputAbbreviatedPath" : "\/css\/ie.css",
       "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
+      "fileType" : 16
     },
     "\/scss\/module\/_reusable.scss" : {
       "ignoreWasSetByUser" : 0,
@@ -95,17 +95,6 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
     },
-    "\/img\/favicon.png" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/img\/favicon.png",
-      "processed" : 0,
-      "outputAbbreviatedPath" : "\/img\/favicon.png",
-      "initialSize" : 1185,
-      "fileType" : 8192
-    },
     "\/layouts\/blank.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -163,7 +152,7 @@
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
       "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
-      "processed" : 0,
+      "processed" : 1,
       "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-ipad.png",
       "initialSize" : 2723,
       "fileType" : 8192
@@ -224,7 +213,7 @@
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
       "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-android.png",
-      "processed" : 0,
+      "processed" : 1,
       "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-android.png",
       "initialSize" : 1446,
       "fileType" : 8192
@@ -283,17 +272,6 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
     },
-    "\/img\/favicons\/touch-icon-iphone4.png" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone4.png",
-      "processed" : 0,
-      "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone4.png",
-      "initialSize" : 1692,
-      "fileType" : 8192
-    },
     "\/partials\/maintenance.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -302,6 +280,17 @@
       "inputAbbreviatedPath" : "\/partials\/maintenance.html",
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
+    },
+    "\/img\/favicons\/touch-icon-iphone4.png" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone4.png",
+      "processed" : 1,
+      "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone4.png",
+      "initialSize" : 1692,
+      "fileType" : 8192
     },
     "\/partials\/humble-tributes.html" : {
       "ignoreWasSetByUser" : 0,
@@ -318,6 +307,15 @@
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
       "inputAbbreviatedPath" : "\/partials\/blog.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
+    },
+    "\/partials\/meta-data.html" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/partials\/meta-data.html",
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
     },
@@ -371,16 +369,14 @@
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
     },
-    "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png" : {
+    "\/partials\/navigation.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png",
-      "processed" : 0,
-      "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png",
-      "initialSize" : 3448,
-      "fileType" : 8192
+      "inputAbbreviatedPath" : "\/partials\/navigation.html",
+      "outputAbbreviatedPath" : "No Output Path",
+      "fileType" : 2048
     },
     "\/config.rb" : {
       "ignoreWasSetByUser" : 0,
@@ -390,6 +386,17 @@
       "inputAbbreviatedPath" : "\/config.rb",
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 32768
+    },
+    "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png",
+      "processed" : 1,
+      "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-144x144.png",
+      "initialSize" : 3448,
+      "fileType" : 8192
     },
     "\/scss\/base\/_normalize.scss" : {
       "ignoreWasSetByUser" : 0,
@@ -402,15 +409,6 @@
       "outputAbbreviatedPath" : "\/css\/_normalize.css",
       "fileType" : 4,
       "debugStyle" : 0
-    },
-    "\/partials\/navigation.html" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/partials\/navigation.html",
-      "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 2048
     },
     "\/css\/maintenance.css" : {
       "ignoreWasSetByUser" : 0,
@@ -444,17 +442,6 @@
       "fileType" : 4,
       "debugStyle" : 0
     },
-    "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png" : {
-      "ignoreWasSetByUser" : 0,
-      "ignore" : 0,
-      "hidden" : 0,
-      "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png",
-      "processed" : 0,
-      "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png",
-      "initialSize" : 1446,
-      "fileType" : 8192
-    },
     "\/templates\/default.html" : {
       "ignoreWasSetByUser" : 0,
       "ignore" : 0,
@@ -463,6 +450,17 @@
       "inputAbbreviatedPath" : "\/templates\/default.html",
       "outputAbbreviatedPath" : "No Output Path",
       "fileType" : 2048
+    },
+    "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png" : {
+      "ignoreWasSetByUser" : 0,
+      "ignore" : 0,
+      "hidden" : 0,
+      "outputPathIsSetByUser" : 0,
+      "inputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png",
+      "processed" : 1,
+      "outputAbbreviatedPath" : "\/img\/favicons\/apple-touch-icon-precomposed-57x57.png",
+      "initialSize" : 1446,
+      "fileType" : 8192
     },
     "\/partials\/page-footer.html" : {
       "ignoreWasSetByUser" : 0,
@@ -488,7 +486,7 @@
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
       "inputAbbreviatedPath" : "\/img\/stressed_linen.png",
-      "processed" : 0,
+      "processed" : 1,
       "outputAbbreviatedPath" : "\/img\/stressed_linen.png",
       "initialSize" : 16522,
       "fileType" : 8192
@@ -499,7 +497,7 @@
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
       "inputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone.png",
-      "processed" : 0,
+      "processed" : 1,
       "outputAbbreviatedPath" : "\/img\/favicons\/touch-icon-iphone.png",
       "initialSize" : 1446,
       "fileType" : 8192
@@ -531,7 +529,7 @@
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
       "inputAbbreviatedPath" : "\/img\/kindajean.png",
-      "processed" : 0,
+      "processed" : 1,
       "outputAbbreviatedPath" : "\/img\/kindajean.png",
       "initialSize" : 3563,
       "fileType" : 8192
@@ -566,14 +564,14 @@
       "fileType" : 4,
       "debugStyle" : 0
     },
-    "\/css\/ie.css" : {
+    "\/templates\/humble-tribute.html" : {
       "ignoreWasSetByUser" : 0,
-      "ignore" : 1,
+      "ignore" : 0,
       "hidden" : 0,
       "outputPathIsSetByUser" : 0,
-      "inputAbbreviatedPath" : "\/css\/ie.css",
+      "inputAbbreviatedPath" : "\/templates\/humble-tribute.html",
       "outputAbbreviatedPath" : "No Output Path",
-      "fileType" : 16
+      "fileType" : 2048
     }
   },
   "manualImportLinks" : [
