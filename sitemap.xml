@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+<url>
+  <loc>http://liamwalsh.co.uk/</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/humble-tributes</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/work</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/humble-tributes/breaking-benjamin</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/starting-new</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/categories/creative</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/categories/statamic</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/categories/updates</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/work/jessica-walsh</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/work/cakey-riddell</loc>
+  <changefreq>monthly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/humble-tributes/breaking-benjamin/phobia</loc>
+  <changefreq>monthly</changefreq>
+</url>
+</urlset>
