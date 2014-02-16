@@ -4,7 +4,11 @@
 			{{ if !segment_1 }}
 				{{ _site_name }}
 			{{ else }}
-				{{ title }}
+				{{ if taxonomy_slug }}
+					{{ taxonomy_slug|title }}
+				{{ else }}
+					{{ title }}
+				{{ endif }}
 			{{ endif }}
 		</span>
 	</h1>

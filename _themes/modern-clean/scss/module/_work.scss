@@ -11,6 +11,7 @@
 }
 
 .work-info {
+	border: 0.5em solid $colour-base;
 	position: relative;
 }
 
@@ -30,12 +31,11 @@
 			margin: 0;
 			position: absolute;
 			top: 0;
-			right: -6.75em;
+			right: -7em;
 			width: 7em;
 		}
 		.skill {
 			@include bp(smallest) {
-				border: 0.25em solid $background-colour;
 				display: block;
 				margin: 0 auto 0.5em;
 			}
@@ -47,7 +47,7 @@
 	.span-2-3 {
 		.work-skills {
 			@include bp(smallest) {
-				left: -6.75em;
+				left: -7em;
 			}
 		}
 	}

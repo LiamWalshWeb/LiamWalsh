@@ -1,13 +1,15 @@
-{{ get_content from="humble-tributes" }}
-	{{ if current_url !== url }}
+{{ if include_title }}
+	{{ get_content from="humble-tributes" }}
 		<h2 class="section-header breaker">
 			<span class="constrain">{{ title }}</span>
 		</h2>
-	{{ endif }}
+	{{ /get_content }}
+{{ endif }}
+{{ get_content from="humble-tributes" }}
 	{{ pages:listing folder="{url}/*" limit="{tributes_limit}" }}
 		{{ if total_results }}
 			{{ if first }}
-				<div class="row constrain body-section">
+				<div class="row">
 					<ul class="unstyled tributes-list">
 					{{ endif }}
 						<li class="span-1-3">

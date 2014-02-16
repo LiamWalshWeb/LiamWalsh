@@ -1,16 +1,18 @@
-{{ get_content from="blog" }}
-	{{ if current_url !== url }}
+{{ if include_title }}
+	{{ get_content from="blog" }}
 		<h2 class="section-header breaker">
 			<span class="constrain">{{ title }}</span>
 		</h2>
-	{{ endif }}
+	{{ /get_content }}
+{{ endif }}
+{{ get_content from="blog" }}
 	<div class="row constrain body-section">
 		<section class="span-2-3 gutter blog-list list-article">
-			{{ entries:listing folder="{url}" limit="{blog_limit}" }}
+			{{ entries:listing folder="{url}" limit="{blog_limit}" taxonomy="{taxonomy_slug}" }}
 				{{ if total_results }}
 					<article class="blog-post list-item box box-padded">
-						<h3><a href="{{ url }}">{{ title }}</a></h3>
 						<time datetime="{{ datestamp|format:Y-m-d }}">{{ date }}</time>
+						<h3><a href="{{ url }}">{{ title }}</a></h3>
 						<div class="post-excerpt">
 							{{ excerpt }}
 							<a href="{{ url }}">Read more &rarr;</a>
@@ -30,14 +32,14 @@
 				{{ endif }}
 			{{ /entries:listing }}
 		</section>
-		<aside class="span-1-3 blog-aside box box-aside">
+		<aside class="span-1-3 blog-aside box box-padded box-aside">
 			<h4>Categories</h4>
 			{{ taxonomy:listing folder="{url}" type="categories" sort_by="name" sort_dir="asc" }}
 				{{ if total_results }}
 					{{ if first }}
-						<ul class="blog-taxonomies">
+						<ul class="unstyled list-inline">
 					{{ endif }}
-						<li><a href="{{ url }}">{{ name|title }}</a></li>
+						<li><a href="{{ url }}">{{ name }}</a></li>
 					{{ if last }}
 						</ul>
 					{{ endif }}
@@ -45,29 +47,6 @@
 					<p>No categories found</p>
 				{{ endif }}
 			{{ /taxonomy:listing }}
-			<h4>Archive</h4>
-			{{ entries:listing folder="{url}" offset="{blog_limit}" group_by_date="F Y" }}
-				{{ if total_results }}
-					{{ if grouped_date }}
-						{{ if !first }}
-						</ul>
-						{{ endif }}
-
-						<h5>{{ grouped_date }}</h5>
-						<ul class="blog-taxonomies">
-					{{ endif }}
-
-					<li>
-						{{ datestamp|format:jS }} - <a href="{{ url }}">{{ title }}</a>
-					</li>
-
-					{{ if last }}
-						</ul>
-					{{ endif }}
-				{{ else }}
-					<p>The archive is empty</p>
-				{{ endif }}
-			{{ /entries:listing }}
 		</aside>
 	</div>
 {{ /get_content }}

@@ -394,6 +394,7 @@ table {
 /* line 7, ../scss/base/_elements.scss */
 html, body {
   background: url("../img/kindajean.png") white repeat;
+  color: #1a1a1a;
   font-family: "Quattrocento Sans", sans-serif;
   font-size: 100%;
   font-weight: 400;
@@ -413,85 +414,89 @@ html, body {
     html, body {
       font-size: 120%; } }
 
-/* line 35, ../scss/base/_elements.scss */
+/* line 36, ../scss/base/_elements.scss */
 h1:last-child, h2:last-child, h3:last-child, h4:last-child, h5:last-child, h6:last-child, p:last-child {
   margin-bottom: 0; }
 
-/* line 40, ../scss/base/_elements.scss */
+/* line 41, ../scss/base/_elements.scss */
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
   font-family: "Franchise", sans-serif;
   font-weight: 900;
   line-height: 1em; }
-  /* line 44, ../scss/base/_elements.scss */
+  /* line 45, ../scss/base/_elements.scss */
   h1 a, .h1 a, h2 a, .h2 a, h3 a, .h3 a, h4 a, .h4 a, h5 a, .h5 a, h6 a, .h6 a {
     display: block;
     text-decoration: none; }
 
-/* line 50, ../scss/base/_elements.scss */
+/* line 51, ../scss/base/_elements.scss */
 h1, .h1 {
   font-size: 6.854em;
   margin: 0 auto 0.1em; }
 
-/* line 55, ../scss/base/_elements.scss */
+/* line 56, ../scss/base/_elements.scss */
 h2, .h2 {
   font-size: 4.236em;
   margin: 0 auto 0.3em; }
 
-/* line 60, ../scss/base/_elements.scss */
+/* line 61, ../scss/base/_elements.scss */
 h3, .h3 {
   font-size: 2.618em;
   margin: 0 auto 0.4em; }
 
-/* line 65, ../scss/base/_elements.scss */
+/* line 66, ../scss/base/_elements.scss */
 h4, .h4 {
   font-size: 1.618em;
   margin: 0 auto 0.6em; }
 
-/* line 70, ../scss/base/_elements.scss */
+/* line 71, ../scss/base/_elements.scss */
 h5, .h5 {
   font-size: 1em;
   margin: 0 auto 1em; }
 
-/* line 75, ../scss/base/_elements.scss */
+/* line 76, ../scss/base/_elements.scss */
 h6, .h6 {
   font-size: 1em;
   margin: 0 auto 1em; }
 
-/* line 80, ../scss/base/_elements.scss */
+/* line 81, ../scss/base/_elements.scss */
 p {
   margin: 0 auto 1em; }
 
-/* line 84, ../scss/base/_elements.scss */
+/* line 85, ../scss/base/_elements.scss */
 a {
   color: #315397; }
-  /* line 86, ../scss/base/_elements.scss */
+  /* line 87, ../scss/base/_elements.scss */
   a:hover, a:focus {
     color: #18294a; }
-  /* line 89, ../scss/base/_elements.scss */
+  /* line 90, ../scss/base/_elements.scss */
   a.link-invert {
     color: white; }
-    /* line 91, ../scss/base/_elements.scss */
+    /* line 92, ../scss/base/_elements.scss */
     a.link-invert:hover, a.link-invert:focus {
       color: #e6e6e6; }
 
-/* line 97, ../scss/base/_elements.scss */
+/* line 98, ../scss/base/_elements.scss */
 strong, b {
   font-weight: 700; }
 
-/* line 101, ../scss/base/_elements.scss */
+/* line 102, ../scss/base/_elements.scss */
 img {
   display: block;
   height: auto !important;
   max-width: 100%; }
 
-/* line 107, ../scss/base/_elements.scss */
+/* line 108, ../scss/base/_elements.scss */
 hr {
-  background: #d5dff2;
+  background: #88a3d9;
   border: 0px solid transparent;
   display: block;
   height: 1px;
   margin: 1.5em;
   padding: 0; }
+
+/* line 126, ../scss/base/_elements.scss */
+time {
+  color: #cccccc; }
 
 /* line 2, ../scss/module/_icon-fonts.scss */
 [class^="icon-"]:before, [class*="icon-"]:before {
@@ -784,7 +789,11 @@ ul li {
   margin: 0;
   padding: 0; }
 
-/* line 14, ../scss/module/_lists.scss */
+/* line 15, ../scss/module/_lists.scss */
+.list-inline li {
+  display: inline; }
+
+/* line 20, ../scss/module/_lists.scss */
 .navigation-list {
   display: block;
   list-style: none;
@@ -792,55 +801,58 @@ ul li {
   padding: 0;
   text-align: center; }
   @media (min-width: 37.5em) {
-    /* line 14, ../scss/module/_lists.scss */
+    /* line 20, ../scss/module/_lists.scss */
     .navigation-list {
       text-align: left; } }
-  /* line 23, ../scss/module/_lists.scss */
+  /* line 29, ../scss/module/_lists.scss */
   .navigation-list .navigation-item {
     display: inline-block;
     margin: 0 1.5em 0 0; }
-    /* line 26, ../scss/module/_lists.scss */
+    /* line 32, ../scss/module/_lists.scss */
     .navigation-list .navigation-item:last-child {
       margin-right: 0; }
 
-/* line 33, ../scss/module/_lists.scss */
+/* line 39, ../scss/module/_lists.scss */
 .list-article .list-item {
   margin: 0 auto 1em; }
-  /* line 35, ../scss/module/_lists.scss */
+  /* line 41, ../scss/module/_lists.scss */
   .list-article .list-item:last-child {
     margin-bottom: 0; }
 
-/* line 41, ../scss/module/_lists.scss */
+/* line 47, ../scss/module/_lists.scss */
 .list-tags {
   list-style: none;
   margin: 1em auto;
   padding: 0; }
-  /* line 45, ../scss/module/_lists.scss */
+  /* line 51, ../scss/module/_lists.scss */
+  .list-tags li {
+    display: inline-block; }
+  /* line 54, ../scss/module/_lists.scss */
   .list-tags a {
     color: white;
     text-decoration: none; }
-  /* line 49, ../scss/module/_lists.scss */
+  /* line 58, ../scss/module/_lists.scss */
   .list-tags .tag {
     background: #315397;
     color: white;
     display: inline-block;
     margin: 0 0.5em 0 0;
     padding: 0.5em 0.75em; }
-    /* line 55, ../scss/module/_lists.scss */
+    /* line 64, ../scss/module/_lists.scss */
     .list-tags .tag:last-child {
       margin-right: 0; }
 
-/* line 61, ../scss/module/_lists.scss */
+/* line 70, ../scss/module/_lists.scss */
 .list-social {
   text-align: center; }
-  /* line 63, ../scss/module/_lists.scss */
+  /* line 72, ../scss/module/_lists.scss */
   .list-social .social-item {
     display: inline-block;
     margin: 0 1em 0 0; }
-    /* line 66, ../scss/module/_lists.scss */
+    /* line 75, ../scss/module/_lists.scss */
     .list-social .social-item:last-child {
       margin-right: 0; }
-  /* line 70, ../scss/module/_lists.scss */
+  /* line 79, ../scss/module/_lists.scss */
   .list-social .social-link {
     display: inline-block;
     text-decoration: none; }
@@ -879,21 +891,6 @@ ul li {
       display: block;
       width: 100%; }
 
-/* line 9, ../scss/module/_blog.scss */
-.blog-aside {
-  border: 1em solid #315397;
-  padding: 1.5em; }
-  @media (min-width: 37.5em) {
-    /* line 9, ../scss/module/_blog.scss */
-    .blog-aside {
-      padding: 1em; } }
-
-/* line 17, ../scss/module/_blog.scss */
-.blog-taxonomies {
-  list-style: none;
-  margin: 1em auto;
-  padding: 0 0 0 1em; }
-
 /* line 1, ../scss/module/_work.scss */
 .work-item {
   background: white no-repeat top center;
@@ -910,32 +907,32 @@ ul li {
 
 /* line 13, ../scss/module/_work.scss */
 .work-info {
+  border: 0.5em solid #315397;
   position: relative; }
 
-/* line 18, ../scss/module/_work.scss */
+/* line 19, ../scss/module/_work.scss */
 .work-image a {
   display: block; }
-/* line 21, ../scss/module/_work.scss */
+/* line 22, ../scss/module/_work.scss */
 .work-image .work-caption {
   color: gray;
   margin-top: 1em; }
 
 @media (min-width: 37.5em) {
-  /* line 28, ../scss/module/_work.scss */
+  /* line 29, ../scss/module/_work.scss */
   .span-2-3 .work-skills {
     margin: 0;
     position: absolute;
     top: 0;
-    right: -6.75em;
+    right: -7em;
     width: 7em; } }
 @media (min-width: 37.5em) {
-  /* line 36, ../scss/module/_work.scss */
+  /* line 37, ../scss/module/_work.scss */
   .span-2-3 .work-skills .skill {
-    border: 0.25em solid white;
     display: block;
     margin: 0 auto 0.5em; } }
 
 @media (min-width: 37.5em) {
   /* line 48, ../scss/module/_work.scss */
   .row-reverse .span-2-3 .work-skills {
-    left: -6.75em; } }
+    left: -7em; } }
