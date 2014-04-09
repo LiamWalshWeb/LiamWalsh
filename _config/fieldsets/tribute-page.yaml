@@ -45,4 +45,10 @@ fields:
     type: redactor
     image_dir: assets/tributes/content/img
 
+  categories:
+    display: Categories
+    required: false
+    default:
+    type: tags
+
 hide: true
