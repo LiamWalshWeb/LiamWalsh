@@ -48,6 +48,7 @@ class Parser
     );
 
     protected static $data = null;
+    protected static $original_text = null;
     protected static $callbackData = array();
 
     /**
@@ -77,12 +78,21 @@ class Parser
         } else {
             // Let's merge the current data array with the local scope variables
             // So you can call local variables from within blocks.
-            $data = array_merge(self::$data, $data);
+            // <statamic>
+            // data should never have numeric keys, so using union operator as it's faster
+            $data = $data + self::$data;
+            // </statamic>
 
             // Since this is not the first time parse() is called, it's most definately a callback,
             // let's store the current callback data with the the local data
             // so we can use it straight after a callback is called.
             self::$callbackData = $data;
+            
+            // <statamic>
+            // Save the original text coming in so that we can parse it recursively
+            // later on without this needing to be within a callback
+            self::$original_text = $text;
+            // </statamic>
         }
 
         // The parseConditionals method executes any PHP in the text, so clean it up.
@@ -151,6 +161,14 @@ class Parser
     public function parseVariables($text, $data, $callback = null)
     {
         $this->setupRegex();
+        
+        // <statamic>
+        // allow avoid tag parsing
+        $noparse = array();
+        if (isset($data['_noparse'])) {
+            $noparse = \Helper::ensureArray($data['_noparse']);
+        }
+        // </statamic>
 
         /**
          * $data_matches[][0][0] is the raw data loop tag
@@ -162,6 +180,16 @@ class Parser
          */
         if (preg_match_all($this->variableLoopRegex, $text, $data_matches, PREG_SET_ORDER + PREG_OFFSET_CAPTURE)) {
             foreach ($data_matches as $match) {
+                // <statamic>
+                // if variable is in the no-parse list, don't parse it
+                $var_name = (strpos($match[1][0], '|') !== false) ? substr($match[1][0], 0, strpos($match[1][0], '|')) : $match[1][0];
+                
+                if (in_array($var_name, $noparse)) {
+                    $text = $this->createExtraction('noparse', $match[0][0], $match[2][0], $text);
+                    continue;
+                }
+                // </statamic>
+                
                 $loop_data = $this->getVariable($match[1][0], $data);
                 if ($loop_data) {
                     $looped_text = '';
@@ -196,7 +224,7 @@ class Parser
                             $loop_value['last']           = ($index === $loop_value['total_results']) ? true : false;
 
                             // merge this local data with callback data before performing actions
-                            $loop_value = array_merge(self::$callbackData, $loop_value);
+                            $loop_value = $loop_value + self::$callbackData;
 
                             // perform standard actions
                             $str = $this->extractLoopedTags($match[2][0], $loop_value, $callback);
@@ -232,12 +260,29 @@ class Parser
          */
         if (preg_match_all($this->variableTagRegex, $text, $data_matches)) {
             foreach ($data_matches[1] as $index => $var) {
+                // <statamic>
+                // account for modifiers
+                $var_pipe  = strpos($var, '|');
+                $var_name  = ($var_pipe !== false) ? substr($var, 0, $var_pipe) : $var;
+                // </statamic>
+                
                 if (($val = $this->getVariable($var, $data, '__lex_no_value__')) !== '__lex_no_value__') {
                     if (is_array($val)) {
                         $val = "";
                         \Log::error("Cannot display tag `" . $data_matches[0][$index] . "` because it is a list, not a single value. To display list values, use a tag-pair.", "template", "parser");
                     }
-                    $text = str_replace($data_matches[0][$index], $val, $text);
+
+                    // <statamic>
+                    // if variable is in the no-parse list, extract it
+                    // handles the very-special |noparse modifier
+                    if (($var_pipe !== false && in_array('noparse', array_slice(explode('|', $var), 1))) || in_array($var_name, $noparse)) {
+                        $text = $this->createExtraction('noparse', $data_matches[0][$index], $val, $text);
+                    } else {
+                        // </statamic>
+                        $text = str_replace($data_matches[0][$index], $val, $text);
+                        // <statamic>
+                    }
+                    // </statamic>
                 }
             }
         }
@@ -266,7 +311,7 @@ class Parser
                             // it is, have we had callback data before?
                             if ( !empty(self::$callbackData)) {
                                 // we have, merge it all together
-                                $cb_data = array_merge(self::$callbackData, $data);
+                                $cb_data = $data + self::$callbackData;
                             }
 
                             // grab the raw string of parameters
@@ -329,7 +374,7 @@ class Parser
             // <statamic>
             // update the collective data if it's different
             if ( !empty(self::$callbackData)) {
-                $cb_data = array_merge(self::$callbackData, $data);
+                $cb_data = $data + self::$callbackData;
             }
             // </statamic>
 
@@ -381,7 +426,7 @@ class Parser
             // now, check to see if a callback should happen
             if ($callback) {
                 // </statamic>
-                $replacement = call_user_func_array($callback, array($name, $parameters, $content));
+                $replacement = call_user_func_array($callback, array($name, $parameters, $content, $data));
                 $replacement = $this->parseRecursives($replacement, $content, $callback);
                 // <statamic>
             }
@@ -519,6 +564,11 @@ class Parser
             $text = preg_replace('/'.preg_quote($tag, '/').'/m', addcslashes($replacement, '\\$'), $text, 1);
             $text = $this->injectExtractions($text, 'nested_looped_tags');
         }
+
+        // <statamic>
+        // parse for recursives, as they may not have been parsed for above
+        $text = $this->parseRecursives($text, self::$original_text, $callback);
+        // </statamic>
 
         // <statamic>
         // re-inject any extractions we extracted
@@ -673,8 +723,18 @@ class Parser
     {
         // Is there a {{ *recursive [array_key]* }} tag here, let's loop through it.
         if (preg_match($this->recursiveRegex, $text, $match)) {
-            $array_key = $match[1];
             $tag = $match[0];
+            $array_key = $match[1];
+            
+            // <statamic>
+            // check to see if the recursive variable we're looking for is set
+            // within the current data for this run-through, if it isn't, just
+            // abort and return the text
+            if (!isset(self::$callbackData[$array_key]) || !self::$callbackData[$array_key]) {
+                return $text;
+            }
+            // </statamic>
+            
             $next_tag = null;
             $children = self::$callbackData[$array_key];
             $child_count = count($children);
@@ -992,13 +1052,15 @@ class Parser
      */
     protected function getVariable($key, $data, $default = null)
     {
+        // <statamic>
+        // detect modifiers
         $modifiers = null;
-        if (strpos($key, "|") === false) {
-        } else {
-            $parts = explode("|", $key);
-            $key = $parts[0];
-            $modifiers = array_splice($parts, 1);
+        if (strpos($key, "|") !== false) {
+            $parts      = explode("|", $key);
+            $key        = $parts[0];
+            $modifiers  = array_splice($parts, 1);
         }
+        // </statamic>
 
         if (strpos($key, $this->scopeGlue) === false) {
             $parts = explode('.', $key);
@@ -1023,310 +1085,36 @@ class Parser
             }
         }
 
+        // <statamic>
+        // execute modifier chain
         if ($modifiers) {
             foreach ($modifiers as $mod) {
                 if (strpos($mod, ":") === false) {
-                    $modifier_name = $mod;
+                    $modifier = $mod;
                     $modifier_params = array();
                 } else {
                     $parts = explode(":", $mod);
-                    $modifier_name = $parts[0];
+                    $modifier = $parts[0];
                     $modifier_params = array_splice($parts, 1);
                 }
 
-                // Array modifiers
-                if ($modifier_name == 'list') {
-                    $data = join(", ", $data);
+                try {
+                    // load modifier
+                    $modifier_obj = \Resource::loadModifier(\Parse::modifierAlias($modifier));
 
-                } elseif ($modifier_name == 'spaced_list') {
-                    $data = join(" ", $data);
-
-                } elseif ($modifier_name == 'option_list') {
-                    $data = join("|", $data);
-
-                } elseif ($modifier_name == 'unordered_list') {
-                    $data = "<ol><li>" . join("</li><li>", $data) . "</li></ol>";
-
-                } elseif ($modifier_name == 'ordered_list') {
-                    $data = "<ul><li>" . join("</li><li>", $data) . "</li></ul>";
-
-                } elseif ($modifier_name == 'sentence_list') {
-                    $data = \Helper::makeSentenceList($data);
-
-                } elseif ($modifier_name == 'ampersand_list') {
-                    $data = \Helper::makeSentenceList($data, "&", false);
-
-                } elseif ($modifier_name == 'sanitize') {
-                    $data = htmlentities($data);
-
-                } elseif ($modifier_name == 'json') {
-                    $data = json_encode($data);
-
-                } elseif ($modifier_name == 'trim') {
-                    $data = trim($data);
-
-                } elseif ($modifier_name == 'img') {
-                    $data = '<img src="' . \Path::toAsset($data) . '" />';
-
-                } elseif ($modifier_name == 'link') {
-                    if (filter_var($data, FILTER_VALIDATE_EMAIL)) {
-                        // email address
-                        $data = '<a href="mailto:'.$data.'" />'.$data.'</a>';
-                    } else {
-                        $data = '<a href="'.$data.'" />'.$data.'</a>';
+                    // ensure method exists
+                    if (!method_exists($modifier_obj, "index")) {
+                        throw new \Exception("Improperly formatted modifier object.");
                     }
 
-                } elseif ($modifier_name == 'upper') {
-                    $data = strtoupper($data);
-
-                } else if ($modifier_name == 'lower') {
-                    $data = strtolower($data);
-
-                } else if ($modifier_name == 'slugify') {
-                    $delimiter = array_get($modifier_params, 0, '-');
-                    $data = \Slug::make($data, array('delimiter' => $delimiter));
-
-                } else if ($modifier_name == 'deslugify') {
-                    $data = trim(preg_replace('~[-_]~', ' ', $data), " ");
-
-                } else if ($modifier_name == 'title') {
-                    $data = ucwords($data);
-
-                } else if ($modifier_name == 'format') {
-                    $data = date($modifier_params[0], $data);
-
-                } else if ($modifier_name == 'format_number') {
-                    $decimals = (isset($modifier_params[0])) ? $modifier_params[0] : 0;
-                    $data = number_format($data, $decimals);
-
-                } else if ($modifier_name == 'in_future') {
-                    $data = (\Date::resolve($data) > time()) ? "true" : "";
-
-                } else if ($modifier_name == 'in_past') {
-                    $data = (\Date::resolve($data) < time()) ? "true" : "";
-
-                } else if ($modifier_name == 'markdown') {
-                    $data = Markdown($data);
-
-                } else if ($modifier_name == 'textile') {
-                    $textile = new \Textile();
-                    $data = $textile->TextileThis($data);
-
-                } else if ($modifier_name == 'length') {
-                    if (is_array($data)) {
-                        $data = count($data);
-                    } else {
-                        $data = strlen($data);
-                    }
-
-                } else if ($modifier_name == 'scramble') {
-                    $data = str_shuffle($data);
-
-                } else if ($modifier_name == 'word_count') {
-                    $data = str_word_count($data);
-
-                } else if ($modifier_name == 'obfuscate') {
-                    $data = \HTML::obfuscateEmail($data);
-
-                } else if ($modifier_name == 'rot13') {
-                    $data = str_rot13($data);
-
-                } else if ($modifier_name == 'urlencode') {
-                    $data = urlencode($data);
-
-                } else if ($modifier_name == 'urldecode') {
-                    $data = urldecode($data);
-
-                } else if ($modifier_name == 'striptags') {
-                    $data = strip_tags($data);
-
-                } else if ($modifier_name == '%') {
-                    $divisor = (isset($modifier_params[0])) ? $modifier_params[0] : 1;
-                    $data = $data % $divisor;
-
-                } else if ($modifier_name == 'empty') {
-                    $data = (\Helper::isEmptyArray($data)) ? "true" : "";
-
-                } else if ($modifier_name == 'not_empty') {
-                    $data = (!\Helper::isEmptyArray($data)) ? "true" : "";
-
-                } else if ($modifier_name == 'numeric') {
-                    $data = (is_numeric($data)) ? "true" : "";
-
-                } else if ($modifier_name == 'repeat') {
-                    $multiplier = (isset($modifier_params[0])) ? $modifier_params[0] : 1;
-                    $data = str_repeat($data, $multiplier);
-
-                } else if ($modifier_name == 'reverse') {
-                    $data = strrev($data);
-
-                } else if ($modifier_name == 'round') {
-                    $precision = (isset($modifier_params[0])) ? (int) $modifier_params[0] : 0;
-                    $data = round((float) $data, $precision);
-
-                } else if ($modifier_name == 'floor') {
-                    $data = floor((float) $data);
-
-                } else if ($modifier_name == 'ceil') {
-                    $data = ceil((float) $data);
-
-                } else if ($modifier_name == '+') {
-                    if (isset($modifier_params[0])) {
-                        $number = $modifier_params[0];
-                        $data = $data + $number;
-                    }
-
-                } else if ($modifier_name == '-') {
-                    if (isset($modifier_params[0])) {
-                        $number = $modifier_params[0];
-                        $data = $data - $number;
-                    }
-
-                } else if ($modifier_name == '*') {
-                    if (isset($modifier_params[0])) {
-                        $number = $modifier_params[0];
-                        $data = $data * $number;
-                    }
-
-                } else if ($modifier_name == '/') {
-                    if (isset($modifier_params[0])) {
-                        $number = $modifier_params[0];
-                        $data = $data / $number;
-                    }
-
-                } else if ($modifier_name == '^') {
-                    if (isset($modifier_params[0])) {
-                        $exp = $modifier_params[0];
-                        $data = pow($data, $exp);
-                    }
-
-                } else if ($modifier_name == 'sqrt') {
-                    $data = sqrt($data);
-
-                } else if ($modifier_name == 'abs') {
-                    $data = abs($data);
-
-                } else if ($modifier_name == 'log') {
-                    $base = (isset($modifier_params[0])) ? (int) $modifier_params[0] : M_E;
-                    $data = log($data, $base);
-
-                } else if ($modifier_name == 'log10') {
-                    $data = log10($data);
-
-                } else if ($modifier_name == 'deg2rad') {
-                    $data = deg2rad($data);
-
-                } else if ($modifier_name == 'rad2deg') {
-                    $data = rad2deg($data);
-
-                } else if ($modifier_name == 'sin') {
-                    $data = sin($data);
-
-                } else if ($modifier_name == 'asin') {
-                    $data = asin($data);
-
-                } else if ($modifier_name == 'cos') {
-                    $data = cos($data);
-
-                } else if ($modifier_name == 'acos') {
-                    $data = acos($data);
-
-                } else if ($modifier_name == 'tan') {
-                    $data = tan($data);
-
-                } else if ($modifier_name == 'atan') {
-                    $data = atan($data);
-
-                } else if ($modifier_name == 'decbin') {
-                    $data = decbin($data);
-
-                } else if ($modifier_name == 'dechex') {
-                    $data = dechex($data);
-
-                } else if ($modifier_name == 'decoct') {
-                    $data = decoct($data);
-
-                } else if ($modifier_name == 'hexdec') {
-                    $data = hexdec($data);
-
-                } else if ($modifier_name == 'octdec') {
-                    $data = octdec($data);
-
-                } else if ($modifier_name == 'bindec') {
-                    $data = bindec((string) $data);
-
-                } else if ($modifier_name == 'distance_in_mi_from') {
-                    if (!isset($modifier_params[0])) {
-                        return 'Unknown';
-                    }
-
-                    if (!preg_match(\Pattern::COORDINATES, $data, $point_1_matches)) {
-                        return 'Unknown';
-                    }
-
-                    if (!preg_match(\Pattern::COORDINATES, $modifier_params[0], $point_2_matches)) {
-                        return 'Unknown';
-                    }
-
-                    $point_1 = array($point_1_matches[1], $point_1_matches[2]);
-                    $point_2 = array($point_2_matches[1], $point_2_matches[2]);
-
-                    $distance = \Math::getDistanceInKilometers($point_1, $point_2);
-                    $data = \Math::convertKilometersToMiles($distance);
-
-                } else if ($modifier_name == 'distance_in_km_from') {
-                    if (!isset($modifier_params[0])) {
-                        return 'Unknown';
-                    }
-
-                    if (!preg_match(\Pattern::COORDINATES, $data, $point_1_matches)) {
-                        return 'Unknown';
-                    }
-
-                    if (!preg_match(\Pattern::COORDINATES, $modifier_params[0], $point_2_matches)) {
-                        return 'Unknown';
-                    }
-
-                    $point_1 = array($point_1_matches[1], $point_1_matches[2]);
-                    $point_2 = array($point_2_matches[1], $point_2_matches[2]);
-
-                    $data = \Math::getDistanceInKilometers($point_1, $point_2);
-
-                } else if ($modifier_name == 'smartypants') {
-                    $data = SmartyPants($data, 2);
-
-                } else if ($modifier_name == 'widont') {
-                    // thanks to Shaun Inman for inspriation here
-                    // http://www.shauninman.com/archive/2008/08/25/widont_2_1_1
-
-                    // if there are content tags
-                    if (preg_match("/<\/(?:p|li|h1|h2|h3|h4|h5|h6|figcaption)>/ism", $data)) {
-                        $data = preg_replace("/(?<!<[p|li|h1|h2|h3|h4|h5|h6|div|figcaption])([^\s])[ \t]+([^\s]+(?:<\/(?:p|li|h1|h2|h3|h4|h5|h6|div|figcaption)>))$/im", "$1&nbsp;$2", rtrim($data));
-
-                        // otherwise
-                    } else {
-                        $data = preg_replace("/([^\s])\s+([^\s]+)\s*$/im", "$1&nbsp;$2", rtrim($data));
-                    }
-
-                } elseif ($modifier_name == 'backspace') {
-                    if (!is_array($data) && isset($modifier_params[0]) && $modifier_params[0] > 0) {
-                        $data = substr($data, 0, -$modifier_params[0]);
-                    }
-
-                } else if ($modifier_name == 'truncate') {
-                    $length = 30;
-                    $hellip ="&hellip;";
-                    if (sizeof($modifier_params) > 0) {
-                        $length = (int) $modifier_params[0];
-                    } else if (isset($modifier_params[1])) {
-                        $hellip = (int) $modifier_params[1];
-                    }
-                    if (strlen($data) > $length) {
-                        $data = substr($data, 0, $length).$hellip;
-                    }
+                    // call method
+                    $data = $modifier_obj->index($data, $modifier_params);
+                } catch (\Exception $e) {
+                    // do nothing
                 }
             }
         }
+        // </statamic>
 
         return $data;
     }

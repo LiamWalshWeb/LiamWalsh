@@ -58,7 +58,7 @@
           <td class="title <?php print $status ?>"><a href="../member?name=<?php print $username ?>"><?php print $username ?></a></td>
           <td><?php if ($status == 'warning'): ?><em><?php echo Localization::fetch('action_encrypt_password')?></em><?php else:?><span class="subtle"><?php echo Localization::fetch('none')?></span><?php endif ?></td>
           <td class="align-right">
-            <?php if ($user->is_password_hashed()): ?>
+            <?php if ($user->hasHashedPassword()): ?>
               <?php echo Localization::fetch('encrypted')?> <span class="ss-icon">checkclipboard</span>
             <?php else: ?>
               <?php echo Localization::fetch('unencrypted')?> <span class="ss-icon">warning</span>

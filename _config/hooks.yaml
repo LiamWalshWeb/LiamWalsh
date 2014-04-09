@@ -1,0 +1,26 @@
+#
+# On Hooks
+# -----------------------------------------------------------------------------
+#
+# Hooks are a powerful tool that allows add-ons to hook into system events. 
+# This enables add-ons to work behind the scenes at just the right times. There 
+# is, however, a trade-off. Each hook takes a little bit of time to run. It's 
+# not *a lot* of time, but enable enough of them and you'll start to notice a 
+# slight delay.
+#
+# We want to add in many hooks for add-on developers to possibly use, but we 
+# didn't want to hinder the performance for most just to benefit a few. Thus,
+# we've added this configuration file. You can turn on only the hooks that you 
+# absolutely need. If an add-on needs to use a hook, it should tell you so in 
+# its documentation, generally as part of the `install` section.
+#
+# Remember, only turn on what's needed.
+# Happy (selective) hook-enabling. :)
+#
+
+_enable_hooks:
+  _render:
+    before: false
+    
+  _routes:
+    before: false

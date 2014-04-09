@@ -52,10 +52,10 @@ class Session
      * @param string  $cookie  Name of cookie to retrieve
      * @return string|null
      */
-    public function getCookie($cookie)
+    public static function getCookie($cookie)
     {
         $app = \Slim\Slim::getInstance();
-        return $this->app->getCookie($cookie);;
+        return $app->getCookie($cookie);
     }
 
 
@@ -67,9 +67,9 @@ class Session
      * the current request will not be available until the next request.
      *
      * @param string  $cookie  Name of cookie to retrieve
-     * @return string|false
+     * @return string|boolean
      */
-    private function getEncryptedCookie($cookie)
+    public static function getEncryptedCookie($cookie)
     {
         $app = \Slim\Slim::getInstance();
         return $app->getEncryptedCookie($cookie);
@@ -77,13 +77,13 @@ class Session
 
     /**
      * Sets an encrypted HTTP cookie
-     * 
+     *
      * @param string  $name  Name of cookie to set
      * @param string  $value  Value of cookie to set
      * @param string  $expire  Optional length of time until the cookie expires
      * @return void
      */
-    public function setCookie($name, $value, $expire = NULL)
+    public static function setCookie($name, $value, $expire = NULL)
     {
         $app = \Slim\Slim::getInstance();
         $app->setCookie($name, $value, $expire);
@@ -91,162 +91,218 @@ class Session
 
     /**
      * Sets an encrypted HTTP cookie
-     * 
+     *
      * @param string  $cookie  Name of cookie to set
      * @param string  $value  Value of cookie to set
      * @param string  $expire  Optional length of time until the cookie expires
      */
-    private function setEncryptedCookie($cookie, $value, $expire = '1 day')
+    public static function setEncryptedCookie($cookie, $value, $expire = '1 day')
     {
         $app = \Slim\Slim::getInstance();
-        $this->app->setEncryptedCookie($cookie, $value, $expire);
+        $app->setEncryptedCookie($cookie, $value, $expire);
     }
 
 
 
 
-   // namespacing sessions
-   // -------------------------------------------------------------------------
+    // namespacing sessions
+    // -------------------------------------------------------------------------
 
-   /**
-    * Gets the value of a namespaced session variable if it exists
-    *
-    * @param string  $namespace  Namespace to use
-    * @param string  $key  Key to retrieve
-    * @param boolean $strict  Throw exception if $key does not exist?
-    * @throws Exception
-    * @return mixed
-    */
-   public static function get($namespace, $key, $strict=FALSE)
-   {
-      // starts up the session if it hasn't already been started
-      self::startSession();
+    /**
+     * Gets the value of a namespaced session variable if it exists
+     *
+     * @param string  $type  Type of data being stored (a subset of stored data)
+     * @param string  $namespace  Namespace to use
+     * @param string  $key  Key to retrieve
+     * @param mixed  $default  Default value to return if no value exists
+     * @throws Exception
+     * @return mixed
+     */
+    public static function get($type, $namespace, $key, $default=null)
+    {
+        // starts up the session if it hasn't already been started
+        self::startSession();
 
-      // check that this key exists
-      if (!self::isKey($namespace, $key)) {
-         if ($strict) {
-            throw new Exception('Cannot get session variable ' . $key . '. Key does not exist in this namespace.');
-         }
+        // check that this key exists
+        if (!self::isKey($type, $namespace, $key)) {
+            return $default;
+        }
 
-         // if not strict, just return NULL
-         return NULL;
-      }
-
-      return $_SESSION['_statamic']['plugins'][$namespace][$key];
-   }
+        return $_SESSION['_statamic'][$type][$namespace][$key];
+    }
 
 
-   /**
-    * Sets the value of a namespaced session variable
-    *
-    * @param string  $namespace  Namespace to set
-    * @param string  $key  Key to set within the namespace
-    * @param mixed  $value  Value to set
-    * @return void
-    */
-   public static function set($namespace, $key, $value)
-   {
-      // starts up the session if it hasn't already been started
-      self::startSession();
+    /**
+     * Sets the value of a namespaced session variable
+     *
+     * @param string  $type  Type of data being stored (a subset of stored data)
+     * @param string  $namespace  Namespace to set
+     * @param string  $key  Key to set within the namespace
+     * @param mixed  $value  Value to set
+     * @return void
+     */
+    public static function set($type, $namespace, $key, $value)
+    {
+        // starts up the session if it hasn't already been started
+        self::startSession();
+        
+        // ensure arrays exist
+        self::ensure($namespace, $type);
 
-      if (!self::isNamespace($namespace)) {
-         $_SESSION['_statamic']['plugins'][$namespace] = array();
-      }
-
-      $_SESSION['_statamic']['plugins'][$namespace][$key] = $value;
-   }
-
-
-   /**
-    * destroy
-    * Destroys a namespace, unsetting all values within it
-    *
-    * @param string  $namespace  Namespace to destroy
-    * @return void
-    */
-   public static function destroy($namespace)
-   {
-      // starts up the session if it hasn't already been started
-      self::startSession();
-
-      if (self::isNamespace($namespace)) {
-         unset($_SESSION['_statamic']['plugins'][$namespace]);
-      }
-   }
+        $_SESSION['_statamic'][$type][$namespace][$key] = $value;
+    }
 
 
-   /**
-    * Unsets a given $key from a given $namespace
-    *
-    * @param string  $namespace  Namespace to use
-    * @param string  $key  Key to unset
-    * @return void
-    */
-   public static function unsetKey($namespace, $key)
-   {
-      // starts up the session if it hasn't already been started
-      self::startSession();
-
-      if (self::isKey($namespace, $key)) {
-         unset($_SESSION['_statamic']['plugins'][$namespace][$key]);
-      }
-   }
+    /**
+     * Ensures that a given $type and $namespace exist as arrays in the session
+     * 
+     * @param string  $type  Type to ensure for this session
+     * @param string  $namespace  Namespace to ensure for this session
+     * @return void
+     */
+    public static function ensure($type, $namespace)
+    {
+        self::ensureType($type);
+        self::ensureNamespace($type, $namespace);
+    }
 
 
-   /**
-    * Checks if a given $namespace exists
-    *
-    * @param string  $namespace  Namespace to check
-    * @return boolean
-    */
-   public static function isNamespace($namespace)
-   {
-      // starts up the session if it hasn't already been started
-      self::startSession();
-
-      return isset($_SESSION['_statamic']['plugins'][$namespace]);
-   }
-
-
-   /**
-    * Checks to see if a given $key exists within a given $namespace
-    *
-    * @param string  $namespace  Namespace to check within
-    * @param string  $key  Key to check
-    * @return boolean
-    */
-   public static function isKey($namespace, $key)
-   {
-      self::startSession();
-
-      if (!self::isNamespace($namespace)) {
-         return FALSE;
-      }
-
-      return (isset($_SESSION['_statamic']['plugins'][$namespace][$key]));
-   }
+    /**
+     * Ensures that a given $type exists in the session
+     * 
+     * @param string  $type  Type to ensure
+     * @return void
+     */
+    public static function ensureType($type)
+    {
+        if (!self::isType($type)) {
+            $_SESSION['_statamic'][$type] = array();
+        }
+    }
 
 
-   /**
-    * Starts up the session if it hasn't already been started, otherwise aborts
-    *
-    * @return void
-    */
-   protected static function startSession()
-   {
-      // enable sessions if that hasn't been done
-      if (!isset($_SESSION)) {
-         session_start();
-      }
+    /**
+     * Ensures that a given $namespace exists in the session/$type
+     * 
+     * @param string  $type  Type to ensure
+     * @param string  $namespace  Namespace to ensure
+     * @return void
+     */
+    public static function ensureNamespace($type, $namespace)
+    {
+        if (!self::isNamespace($namespace, $type)) {
+            $_SESSION['_statamic'][$type] = array();
+        }
+    }
 
-      // check for our namespaced variables
-      if (isset($_SESSION['_statamic'])) {
-         return;
-      }
 
-      // start up our namespaced session
-      $_SESSION['_statamic'] = array(
-         'plugins' => array()
-         );
-   }
+    /**
+     * destroy
+     * Destroys a namespace, unsetting all values within it
+     *
+     * @param string  $type  Type of data being stored (a subset of stored data)
+     * @param string  $namespace  Namespace to destroy
+     * @return void
+     */
+    public static function destroy($type, $namespace)
+    {
+        // starts up the session if it hasn't already been started
+        self::startSession();
+
+        if (self::isNamespace($type, $namespace)) {
+            unset($_SESSION['_statamic'][$type][$namespace]);
+        }
+    }
+
+
+    /**
+     * Unsets a given $key from a given $namespace
+     *
+     * @param string  $type  Type of data being stored (a subset of stored data)
+     * @param string  $namespace  Namespace to use
+     * @param string  $key  Key to unset
+     * @return void
+     */
+    public static function unsetKey($type, $namespace, $key)
+    {
+        // starts up the session if it hasn't already been started
+        self::startSession();
+
+        if (self::isKey($type, $namespace, $key)) {
+            unset($_SESSION['_statamic'][$type][$namespace][$key]);
+        }
+    }
+
+
+    /**
+     * Checks if a given $type exists
+     * 
+     * @param string  $type  Type to check
+     * @return boolean
+     */
+    public static function isType($type)
+    {
+        // starts up the session if it hasn't already been started
+        self::startSession();
+
+        return (isset($_SESSION['_statamic'][$type]) && is_array($_SESSION['_statamic'][$type]));
+    }
+
+
+    /**
+     * Checks if a given $namespace exists
+     *
+     * @param string  $type  Type of data being stored (a subset of stored data)
+     * @param string  $namespace  Namespace to check
+     * @return boolean
+     */
+    public static function isNamespace($type, $namespace)
+    {
+        // starts up the session if it hasn't already been started
+        self::startSession();
+
+        return (self::isType($type) && isset($_SESSION['_statamic'][$type][$namespace]) && is_array($_SESSION['_statamic'][$type][$namespace]));
+    }
+
+
+    /**
+     * Checks to see if a given $key exists within a given $namespace
+     *
+     * @param string  $type  Type of data being stored (a subset of stored data)
+     * @param string  $namespace  Namespace to check within
+     * @param string  $key  Key to check
+     * @return boolean
+     */
+    public static function isKey($type, $namespace, $key)
+    {
+        self::startSession();
+
+        if (!self::isType($type) || !self::isNamespace($type, $namespace)) {
+            return false;
+        }
+
+        return (isset($_SESSION['_statamic'][$type][$namespace][$key]));
+    }
+
+
+    /**
+     * Starts up the session if it hasn't already been started, otherwise aborts
+     *
+     * @return void
+     */
+    protected static function startSession()
+    {
+        // enable sessions if that hasn't been done
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+
+        // check for our namespaced variables
+        if (isset($_SESSION['_statamic'])) {
+            return;
+        }
+
+        // start up our namespaced session
+        $_SESSION['_statamic'] = array();
+    }
 }

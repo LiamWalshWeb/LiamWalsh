@@ -3,7 +3,7 @@
   <div id="status-bar">
     <div class="status-block">
       <span class="muted"><?php echo $status_message ?></span>
-      <span class="folder"><?php echo $full_name; ?></span>
+      <span class="folder"><?php echo $full_name ?></span>
     </div>
     <ul>
       <li>
@@ -15,7 +15,7 @@
     </ul>
   </div>
 
-  <form method="post" action="member?name=<?php print $name ?>" data-validate="parsley" class="primary-form" autocomplete="off">
+  <form method="post" action="member?name=<?php print $original_name ?>" data-validate="parsley" class="primary-form" autocomplete="off">
 
     <input type="hidden" name="member[original_name]" value="<?php print $original_name ?>" />
 
@@ -36,55 +36,57 @@
       </div>
       <?php endif ?>
 
-      <div class="input-block input-text required">
-        <label for="member-username"><?php echo Localization::fetch('username')?></label>
-        <input type="text" id="member-username" name="member[name]" value="<?php print $name ?>" data-required="true" autocomplete="off" />
-      </div>
+        <?php
+        $_errors = (!isset($_errors) || !is_array($_errors)) ? array() : $_errors;
+        foreach ($fields['fields'] as $key => $value):
 
-      <div class="input-block input-text required">
-        <label for="member-email"><?php echo Localization::fetch('email')?></label>
-        <input type="email" name="member[yaml][email]" id="member-email" value="<?php print $email; ?>" data-required="true" autocomplete="off" />
-      </div>
+          $fieldtype = array_get($value, 'type', 'text');
+          $error = array_get($_errors, $key, null);
 
-      <div class="input-block input-text">
-        <label for="member-first-name"><?php echo Localization::fetch('first_name')?></label>
-        <input type="text" name="member[yaml][first_name]" class="text title" id="gaa" value="<?php print $first_name; ?>" autocomplete="off" />
-      </div>
+          // Value
+          $val = "";
+          if (isset($$key)) {
+            $val = $$key;
+          } elseif (isset($value['default'])) {
+            $val = $value['default'];
+          }
 
-      <div class="input-block input-text">
-        <label for="member-last-name"><?php echo Localization::fetch('last_name')?></label>
-        <input type="text" name="member[yaml][last_name]" id="member-last-name" value="<?php print $last_name; ?>" autocomplete="off" />
-      </div>
+          // If no display label is set, we'll prettify the fieldname itself
+          $value['display'] = array_get($value, 'display', Slug::prettify($key));
 
+          // By default all fields are part of the 'yaml' key. They may need to be overridden
+          // to set a meta/system field, like Content.
+          $input_key = array_get($value, 'input_key', '[yaml]');
 
-      <div class="input-block" data-bind="visible: showChangePassword() !== true">
-        <label for="member-password"><?php echo Localization::fetch('password')?></label>
-        <div class="well">
-          <a href="#" class="btn btn-small" data-bind="click: changePassword">Change Password</a>
+          $wrapper_attributes = array();
+          $wrapper_classes = array(
+            'input-block',
+            'input-' . $fieldtype
+          );
+
+          if (array_get($value, 'required', false) === TRUE) {
+            $wrapper_classes[] = 'required';
+            $wrapper_attributes[] = 'required';
+          }
+
+          if ($fieldtype === 'password') {
+            $wrapper_classes[] = 'input-text';
+            $wrapper_attributes[] = "data-bind='visible: showChangePassword, css: {required: showChangePassword}'";
+          }
+
+          if ($fieldtype === 'show_password') {
+            $wrapper_attributes[] = "data-bind='visible: showChangePassword() !== true'";
+          }
+
+        ?>
+
+        <div class="<?php echo implode($wrapper_classes, ' ')?>" <?php echo implode($wrapper_attributes, ' ')?>>
+          <?php 
+          print Fieldtype::render_fieldtype($fieldtype, $key, $value, $val, tabindex(), $input_key, null, $error);
+          ?>
         </div>
-      </div>
 
-      <div class="input-block input-text input-password" data-bind="visible: showChangePassword, css: {required: showChangePassword}">
-        <label for="member-password"><?php echo Localization::fetch('password')?></label>
-        <input type="password" name="member[yaml][password]" id="member-password" value="" autocomplete="off" data-bind="css: {required: showChangePassword}" />
-      </div>
-
-      <div class="input-block input-text input-password" data-bind="visible: showChangePassword, css: {required: showChangePassword}">
-        <label for="member-password-confirmation"><?php echo Localization::fetch('password_confirmation')?></label>
-        <input type="password" name="member[yaml][password_confirmation]" id="member-password-confirmation" value="" autocomplete="off" data-bind="css: {required: showChangePassword}" />
-      </div>
-
-      <div class="input-block input-checkbox input">
-        <div class="checkbox-block">
-          <input type="checkbox" name="member[yaml][roles]" id="member-roles" value="admin" <?php if ($roles) print "checked" ?> />
-          <label for="member-roles"><?php echo Localization::fetch('admin')?></label>
-        </div>
-      </div>
-
-      <div class="input-block input-textarea markitup">
-        <label for="member-bio"><?php echo Localization::fetch('biography')?></label>
-        <textarea name="member[biography]" id="member-bio"><?php print $biography; ?></textarea>
-      </div>
+      <?php endforeach ?>
 
     </div>
 
@@ -94,10 +96,18 @@
 
   </form>
 </div>
+<?php 
+function tabindex()
+{
+  static $count = 1;
+
+  return $count++;
+}
+?>
 
 <script type="text/javascript">
   var viewModel = {
-      showChangePassword: ko.observable(<?php if (isset($new)) {echo "true";} else {echo "false";} ?>),
+      showChangePassword: ko.observable(<?php if (isset($_GET['new'])) {echo "true";} else {echo "false";} ?>),
       changePassword: function() {
         this.showChangePassword(true);
       }

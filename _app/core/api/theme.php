@@ -1,4 +1,7 @@
 <?php
+
+use Symfony\Component\Finder\Finder as Finder;
+
 /**
  * Theme
  * API for interacting with the site's themes
@@ -48,7 +51,7 @@ class Theme
      */
     public static function getTemplate($template)
     {
-        return File::get(self::getTemplatePath() . $template . '.html');
+        return File::get(Path::assemble(BASE_PATH, self::getTemplatePath(), $template . '.html'));
     }
 
 
@@ -78,31 +81,21 @@ class Theme
     public static function getTemplates($theme=NULL)
     {
         $templates = array();
-        $list = glob("_themes/" . Helper::pick($theme, Config::getTheme()) . "/templates/*");
-        if ($list) {
-            foreach ($list as $name) {
-                if (is_dir($name)) {
-                    $folder_array = explode('/',rtrim($name,'/'));
-                    $folder_name = end($folder_array);
 
-                    $sub_list = glob($name.'/*');
+        $finder = new Finder();
 
-                    foreach ($sub_list as $sub_name) {
-                        $start = strrpos($sub_name, "/")+1;
-                        $end = strrpos($sub_name, ".");
-                        $templates[] = $folder_name.'/'.substr($sub_name, $start, $end-$start);
-                    }
-                } else {
-                    $start = strrpos($name, "/")+1;
-                    $end = strrpos($name, ".");
-                    $templates[] = substr($name, $start, $end-$start);
-                }
-            }
+        $files = $finder->files()
+          ->in(Path::assemble(BASE_PATH, Config::getThemesPath(), Config::getTheme(), 'templates'))
+          ->name('*.html')
+          ->followLinks();
 
-            return $templates;
+        if (iterator_count($files) > 0) {
+          foreach ($files as $file) {
+            $templates[] = str_replace('.' . $file->getExtension(), '', $file->getRelativePathname());
+          }
         }
 
-        return array();
+        return $templates;
     }
 
 

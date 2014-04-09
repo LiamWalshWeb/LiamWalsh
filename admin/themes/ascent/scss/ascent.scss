@@ -393,6 +393,12 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+.error {
+  color: $red;
+  font-weight: bold;
+  margin: 0 0 0.25em;
+}
+
 .member-block {
   position: relative;
   .confirm {
@@ -1052,7 +1058,8 @@ table.log {
   }
 }
 
-.input-checkbox {
+.input-checkbox,
+.input-checkboxes {
   input {
     float: left;
     line-height:20px;
@@ -1076,6 +1083,13 @@ table.log {
       vertical-align:middle;
       line-height:20px;
     }
+  }
+}
+
+.input-checkboxes {
+  label,
+  small {
+    display: block;
   }
 }
 

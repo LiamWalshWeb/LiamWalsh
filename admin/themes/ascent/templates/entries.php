@@ -27,14 +27,14 @@
 
   <form action="<?php print $app->urlFor('delete_entry')?>" action="POST">
     <div class="section">
-      <table class="simple-table sortable">
+      <table class="simple-table <?php echo ($type == 'date') ? "entries-" : ''; ?>sortable">
         <thead>
           <tr>
             <th class="checkbox-col"></th>
             <th><div class="header-inner"><?php echo Localization::fetch('title')?></div></th>
             <?php if ($type == 'date'): ?>
               <th><div class="header-inner"><?php echo Localization::fetch('date')?></div></th>
-            <?php elseif ($type == 'number'): ?>
+            <?php elseif ($type == 'number' || $type == 'numeric'): ?>
               <th><div class="header-inner"><?php echo Localization::fetch('number')?></div></th>
             <?php endif; ?>
             <th style="width:80px"><div class="header-inner"><?php echo Localization::fetch('status')?></div></th>
@@ -55,7 +55,11 @@
             </td>
 
             <?php if ($type == 'date'): ?>
-              <td><?php print date("Y/m/d", strtotime(@$entry['date']))?></td>
+              <td data-fulldate="<?php echo $entry['datestamp']; ?>">
+                  <?php
+                  echo Date::format(Config::getDateFormat('Y/m/d'), $entry['datestamp']);
+                  ?>
+              </td>
             <?php elseif ($type == 'number'): ?>
               <td><?php print $entry['numeric'] ?></td>
             <?php endif ?>

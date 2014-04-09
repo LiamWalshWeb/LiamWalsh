@@ -1926,7 +1926,7 @@ button.close{padding:0;cursor:pointer;background:transparent;border:0;-webkit-ap
 }
 .selectize-dropdown {
   position: absolute;
-  z-index: 2;
+  z-index: 999;
 }
 .selectize-dropdown [data-selectable] {
   cursor: pointer;

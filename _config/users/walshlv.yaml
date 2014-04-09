@@ -7,9 +7,8 @@ email: walshlv.business@gmail.com
 password: ""
 salt: ""
 encrypted_password: ""
-username: walshlv
-password_hash: >
-  $2a$08$e29IUbUol.VnmJWFrM0U2.t/MeqSeG9cfFRBi8xE/OtR1LJmzbaFG
+password_hash: $2a$08$e29IUbUol.VnmJWFrM0U2.t/MeqSeG9cfFRBi8xE/OtR1LJmzbaFG
+_uid: dSkbWh53459f9858d622Pd97sPB
 ---
 The username is the name of the yaml file. In this case it is "admin".
 

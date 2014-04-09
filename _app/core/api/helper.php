@@ -280,40 +280,38 @@ class Helper
     /**
      * Parses a mixed folder representation into a standardized array
      *
+     * @deprecated
      * @param mixed  $folders  Folders
      * @return array
      */
     public static function parseForFolders($folders)
     {
-        $output = array();
+        Log::warn('Helper::parseForFolders has been deprecated. Use Parse::pipeList() instead.', 'core', 'api');
+        return Parse::pipeList($folders);
+    }
 
-        // make an array of all options
-        if (is_array($folders)) {
-            foreach ($folders as $folder) {
-                if (strpos($folder, "|") !== false) {
-                    $output = array_merge($output, explode("|", $folder));
+
+    /**
+     * Deep merges arrays better than array_merge_recursive()
+     *
+     * @param arrays  takes two arrays to tango
+     * @return array
+     */
+    public static function &arrayCombineRecursive(array &$array1, &$array2 = null)
+    {
+        $merged = $array1;
+     
+        if (is_array($array2)) {
+            foreach ($array2 as $key => $val) {
+                if (is_array($array2[$key])) {
+                    $merged[$key] = (isset($merged[$key]) && is_array($merged[$key])) ? self::arrayCombineRecursive($merged[$key], $array2[$key]) : $array2[$key];
                 } else {
-                    array_push($output, $folder);
+                    $merged[$key] = $val;
                 }
             }
-        } else {
-            if (strpos($folders, "|") !== false) {
-                $output = explode("|", $folders);
-            } else {
-                array_push($output, $folders);
-            }
         }
-
-        // now fix the array
-        if (!count($output)) {
-            $output = array();
-        } else {
-            $output = array_map(function($item) {
-                return Path::removeStartingSlash($item);
-            }, $output);
-        }
-
-        return array_unique($output);
+     
+      return $merged;
     }
     
     
@@ -331,7 +329,9 @@ class Helper
         // loop through arguments, adding flattened versions to $data
         foreach ($args as $arg) {
             if (is_array($arg)) {
-                array_push($data, join("|", $arg));
+                array_push($data, join('|', $arg));
+            } elseif (is_bool($arg)) {
+                array_push($data, ($arg) ? 'true' : 'false');
             } else {
                 array_push($data, $arg);
             }
@@ -339,5 +339,30 @@ class Helper
         
         // return a hash of the flattened $data array
         return md5(join('%', $data));
+    }
+    
+    public static function strrpos_count($haystack, $needle, $instance=0)
+    {
+//        r('---');
+//        r($haystack);
+//        r($instance);
+        
+        do {
+            // get the last occurrence in the current haystack
+            $last = strrpos($haystack, $needle);
+//            d($last);
+            
+            if ($last === false) {
+                return false;
+            }
+            
+            $haystack = substr($haystack, 0, $last);
+//            d($haystack);
+            
+            $instance--;
+        } while ($instance >= 0);
+        
+//        d('out: ' . $last);
+        return $last;
     }
 }

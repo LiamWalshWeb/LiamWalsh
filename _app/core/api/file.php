@@ -1,26 +1,34 @@
 <?php
+
 /**
  * File
  * API for interacting with files
  *
- * @author      Jack McDade
- * @author      Fred LeBlanc
- * @author      Mubashar Iqbal
+ * @author      Statamic
  * @package     API
- * @copyright   2013 Statamic
+ * @copyright   2014 Statamic
  */
+
+use Symfony\Component\Filesystem\Filesystem as Filesystem;
+
 class File
 {
 
+    public function __constructor() {
+
+    }
+
     /**
-     * Determine if a file exists.
+     * Determine if files exist.
      *
-     * @param  string  $path
-     * @return bool
+     * @param  mixed  $path
+     * @return Boolean true if the file exists, false otherwise
      */
-    public static function exists($path)
+    public static function exists($files)
     {
-        return file_exists($path);
+        $fs = new Filesystem();
+        
+        return $fs->exists($files);
     }
 
 
@@ -46,17 +54,17 @@ class File
 
 
     /**
-     * Write to a file.
+     * Atomically dump content into a file.
      *
-     * @param  string  $path  Path of file to store
-     * @param  string  $data  Content to store
-     * @return int
+     * @param  string  $filename  Path of file to store
+     * @param  string  $content   Content to store
+     * @return void
      */
-    public static function put($path, $data)
+    public static function put($filename, $content, $mode = 0666)
     {
-        umask(0);
-        Folder::make(dirname($path));
-        return file_put_contents($path, $data, LOCK_EX);
+        $fs = new Filesystem();
+        
+        $fs->dumpFile($filename, $content, $mode);
     }
 
 
@@ -89,56 +97,99 @@ class File
 
 
     /**
-     * Delete a file.
+     * Removes files or directories
      *
-     * @param  string  $path  Path of file to delete
-     * @return bool
+     * @param string|array|  $files  A filename or an array of files
+     * @return fixed
      */
-    public static function delete($path)
+    public static function delete($files)
     {
-        if (static::exists($path)) {
-            return @unlink($path);
-        }
+        $fs = new Filesystem();
+        
+        $fs->remove($files);
     }
 
 
     /**
      * Move a file to a new location.
      *
-     * @param  string  $path  Path of file to move
-     * @param  string  $destination  Destination path for the file
+     * @param string  $origin    The origin filename or directory
+     * @param string  $target    The new filename or directory
+     * @param Boolean $overwrite Whether to overwrite the target if it already exists
      * @return resource
      */
-    public static function move($path, $destination)
+    public static function move($origin, $target, $overwrite = false)
     {
-        return rename($path, $destination);
+        $fs = new Filesystem();
+
+        $fs->rename($origin, $target, $overwrite);
+    }
+
+    /**
+     * Rename a file or directory
+     *
+     * @param string  $origin    The origin filename or directory
+     * @param string  $target    The new filename or directory
+     * @param Boolean $overwrite Whether to overwrite the target if it already exists
+     * @return resource
+     */
+    public static function rename($origin, $target, $overwrite = false)
+    {
+        $fs = new Filesystem();
+
+        if ( ! self::inBasePath($origin)) {
+            $origin = Path::assemble(BASE_PATH, $origin);
+        } 
+
+        if ( ! self::inBasePath($target)) {
+            $target = Path::assemble(BASE_PATH, $target);
+        } 
+
+        $fs->rename($origin, $target, $overwrite);
+    }
+
+
+    /**
+     * Check if a path is inside Statamic's BASE_PATH
+     *
+     * @param string  $path  The filename or directory
+     * @return boolean
+     */
+    public static function inBasePath($path) {
+        return stripos($path, BASE_PATH);
     }
 
     /**
      * Upload a file.
      *
      * @param string  $file  Name of file
-     * @param string  $destination  Destination of file
+     * @param string  $target  target of file
      * @param string  $filename  Name of new file
      * @return bool
      **/
-    public static function upload($file, $destination, $filename = null)
+    public static function upload($file, $target, $filename = null)
     {
-        Folder::make($destination);
-        return move_uploaded_file($file, $destination . '/' . $filename);
+        Folder::make($target);
+        return move_uploaded_file($file, $target . '/' . $filename);
     }
 
 
     /**
-     * Copy a file to a new location.
+     * Copies a file.
      *
-     * @param  string  $path  Path of file to copy
-     * @param  string  $destination  Destination path for the file copy
-     * @return resource
+     * This method only copies the file if the origin file is newer than the target file.
+     *
+     * By default, if the target already exists, it is not overridden.
+     *
+     * @param string  $originFile The original filename
+     * @param string  $targetFile The target filename
+     * @param boolean $override   Whether to override an existing file or not
      */
-    public static function copy($path, $destination)
+    public static function copy($originFile, $targetFile, $override = false)
     {
-        return copy($path, $destination);
+        $fs = new Filesystem();
+
+        $fs->copy($originFile, $targetFile, $override);
     }
 
 
@@ -195,6 +246,31 @@ class File
         return filesize($path);
     }
 
+    /**
+     * Get the human file size of a given file.
+     *
+     * @param  string  $path  Path of file
+     * @return int
+     */
+    public static function getHumanSize($bytes)
+    {
+        if ($bytes >= 1073741824) {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            $bytes = number_format($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes > 1) {
+            $bytes = $bytes . ' bytes';
+        } elseif ($bytes == 1) {
+            $bytes = $bytes . ' byte';
+        } else {
+            $bytes = '0 bytes';
+        }
+
+        return $bytes;
+    }
+
 
     /**
      * Get the file's last modification time.
@@ -202,8 +278,7 @@ class File
      * @param  string  $path  Path of file
      * @return int
      */
-    public static function getLastModified($path)
-    {
+    public static function getLastModified($path) {
         return filemtime($path);
     }
 
@@ -356,6 +431,21 @@ class File
     public static function isImage($file)
     {
         return self::is(array('jpg', 'jpeg', 'png', 'gif'), $file);
+    }
+
+
+    /**
+     * Returns whether the file path is an absolute path.
+     *
+     * @param string $file A file path
+     *
+     * @return Boolean
+     */
+    public function isAbsolutePath($file)
+    {
+        $fs = new Filesystem();
+
+        return $fs->isAbsolutePath($file);
     }
 
 }

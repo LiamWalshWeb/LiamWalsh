@@ -1,25 +1,23 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Hook: Routes Before
-|--------------------------------------------------------------------------
-|
-| Useful for running your own route. Remember to use $app->pass() if
-| you're not doing anything with the current request.
-|
-*/
-
-Hook::run('core', 'routes_before');
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // ROUTING HOOKS
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-$app->map('/TRIGGER/:namespace/:hook', function ($namespace, $hook) use ($app) {
+$app->map('/TRIGGER/:namespace/:hook(/:segments+)', function ($namespace, $hook, $segments = array()) use ($app) {
 
-    Hook::run($namespace, $hook);
+    /*
+    |--------------------------------------------------------------------------
+    | Hook: Routes Before
+    |--------------------------------------------------------------------------
+    |
+    | Useful for running your own route. Remember to use $app->pass() if
+    | you're not doing anything with the current request.
+    |
+    */
+    Hook::run('_routes', 'before');
+
+    Hook::run($namespace, $hook, null, null, $segments);
 
 })->via('GET', 'POST', 'HEAD');
 
@@ -29,24 +27,87 @@ $app->map('/TRIGGER/:namespace/:hook', function ($namespace, $hook) use ($app) {
 // Static Asset Pipeline (for development only!)
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-$app->get('/assets/(:segments+)', function($segments = array()) use ($app) {
+if (Config::get('enable_static_pipeline', true)) {
 
+    $app->get('/assets/(:segments+)', function($segments = array()) use ($app) {
+
+        // clean segments
+        $segments = URL::sanitize($segments);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hook: Routes Before
+        |--------------------------------------------------------------------------
+        |
+        | Useful for running your own route. Remember to use $app->pass() if
+        | you're not doing anything with the current request.
+        |
+        */
+        Hook::run('_routes', 'before');
+
+        $file_requested = implode($segments, '/');
+        $file = Theme::getPath() . $file_requested;
+
+        $file = realpath($file);
+
+        # Routes only if the file doesn't already exist (e.g. /assets/whatever.ext)
+        if ( ! File::exists(array($file_requested, $file))) {
+
+            Log::warn("The Static Asset Pipeline is deprecated. It may yet come back to fight another battle someday.", "core", "asset pipeline");
+
+            $mime = File::resolveMime($file);
+
+            header("Content-type: {$mime}");
+            readfile($file);
+
+            exit();
+
+        } else {
+
+            // Moving on. Not a valid asset.
+            $app->pass();
+        }
+
+    });
+
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Bundle Asset Pipeline
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+$app->get('/_add-ons/(:segments+)', function($segments = array()) use ($app) {
+
+    // clean segments
+    $segments = URL::sanitize($segments);
     $file_requested = implode($segments, '/');
-    $file = Theme::getPath() . $file_requested;
+    
+    $bundle_folder  = APP_PATH . "/core/bundles/" . $segments[0];
+    $file = APP_PATH . "/core/bundles/" . $file_requested;
 
-    # Routes only if the file doesn't already exist (e.g. /assets/whatever.ext)
-    if ( ! File::exists($file_requested) && File::exists($file)) {
-        $mime = File::resolveMime($file);
+    $file = realpath($file);
+    
+    if (strpos($file_requested, '../') !== false || File::getExtension($file) === 'php') {
+        $app->pass();
+        return;
+    }
 
-        header("Content-type: {$mime}");
-        readfile($file);
+    if (Folder::exists($bundle_folder)) {
+        if (File::exists($file)) {
+            $mime = File::resolveMime($file);
+
+            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+
+            if (Config::get('http_cache_expires', false)) {
+                header("Expires: " . gmdate("D, d M Y H:i:s", strtotime('+' . Config::get('http_cache_expires', '30 minutes'))) . " GMT");
+            }
+
+            header("Content-type: {$mime}");
+            readfile($file);
+        }
 
         exit();
-
-    } else {
-
-        // Moving on. Not a valid asset.
-        $app->pass();
     }
 
 });
@@ -58,13 +119,40 @@ $app->get('/assets/(:segments+)', function($segments = array()) use ($app) {
 
 $app->map('/(:segments+)', function ($segments = array()) use ($app) {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Hook: Request Post
+    |--------------------------------------------------------------------------
+    |
+    | Do a thing with a POST request. Go ahead. Do it.
+    |
+    */
+    if ($app->request()->isPost()) {
+        Hook::run('request', 'post');
+    }
+
+    // clean segments
+    $segments = URL::sanitize($segments);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Hook: Routes Before
+    |--------------------------------------------------------------------------
+    |
+    | Useful for running your own route. Remember to use $app->pass() if
+    | you're not doing anything with the current request.
+    |
+    */
+    Hook::run('_routes', 'before');
+
     $requesting_xml = false;
     $content_found  = false;
 
     // segments
     foreach ($segments as $key => $seg) {
         $count                            = $key + 1;
-        $app->config['segment_' . $count] = $seg;
+        $app->config['segment_' . $count] = URL::sanitize($seg);
     }
     $app->config['last_segment'] = end($segments);
 
@@ -145,14 +233,32 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
         $app->config['current_path'] = $path; # override global current_path
     }
 
+    // check for routes
+    // allows the route file to run without "route:" as the top level array key (backwards compatibility)
+    $found_route  = null;
+    $routes       = array_get($app->config, '_routes:routes', array_get($app->config, '_routes'));
+
+    // look for matching routes
+    if (is_array($routes)) {
+        foreach ($routes as $route_url => $route_data) {
+            if (preg_match('#^' . str_replace(array('.', '*'), array('\.', '.*?'), $route_url) . '$#i', $current_url, $matches)) {
+                // found a route, save it and get out
+                $found_route = array(
+                    'url' => $route_url,
+                    'data' => $route_data
+                );
+                break;
+            }
+        }
+    }
+
     // routes via routes.yaml
-    if (isset($app->config['_routes']['routes'][$current_url]) || isset($app->config['_routes'][$current_url])) {
-        # allows the route file to run without "route:" as the top level array key (backwards compatibility)
-        $current_route = isset($app->config['_routes']['routes'][$current_url]) ? $app->config['_routes']['routes'][$current_url] : $app->config['_routes'][$current_url];
+    if ($found_route) {
+        $current_route = $found_route['data'];
 
         $route    = $current_route;
         $template = $route;
-        $data     = array();
+        $data     = $app->config;  // start with the current global vars
 
         if (is_array($route)) {
             $template = isset($route['template']) ? $route['template'] : 'default';
@@ -175,7 +281,7 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
         $data['current_url'] = $current_url;
         $data['slug']        = basename($current_url);
 
-        if ($path !== "404") {
+        if ($path !== "/404") {
             $content_found = true;
         }
 
@@ -210,9 +316,29 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
         $data['current_url'] = $current_url;
         $data['slug']        = basename($current_url);
 
-        if ($path !== "404") {
+        if ($path !== "/404") {
             $content_found = true;
         }
+    }
+
+    // content was found
+    if ($content_found) {
+        // protect
+        if (is_array($data) && $data) {
+            try {
+                Addon::getAPI('protect')->hasAccess(URL::getCurrent());
+            } catch (Slim\Exception\Stop $e) {
+                throw $e;
+            } catch (Exception $e) {
+                // something went wrong with protect, 404 this
+                Log::error('The following error occurred while trying to protect `' . htmlspecialchars($data['current_url']) . '`: ' . $e->getMessage() . ' — for extra precaution, we sent this use the 404 page.', 'core', 'protect');
+                $content_found = false;
+                $response_code = 404;
+            }
+        }
+
+        // alter the response code if you want
+        $response_code = array_get($data, '_response', $response_code);
     }
 
     // Nothing found. 404 O'Clock.
@@ -258,7 +384,7 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
 
     # Redirect
     if (isset($data['_redirect'])) {
-        $response = 302;
+        $response_code = 302;
 
         if (is_array($data['_redirect'])) {
             $url = isset($data['_redirect']['to']) ? $data['_redirect']['to'] : false;
@@ -267,13 +393,13 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
                 $url = isset($data['_redirect']['url']) ? $data['_redirect']['url'] : false; #support url key as alt
             }
 
-            $response = isset($data['_redirect']['response']) ? $data['_redirect']['response'] : $response;
+            $response_code = isset($data['_redirect']['response']) ? $data['_redirect']['response'] : $response_code;
         } else {
             $url = $data['_redirect'];
         }
 
         if ($url) {
-            $app->redirect($url, $response);
+            $app->redirect($url, $response_code);
         }
     }
 
@@ -302,11 +428,12 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
     }
 
     // grab data for this folder
-    $folder_data = Content::get(dirname($current_url));
+    $folder_data = Content::get(Path::tidy('/' . Config::getSiteRoot() . '/' . dirname($current_url)));
+
     $fields_data = YAML::parseFile(Path::tidy(BASE_PATH . "/" . Config::getContentRoot() . dirname($current_url) . '/fields.yaml'));
 
     // Check for fallback template
-    if (empty($data['_template'])) {
+    if ($content_found && empty($data['_template'])) {
         // check fields.yaml first
         if (array_get($fields_data, '_default_folder_template')) {
             $data['_template'] = $fields_data['_default_folder_template'];
@@ -317,7 +444,7 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
     }
 
     // Check for fallback layout
-    if (empty($data['_layout'])) {
+    if ($content_found && empty($data['_layout'])) {
         // check fields.yaml first
         if (array_get($fields_data, '_default_folder_layout')) {
             $data['_layout'] = $fields_data['_default_folder_layout'];
@@ -326,8 +453,6 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
             $data['_layout'] = $folder_data['_default_folder_layout'];
         }
     }
-
-
 
     // set template and layout
     if (isset($data['_template'])) {
@@ -360,7 +485,22 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
     |
     */
 
-    Hook::run('core', 'render_before');
+    Hook::run('_render', 'before');
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTTP Caching
+    |--------------------------------------------------------------------------
+    |
+    | We'll always set the last modified header, but leave the
+    | cache_expires option to people's discretion and configuration.
+    |
+    */
+
+    if (array_get($data, '_http_cache_expires', Config::get('http_cache_expires', false))) {
+        $app->lastModified(Cache::getLastCacheUpdate());
+        $app->expires('+'.Config::get('http_cache_expires', '30 minutes'));
+    }
 
     // and go!
     $app->render(null, $data, $response_code);

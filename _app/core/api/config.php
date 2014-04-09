@@ -22,14 +22,24 @@ class Config
     {
         $app = \Slim\Slim::getInstance();
 
-        if (isset($app->config[$setting])) {
-            return $app->config[$setting];
-
-        } elseif (isset($app->config['_' . $setting])) {
-            return $app->config['_' . $setting];
+        if ( ! isset($app->config)) {
+            return $default;
         }
 
-        return $default;
+        // Fall back to a string default for the next step...
+        $value = array_get($app->config, $setting, 'unset');
+        
+        // which is to add an _underscore prefix check. 
+        if ($value === 'unset') {
+            $value = array_get($app->config, '_' . $setting, 'unset');
+        }
+
+        // If still not set, return default
+        if ($value === 'unset') {
+            $value = $default;
+        }
+
+        return $value;
     }
 
 
@@ -98,7 +108,21 @@ class Config
      */
     public static function getAddOnPath($addon)
     {
-        return URL::assemble(self::getAddOnsPath(), $addon);
+        return Path::assemble(self::getAddOnsPath(), $addon);
+    }
+
+
+    /**
+     * Returns a list of add-on locations
+     *
+     * @return array
+     */
+    public static function getAddOnLocations()
+    {
+        return array(
+            '_app/core/bundles/',  // check first-party bundles first
+            '_add-ons/'            // check third-party add-ons second
+        );
     }
 
 
@@ -261,22 +285,24 @@ class Config
     /**
      * Gets the date format
      *
+     * @param string  $default  Optional default format to return
      * @return string
      */
-    public static function getDateFormat()
+    public static function getDateFormat($default=null)
     {
-        return self::get("date_format", "Y-m-d");
+        return self::get("date_format", $default, "Y-m-d");
     }
 
 
     /**
      * Gets the time format
      *
+     * @param string  $default  Optional default format to return
      * @return string
      */
-    public static function getTimeFormat()
+    public static function getTimeFormat($default=null)
     {
-        return self::get("time_format", "h:ia");
+        return self::get("time_format", $default, "h:ia");
     }
 
 

@@ -43,9 +43,8 @@
           <div class="page-primary">
           <?php
           $base = $page['slug'];
-
           if ($page['type'] == 'file'): ?>
-            <a href="<?php print $app->urlFor('publish')."?path={$page['url']}"; ?>"><span class="page-title"><?php print (isset($page['title']) && $page['title'] <> '') ? $page['title'] : Slug::prettify($page['slug']) ?></span></a>
+            <a href="<?php print $app->urlFor('publish')."?path={$page['slug']}"; ?>"><span class="page-title"><?php print (isset($page['title']) && $page['title'] <> '') ? $page['title'] : Slug::prettify($page['slug']) ?></span></a>
           <?php elseif ($page['type'] == 'home'): ?>
             <a href="<?php print $app->urlFor('publish')."?path={$page['url']}"; ?>"><span class="page-title"><?php print $page['title'] ?></span></a>
           <?php else:
@@ -71,13 +70,13 @@
           <div class="page-extras">
 
             <?php if ($page['type'] == 'file'): ?>
-              <div class="page-view"><a href="<?php print $page['url'] ?>" class="tip" title="View Page"><span class="ss-icon">link</span></a></div>
+              <div class="page-view"><a href="<?php print Path::tidy(Config::getSiteRoot() . '/' . $page['url']) ?>" class="tip" title="View Page"><span class="ss-icon">link</span></a></div>
             <?php elseif ($page['type'] == 'home'): ?>
               <div class="page-view"><a href="<?php print Config::getSiteRoot(); ?>" class="tip" title="View Page"><span class="ss-icon">link</span></a></div>
             <?php else:
               $folder = dirname($page['file_path']);
             ?>
-              <div class="page-view"><a href="<?php print $page['url'] ?>" class="tip" title="View Page"><span class="ss-icon">link</span></a></div>
+              <div class="page-view"><a href="<?php print Path::tidy(Config::getSiteRoot() . '/' . $page['url']) ?>" class="tip" title="View Page"><span class="ss-icon">link</span></a></div>
 
               <?php if (Config::get('_enable_add_child_page', true)): ?>
               <div class="page-add">
@@ -118,9 +117,9 @@
 
       <!-- PAGE TITLE -->
         <?php if ($page['type'] == 'file'): ?>
-          <a href="<?php print $app->urlFor('publish')."?path={$base}/{$page['slug']}"; ?>"><span class="page-title"><?php print isset($page['title']) ? $page['title'] : Statamic_Helper::prettify($page['slug']) ?></span></a>
+          <a href="<?php print $app->urlFor('publish')."?path={$base}/{$page['slug']}"; ?>"><span class="page-title"><?php print isset($page['title']) ? $page['title'] : Slug::prettify($page['slug']) ?></span></a>
         <?php else: ?>
-          <a href="<?php print $app->urlFor('publish')."?path={$page['file_path']}"; ?>"><span class="page-title"><?php print isset($page['title']) ? $page['title'] : Statamic_Helper::prettify($page['slug']) ?></span></a>
+          <a href="<?php print $app->urlFor('publish')."?path={$page['file_path']}"; ?>"><span class="page-title"><?php print isset($page['title']) ? $page['title'] : Slug::prettify($page['slug']) ?></span></a>
 
         <?php endif ?>
 
@@ -144,7 +143,7 @@
       <div class="page-extras">
 
         <div class="page-view">
-          <a href="<?php print $page['url']?>" class="tip" title="View Page">
+          <a href="<?php print Path::tidy(Config::getSiteRoot() . '/' . $page['url'])?>" class="tip" title="View Page">
             <span class="ss-icon">link</span>
           </a>
         </div>

@@ -101,7 +101,7 @@
             <td class="colon">:</td>
             <td class="specifically"><?php echo $row[3]; ?></td>
             <td><a href="<?php echo $row[4]; ?>"><?php echo $row[4]; ?></a></td>
-            <td><?php echo Markdown($row[7]); ?></td>
+            <td><?php echo Parse::markdown($row[7]); ?></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -113,7 +113,7 @@
         <li class="level-<?php echo strtolower($row[0]); ?>">
           <strong class="level level-<?php echo strtolower($row[0]); ?>"><?php echo ucwords(strtolower($row[0])); ?></strong>
 
-          <?php echo Markdown($row[7]); ?>
+          <?php echo Parse::markdown($row[7]); ?>
 
           <h6>
             <?php echo Date::format($time_format, $row[1]); ?> ·

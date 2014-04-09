@@ -79,7 +79,7 @@ class YAML
 
         switch ($mode) {
             case 'loose':
-                return Spyc::YAMLDump($array);
+                return Spyc::YAMLDump($array, false, Config::get('yaml:wrap', 0));
 
             case 'strict':
                 return sYaml::dump($array, 5, 2);

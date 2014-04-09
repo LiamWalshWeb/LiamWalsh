@@ -51,16 +51,7 @@ $(function() {
   // Tablesorter
   //
   /////////////////////////////////////////
-
-  $('.log-sortable').tablesorter({
-    headers: {
-      1: {
-        sorter: "hidden-date"
-      }
-    }
-  });
-
-  $('.sortable').tablesorter();
+	
 
   // Tablesorter
   $.tablesorter.addParser({
@@ -73,6 +64,24 @@ $(function() {
     },
     type: 'numeric'
   });
+
+  $('.log-sortable').tablesorter({
+    headers: {
+      1: {
+        sorter: "hidden-date"
+      }
+    }
+  });
+	
+  $('.entries-sortable').tablesorter({ 
+    headers: {
+	2: {
+	  sorter: "hidden-date"
+	}
+    }
+  });
+
+  $('.sortable').tablesorter();
 
 
 
@@ -291,7 +300,7 @@ $(function() {
   };
 
   // add a new row to the grid
-  $("a.grid-add-row").on("click", function () {
+  $(".primary-form").on("click", "a.grid-add-row", function () {
     var $grid = $(this).parent().children(".grid:first"),
         row_count = $grid.children("tbody").children("tr").length,
         max_rows = $grid.data("maxRows") || Infinity,

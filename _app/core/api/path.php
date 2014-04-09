@@ -3,12 +3,12 @@
  * Path
  * API for manipulating and working with paths
  *
- * @author      Jack McDade
- * @author      Fred LeBlanc
- * @author      Mubashar Iqbal
+ * @author      Statamic
  * @package     API
- * @copyright   2013 Statamic
+ * @copyright   2014 Statamic
  */
+use Symfony\Component\Filesystem\Filesystem as Filesystem;
+
 class Path
 {
     /**
@@ -30,8 +30,8 @@ class Path
 
         $fixedpath = "/";
         foreach ($parts as $part) {
-            if (! File::exists(URL::assemble($content_root,$path . '.' . $content_type))
-                && ! is_dir(URL::assemble($content_root, $part))) {
+            if (! File::exists(Path::assemble($content_root,$path . '.' . $content_type))
+                && ! is_dir(Path::assemble($content_root, $part))) {
 
                 // check folders
                 $list = Statamic::get_content_tree($fixedpath, 1, 1, FALSE, TRUE, FALSE);
@@ -101,8 +101,6 @@ class Path
 
             $fixedpath .= $part;
         }
-
-        // /2-blog/hidden
 
         return $fixedpath;
     }
@@ -176,7 +174,6 @@ class Path
     }
 
 
-
     /**
      * Checks if a given path is non-public content
      *
@@ -201,6 +198,18 @@ class Path
      */
     public static function trimFilesystem($path)
     {
+        return str_replace(self::standardize(BASE_PATH) . "/", "", $path);
+    }
+
+
+    /**
+     * Removes any filesystem path outside of the content root
+     *
+     * @param string  $path  Path to trim
+     * @return string
+     */
+    public static function trimFileSystemFromContent($path)
+    {
         return str_replace(self::standardize(BASE_PATH) . "/" . Config::getContentRoot(), "", $path);
     }
 
@@ -213,9 +222,13 @@ class Path
      */
     public static function toAsset($path)
     {
-        $asset_path = self::trimFilesystem($path);
+        $asset_path = Path::trimFilesystem($path);
 
-        return self::standardize(self::tidy(Config::getSiteRoot().$asset_path));
+        if (!Pattern::startsWith($asset_path, Config::getSiteRoot())) {
+            $asset_path = Config::getSiteRoot() . '/' . $asset_path;
+        }
+
+        return rtrim(self::tidy($asset_path), '/');
     }
 
 
@@ -227,7 +240,7 @@ class Path
      */
     public static function fromAsset($path)
     {
-        return BASE_PATH . str_replace(Config::getSiteRoot(), '/', $path);
+        return self::tidy(BASE_PATH . '/' . str_replace(Config::getSiteRoot(), '/', $path));
     }
 
 
@@ -239,7 +252,47 @@ class Path
      */
     public static function standardize($path)
     {
-        return str_replace('\\', '/', $path);
+        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            $path = ltrim(str_replace('\\', '/', $path), '/');
+        }
+
+        return $path;
+    }
+
+
+    /**
+     * Assembles a URL from an ordered list of segments
+     *
+     * @param string  Open ended number of arguments
+     * @return string
+     */
+    public static function assemble()
+    {
+        $args = func_get_args();
+
+        if (!is_array($args) || !count($args)) {
+            return NULL;
+        }
+
+        $path = self::tidy('/' . join($args, '/'));
+
+        return self::standardize($path);
+    }
+
+
+    /**
+     * Given an existing path, convert it to a path relative to a given starting path
+     *
+     * @param string $endPath   Absolute path of target
+     * @param string $startPath Absolute path where traversal begins
+     *
+     * @return string Path of target relative to starting path
+     */
+    public static function makeRelative($endPath, $startPath)
+    {
+        $fs = new Filesystem();
+
+        return $fs->makePathRelative($endPath, $startPath);
     }
 
 
@@ -263,7 +316,7 @@ class Path
      */
     public static function removeStartingSlash($path)
     {
-        return (substr($path, 0, 1) === '/') ? substr($path, 1) : $path;
+        return (substr($path, 0, 1) === '/' && strlen($path) > 1) ? substr($path, 1) : $path;
     }
 
 

@@ -1,151 +1,228 @@
 <?php
 /**
- * Statamic_Auth
+ * Auth
  * Handles user authentication within Statamic
  *
- * @author      Mubashar Iqbal
  * @author      Jack McDade
  * @author      Fred LeBlanc
- * @copyright   2012 Statamic
+ * @author      Mubashar Iqbal
+ * @copyright   2013 Statamic
  * @link        http://www.statamic.com
  * @license     http://www.statamic.com
  */
-class statamic_auth
+
+class Auth
 {
-  /**
-   * login
-   * Attempts to log in a user
-   *
-   * @param string  $username  Username of the user
-   * @param string  $password  Password of the user
-   * @param boolean  $remember  Remember this user later?
-   * @return boolean
-   */
-  public static function login($username, $password, $remember=false)
-  {
-    $u = self::get_user($username);
-
-    if ($u && $u->correct_password($password)) {
-      $app = \Slim\Slim::getInstance();
-      $hash = $username.":".md5($u->get_hashed_password().$app->config['_cookies.secret_key']);
-      $expire = $app->config['_cookies.lifetime'];
-      $app->setEncryptedCookie('stat_auth_cookie', $hash, $expire);
-
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * logout
-   * Logs a user out
-   *
-   * @return void
-   */
-  public static function logout()
-  {
-    $app = \Slim\Slim::getInstance();
-    $cookie = $app->deleteCookie('stat_auth_cookie');
-  }
-
-  /**
-   * user_exists
-   * Determines if a given $username exists
-   *
-   * @param string  $username  Username to check for existence
-   * @return boolean
-   */
-  public static function user_exists($username)
-  {
-    return !(self::get_user($username) == null);
-  }
-
-  /**
-   * is_logged_in
-   * Checks to see if the current session is logged in
-   *
-   * @return mixed
-   */
-  public static function is_logged_in()
-  {
-    $user = null;
-
-    $app = \Slim\Slim::getInstance();
-    $cookie = $app->getEncryptedCookie('stat_auth_cookie');
-
-    if ($cookie) {
-      list($username, $hash) = explode(":", $cookie);
-      $user = self::get_user($username);
-
-      if ($user) {
-        $hash = $username.":".md5($user->get_hashed_password().$app->config['_cookies.secret_key']);
-
-        if ($cookie === $hash) {
-          # validated
-          $expire = $app->config['_cookies.lifetime'];
-          $app->setEncryptedCookie('stat_auth_cookie', $cookie, $expire);
-
-          return $user;
+    /**
+     * Attempts to log a user in
+     * 
+     * @param string  $username  Username of user
+     * @param string  $password  Password of user
+     * @param bool  $remember  Remember this user?
+     * @return boolean 
+     */
+    public static function login($username, $password, $remember=false)
+    {
+        // attempt to load the Member object
+        $user = self::getMember($username);
+        
+        // if no Member object, or checkPassword fails, return false
+        if (!$user || !$user->checkPassword($password)) {
+            return false;
         }
-      }
+        
+        // we made it! prepare the app and some data...
+        $app      = \Slim\Slim::getInstance();
+        $expires  = ($remember) ? '20 years' : $app->config['_cookies.lifetime'];
+        $hash     = self::createHash($user);
+        
+        // ...set the cookie and return true
+        $app->setEncryptedCookie('stat_auth_cookie', $hash, $expires);
+        return true;
     }
 
-    return false;
-  }
 
-  /**
-   * get_user
-   * Gets complete information about a given $username
-   *
-   * @param string  $username  Username to look up
-   * @return Statamic_User object
-   */
-  public static function get_user($username)
-  {
-    $u = Statamic_User::load($username);
+    /**
+     * Logs the current user out
+     * 
+     * @return void
+     */
+    public static function logout()
+    {
+        $app = \Slim\Slim::getInstance();
+        $app->deleteCookie('stat_auth_cookie');
+    }
 
-    return $u;
-  }
 
-  /**
-   * get_current_user
-   * Gets complete information about the currently logged-in user
-   *
-   * @return Statamic_User object
-   */
-  public static function get_current_user()
-  {
-    $u = self::is_logged_in();
+    /**
+     * Checks to see if a user is logged in
+     * 
+     * @return boolean
+     */
+    public static function isLoggedIn()
+    {
+        return !is_null(self::getLoggedInMember());
+    }
 
-    return $u;
-  }
 
-  /**
-   * get_user_list
-   * Gets a full list of registered users
-   *
-   * @param boolean  $protected  Displaying information in a protected area?
-   * @return array
-   */
-  public static function get_user_list($protected = true)
-  {
-    $users = array();
-    $folder = "_config/users/*.yaml";
-    $list = glob($folder);
-    if ($list) {
-      foreach ($list as $name) {
-        $start = strrpos($name, "/")+1;
-        $end = strrpos($name, ".");
-        $username = substr($name, $start, $end-$start);
-        if ($protected) {
-          $users[$username] = self::get_user($username);
-        } else {
-          $users[$username] = Statamic_User::get_profile($username);
+    /**
+     * Checks to see if a user is currently logged in
+     * 
+     * @return Member|null
+     */
+    public static function getLoggedInMember()
+    {
+        // grab the cookie
+        $app = \Slim\Slim::getInstance();
+        $cookie = $app->getEncryptedCookie('stat_auth_cookie');
+        
+        if (strpos($cookie, ':') === false) {
+            return null;
         }
-      }
+
+        // break it into parts and create the Member object
+        list($username, $hash) = explode(":", $cookie);
+        $member = self::getMember($username);
+
+        // was a Member object found? 
+        if ($member) {
+            $hash = self::createHash($member);
+
+            // compare the stored hash to a fresh one, do they match?
+            if ($cookie === $hash) {
+                // they match, Member is valid, extend lifetime
+                $expire = $app->config['_cookies.lifetime'];
+                $app->setEncryptedCookie('stat_auth_cookie', $cookie, $expire);
+
+                // return the Member object
+                return $member;
+            }
+        }
+
+        // something above went wrong, return null
+        return null;
     }
 
-    return $users;
-  }
+
+    /**
+     * Gets the Member object for a given $username
+     * 
+     * @param string  $username  Username to look up
+     * @return Member|null
+     */
+    public static function getMember($username)
+    {
+        return Member::load($username);
+    }
+
+
+    /**
+     * Gets the current logged-in Member object if one exists
+     * 
+     * @return Member|null
+     */
+    public static function getCurrentMember()
+    {
+        return self::getLoggedInMember();
+    }
+
+
+    /**
+     * Creates a hash for this user
+     * 
+     * @param Member  $member  Member object
+     * @return string
+     */
+    protected static function createHash($member)
+    {
+        return $member->get('username') . ':' . md5($member->get('password_hash') . Cookie::getSecretKey());
+    }
+
+
+    
+    // ------------------------------------------------------------------------
+    // legacy interface
+    // ------------------------------------------------------------------------
+    
+    /**
+     * Gets the Member object for a given $username
+     * 
+     * @deprecated
+     * @param string  $username  Username to look up
+     * @return Member|null
+     */
+    public static function get_user($username)
+    {
+        // deprecation warning
+        Log::warn("Use of `get_user` is deprecated. Use `Auth::getMember` instead.", "core", "auth");
+        
+        // return it
+        return self::getMember($username);
+    }
+    
+    
+    /**
+     * Gets the current logged-in Member object if one exists
+     * 
+     * @deprecated
+     * @return Member|null
+     */
+    public static function get_current_user()
+    {
+        // deprecation warning
+        Log::warn("Use of `get_current_user` is deprecated. Use `Auth::getCurrentMember` instead.", "core", "auth");
+        
+        // return it
+        return self::getCurrentMember();
+    }
+    
+    
+    /**
+     * Checks if a user is logged in and if so, returns that Member object
+     * 
+     * @deprecated
+     * @return Member|null
+     */
+    public static function is_logged_in()
+    {
+        // deprecation warning
+        Log::warn("Use of `is_logged_in` is deprecated. Use `Auth::getLoggedInMember` instead.", "core", "auth");
+        
+        // return it
+        return self::getLoggedInMember();
+    }
+    
+    
+    /**
+     * Checks if a user exists
+     * 
+     * @deprecated
+     * @param string  $username  Username to check
+     * @return boolean
+     */
+    public static function user_exists($username)
+    {
+        // deprecation warning
+        Log::warn("Use of `user_exists` is deprecated. Use `Member::exists` instead.", "core", "auth");
+        
+        // return it
+        return Member::exists($username);
+    }
+    
+    
+    /**
+     * Gets a list of registered users
+     * 
+     * @deprecated
+     * @param boolean  $protected  Displaying information in a protected area?
+     * @return array
+     */
+    public static function get_user_list($protected=true)
+    {
+        // deprecation warning
+        Log::warn("Use of `get_user_list` is deprecated. Use `Member::getList` instead.", "core", "auth");
+        
+        // return it
+        return Member::getList($protected);
+    }
 }

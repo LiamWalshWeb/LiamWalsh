@@ -885,7 +885,12 @@ class Spyc {
     if ($literalBlockStyle !== '|') {
         $line = self::stripIndent($line);
     }
-    $line = rtrim ($line, "\r\n\t ") . "\n";
+    // <statamic>
+    // removed ' ' from the following `rtrim` to preserve end-of-line spacing 
+    // in literal blocks, checked the specs and also the strict parser and this
+    // appears to be completely ok
+    $line = rtrim ($line, "\r\n\t") . "\n";
+    // </statamic>
     if ($literalBlockStyle == '|') {
       return $literalBlock . $line;
     }

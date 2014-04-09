@@ -26,7 +26,7 @@ class Environment
         $host   = $_SERVER['HTTP_HOST'];
         
         
-        $url = $scheme . $host;
+        $url = strtolower($scheme . $host);
         if (($scheme === 'https://' && $port !== 443) || ($scheme === 'http://' && $port !== 80)) {
             $url .= ':' . $port;
         }
@@ -37,7 +37,7 @@ class Environment
         if (is_array($environments)) {
             foreach ($environments as $environment => $patterns) {
                 foreach ($patterns as $pattern) {
-                    if (Pattern::matches($pattern, $url)) {
+                    if (Pattern::matches(strtolower($pattern), $url)) {
                         return $environment;
                     }
                 }

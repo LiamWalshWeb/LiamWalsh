@@ -1,30 +1,30 @@
 <?php
-use Symfony\Component\Finder\Finder as Finder;
+
 use FilesystemIterator as fIterator;
+use Symfony\Component\Finder\Finder as Finder;
+use Symfony\Component\Filesystem\Filesystem as Filesystem;
 
 /**
  * Folder
  * API for interacting with folders (directories) on the server
  *
- * @author      Jack McDade
- * @author      Fred LeBlanc
- * @author      Mubashar Iqbal
+ * @author      JStatamic
  * @package     API
- * @copyright   2013 Statamic
+ * @copyright   2014 Statamic
  */
 class Folder
 {
     /**
-     * Create a new directory.
+     * Create a directories recursively
      *
-     * @param  string  $path  Path of folder to create
-     * @param  int     $chmod  CHMOD settings for the folder
-     * @return bool
+     * @param string|array  $dirs The directory path
+     * @param integer       $mode The directory mode
      */
-    public static function make($path, $chmod = 0777)
+    public static function make($dirs, $mode = 0777)
     {
-        umask(0);
-        return ( ! is_dir($path)) ? mkdir($path, $chmod, TRUE) : TRUE;
+        $fs = new Filesystem();
+
+        $fs->mkdir($dirs, $mode);
     }
 
 
@@ -99,40 +99,25 @@ class Folder
     /**
      * Recursively delete a directory.
      *
-     * @param  string  $directory  Path of folder to delete
-     * @param  bool    $preserve  Should we preserve the outer most directory and only empty the contents?
+     * @param string|array $directories A folder name or an array of folder to remove
      * @return void
      */
-    public static function delete($directory, $preserve = FALSE)
+    public static function delete($directories, $preserve = FALSE)
     {
-        if ( ! is_dir($directory)) return;
+        $fs = new Filesystem();
 
-        $items = new fIterator($directory);
+        $fs->remove($directories);
 
-        foreach ($items as $item)
-        {
-            // If the item is a directory, we can just recurse into the
-            // function and delete that sub-directory, otherwise we'll
-            // just delete the file and keep going!
-            if ($item->isDir())
-            {
-                static::delete($item->getRealPath());
-            }
-            else
-            {
-                @unlink($item->getRealPath());
-            }
+        if ($preserve) {
+            $fs->mkdir($directories);
         }
-
-        unset($items);
-        if ( ! $preserve) @rmdir($directory);
     }
 
 
     /**
      * Empty the specified directory of all files and folders.
      *
-     * @param  string  $directory  Path of folder to empty
+     * @param  string|array  $directory folder(s) to empty
      * @return void
      */
     public static function wipe($directory)
@@ -185,13 +170,39 @@ class Folder
 
 
     /**
-     * Checks to see if a given $folder exists
+     * Checks the existence of files or directories.
      *
+     * @param string|array $files A filename, an array of files to check
+     * @return Boolean true if the file exists, false otherwise
+     */
+    public static function exists($files)
+    {
+        $fs = new Filesystem();
+
+        return $fs->exists($files);
+    }
+    
+    
+    /**
+     * Checks if a given $folder matches a given $pattern
+     * 
      * @param string  $folder  Folder to check
+     * @param string  $pattern  Wildcard-string pattern to match against
      * @return bool
      */
-    public static function exists($folder)
+    public static function matchesPattern($folder, $pattern)
     {
-        return is_dir($folder);
+        $star_position = strpos($pattern, '*');
+
+        if ($pattern === '*') {
+            // the pattern is only star, return it
+            return true;
+        } elseif ($star_position !== false) {
+            // looking for a wildcard
+            return (strpos($folder, rtrim(substr($pattern, 0, $star_position))) !== false);
+        } else {
+            // just matching a string
+            return ($folder == $pattern);
+        }
     }
 }
