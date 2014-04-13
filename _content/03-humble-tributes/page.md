@@ -2,8 +2,7 @@
 _fieldset: page
 title: Humble Tributes
 _template: ""
-_default_folder_template: tribute-page
-_default_folder_layout: tribute
+_default_folder_template: humble-tribute
 page_image: ""
 ---
 <p>
