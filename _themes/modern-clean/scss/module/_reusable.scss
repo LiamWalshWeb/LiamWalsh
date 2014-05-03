@@ -1,14 +1,30 @@
 .constrain {
 	display: block;
 	margin: 0 auto;
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
 	@include bp(smallest) {
 		max-width: 90%;
+		padding-left: 0;
+		padding-right: 0;
 	}
 	@include bp(medium) {
 		max-width: 90%;
 	}
 	@include bp(biggest) {
 		max-width: 80%;
+	}
+}
+
+.constrain-content {
+	@include bp(smallest) {
+		max-width: 35em;
+	}
+	@include bp(medium) {
+		max-width: 35em;
+	}
+	@include bp(biggest) {
+		max-width: 40em;
 	}
 }
 
@@ -92,6 +108,10 @@ $span-width: 100% / 3;
 	width: 100%;
 }
 
+.image-frame {
+	border: 0.5em solid $colour-base;
+}
+
 .box {
 	background-color: $background-colour;
 	> *:last-child {
@@ -122,6 +142,19 @@ $span-width: 100% / 3;
 	}
 	@include bp(biggest) {
 		margin: 3em auto;
+	}
+}
+
+.box-push-down {
+	margin-bottom: 1em;
+	@include bp(smallest) {
+		margin-bottom: 1.5em;
+	}
+	@include bp(medium) {
+		margin-bottom: 2em;
+	}
+	@include bp(biggest) {
+		margin-bottom: 3em;
 	}
 }
 

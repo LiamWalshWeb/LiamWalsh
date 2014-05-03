@@ -10,7 +10,7 @@
 	letter-spacing: -0.075em;
 	line-height: 0.5em;
 	margin: 0;
-	padding: 0.25em 0 0;
+	padding: 0.5em 0 0;
 	text-indent: -0.05em;
 	@include bp(smallest) {
 		font-size: 7em;
@@ -70,15 +70,19 @@
 }
 
 .body-section {
-	padding: 1em;
+	padding-bottom: 1em;
+	padding-top: 1em;
 	@include bp(smallest) {
-		padding: 1.5em 0;
+		padding-bottom: 1.5em;
+		padding-top: 1.5em;
 	}
 	@include bp(medium) {
-		padding: 2em 0;
+		padding-bottom: 2em;
+		padding-top: 2em;
 	}
 	@include bp(biggest) {
-		padding: 2.5em 0;
+		padding-bottom: 2.5em;
+		padding-top: 2.5em;
 	}
 }
 

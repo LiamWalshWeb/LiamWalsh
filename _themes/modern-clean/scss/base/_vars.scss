@@ -8,10 +8,11 @@ $colour-base: #6285CC;
 $colour-base: darken($colour-base, 20%);
 $colour-base-alt: darken($colour-base, 10%);
 $colour-base-alt2: darken($colour-base, 20%);
+$colour-highlight: lighten($colour-base, 50%);
 
 // Font Colours
 $font-colour: white;
 $link-colour: white;
 
 // Spacing
-$row-gutter: 9;
+$row-gutter: 18;

@@ -21,11 +21,6 @@ ul {
 	display: block;
 	list-style: none;
 	margin: 0 auto;
-	padding: 0;
-	text-align: center;
-	@include bp(smallest) {
-		text-align: left;
-	}
 	.navigation-item {
 		display: inline-block;
 		margin: 0 1.5em 0 0;
@@ -37,7 +32,7 @@ ul {
 
 .list-article {
 	.list-item {
-		margin: 0 auto 1em;
+		margin: 0 auto 3em;
 		&:last-child {
 			margin-bottom: 0;
 		}
@@ -79,5 +74,60 @@ ul {
 	.social-link {
 		display: inline-block;
 		text-decoration: none;
+	}
+}
+
+.list-work {
+	display: block;
+	margin: 0;
+	padding: 0;
+	a {
+		text-decoration: none;
+	}
+	.work-item {
+		display: block;
+		border: 1em solid transparent;
+		overflow: hidden;
+		position: relative;
+		width: 100%;
+		@include bp(medium) {
+			background-color: $colour-base;
+			border: none;
+			float: left;
+			width: 50%;
+			&:hover, &:focus {
+				.work-image {
+					@include transform(scale(0.6) translateY(-2em));
+				}
+			}
+		}
+		@include bp(biggest) {
+			width: (100% / 3);
+		}
+		.work-title {
+			background-color: $colour-base;
+			color: $background-colour;
+			bottom: 0;
+			display: block;
+			font-family: "Quattrocento Sans", sans-serif;
+			font-weight: 400;
+			left: 0;
+			margin: 0;
+			padding: 0.5em;
+			position: absolute;
+			text-align: center;
+			width: 100%;
+			@include bp(medium) {
+				z-index: 0;
+			}
+		}
+		.work-image {
+			@extend .image-fill;
+			@include bp(medium) {
+				@include transition(all 0.2s ease);
+				position: relative;
+				z-index: 1;
+			}
+		}
 	}
 }

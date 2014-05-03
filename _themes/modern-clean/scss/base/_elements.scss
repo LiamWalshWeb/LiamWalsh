@@ -5,7 +5,7 @@
 }
 
 html, body {
-	background: url($background-texture) $background-colour repeat;
+	background: $background-colour;
 	color: lighten(black, 10%);
 	font-family: "Quattrocento Sans", sans-serif;
 	font-size: 100%;

@@ -13,8 +13,24 @@
 	// }
 }
 
-.pagination-container {
-	.pagination-heading {
-		
+.pagination {
+	.paginator {
+		@extend .button;
+		display: block;
+		float: left;
+		padding: 1em;
+		width: 49%;
+		text-align: center;
+		&.paginator-prev {
+
+		}
+		&.paginator-next {
+			float: right;
+		}
 	}
+}
+
+.blog-post-featured {
+	background-repeat: no-repeat;
+	background-size: cover;
 }
