@@ -60,9 +60,15 @@ class File
      * @param  string  $content   Content to store
      * @return void
      */
-    public static function put($filename, $content, $mode = 0666)
+    public static function put($filename, $content, $mode = null)
     {
         $fs = new Filesystem();
+        
+        if (File::exists($filename)) {
+            $mode = intval(substr(sprintf('%o', fileperms($filename)), -4), 8);
+        } elseif (is_null($mode)) {
+            $mode = 0755;
+        }
         
         $fs->dumpFile($filename, $content, $mode);
     }
@@ -292,6 +298,18 @@ class File
     public static function isWritable($file)
     {
         return is_writable($file);
+    }
+
+
+    /**
+     * Checks to see if a given $file is readable
+     *
+     * @param string  $file  File to check
+     * @return bool
+     */
+    public static function isReadable($file)
+    {
+        return is_readable($file);
     }
 
 

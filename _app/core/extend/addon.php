@@ -1389,13 +1389,13 @@ class ContextualCSS extends ContextualObject
         $file_location = Config::getAddOnPath($this->context->getAddonName()) . '/';
 
         if (File::exists(APP_PATH . $bundle_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location . $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location . $file);
         } elseif (File::exists(APP_PATH . $bundle_location . 'css/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, 'css', $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, 'css', $file);
         } elseif (File::exists(BASE_PATH . $file_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location . $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location . $file);
         } elseif (File::exists(BASE_PATH . $file_location . 'css/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, 'css', $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, 'css', $file);
         } elseif ( ! Pattern::endsWith($file, ".css", false)) {
             return $this->get($file . ".css");
         }
@@ -1468,13 +1468,13 @@ class ContextualJS extends ContextualObject
         $file_location = Config::getAddOnPath($this->context->getAddonName()) . '/';
 
         if (File::exists(APP_PATH . $bundle_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location . $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location . $file);
         } elseif (File::exists(APP_PATH . $bundle_location . 'js/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, 'js', $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, 'js', $file);
         } elseif (File::exists(BASE_PATH . $file_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location . $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location . $file);
         } elseif (File::exists(BASE_PATH . $file_location . 'js/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, 'js', $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, 'js', $file);
         } elseif ( ! Pattern::endsWith($file, ".js", false)) {
             return $this->get($file . ".js");
         }
@@ -1516,13 +1516,13 @@ class ContextualAssets extends ContextualObject
         $file_location = Config::getAddOnPath($this->context->getAddonName()) . '/';
 
         if (File::exists(APP_PATH . $bundle_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, $file);
         } elseif (File::exists(APP_PATH . $bundle_location . 'assets/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, 'assets', $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, 'assets', $file);
         } elseif (File::exists(BASE_PATH . $file_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, $file);
         } elseif (File::exists(BASE_PATH . $file_location . 'assets/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), 'index.php', $file_location, 'assets', $file);
+            return URL::assemble(Config::getSiteRoot(), $file_location, 'assets', $file);
         }
 
         Log::error("Asset file `" . $file . "` doesn't exist.", $this->context->getAddonName(), $this->context->getAddonType());

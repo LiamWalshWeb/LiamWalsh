@@ -37,7 +37,6 @@ class Hook
         $addons_path = BASE_PATH.Config::getAddOnsPath();
 
         if (Folder::exists($addons_path) && Folder::exists(APP_PATH . '/core/bundles')) {
-
             $finder = new Finder();
 
             $files = $finder->files()

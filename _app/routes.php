@@ -252,13 +252,14 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
         }
     }
 
+    
     // routes via routes.yaml
     if ($found_route) {
         $current_route = $found_route['data'];
 
-        $route    = $current_route;
-        $template = $route;
-        $data     = $app->config;  // start with the current global vars
+        $route     = $current_route;
+        $template  = $route;
+        $data      = $app->config;  // start with the current global vars
 
         if (is_array($route)) {
             $template = isset($route['template']) ? $route['template'] : 'default';
@@ -270,20 +271,6 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
 
         $template_list = array($template);
         $content_found = true;
-
-    // actual file exists
-    } elseif (File::exists("{$content_root}/{$path}.{$content_type}")) {
-        $add_prev_next   = true;
-        $template_list[] = 'post';
-        $page            = basename($path);
-
-        $data                = Content::get($complete_current_url);
-        $data['current_url'] = $current_url;
-        $data['slug']        = basename($current_url);
-
-        if ($path !== "/404") {
-            $content_found = true;
-        }
 
     // url is taxonomy-based
     } elseif (Taxonomy::isTaxonomyURL($path)) {
@@ -302,11 +289,6 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
         $template_list[] = $type;
         $content_found = true;
 
-    // this is a directory,so we look for page.md
-    } elseif (is_dir("{$content_root}/{$path}")) {
-        $data = Content::get($complete_current_url);
-        $content_found = true;
-
     // URL found in the cache
     } elseif ($data = Content::get($complete_current_url)) {
         $add_prev_next   = true;
@@ -315,12 +297,19 @@ $app->map('/(:segments+)', function ($segments = array()) use ($app) {
         $data                = Content::get($complete_current_url);
         $data['current_url'] = $current_url;
         $data['slug']        = basename($current_url);
+        
+        // if this is an entry, default to the `post` template
+        if ($data['_is_entry']) {
+            $template_list[] = array_get($data, '_template', 'default');
+            $template_list[] = "post";
+        }
 
         if ($path !== "/404") {
             $content_found = true;
         }
     }
 
+    
     // content was found
     if ($content_found) {
         // protect

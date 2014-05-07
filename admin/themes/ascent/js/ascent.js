@@ -100,29 +100,78 @@ $(function() {
   // Mark It Up
   //
   /////////////////////////////////////////
+	
+  var languageMarkup;
+
+  switch (content_type.toLowerCase()) {
+    case 'md':
+    case 'markdown':
+      languageMarkup = [
+        {name:'Heading 1', openWith:'# ', placeHolder:'Your title here...' },
+        {name:'Heading 2', openWith:'## ', placeHolder:'Your title here...' },
+        {name:'Heading 3', openWith:'### ', placeHolder:'Your title here...' },
+        {name:'Heading 4', openWith:'#### ', placeHolder:'Your title here...' },
+        {name:'Heading 5', openWith:'##### ', placeHolder:'Your title here...' },
+        {name:'Heading 6', openWith:'###### ', placeHolder:'Your title here...' },
+        {name:'Bold', key:'B', openWith:'**', closeWith:'**'},
+        {name:'Italic', key:'I', openWith:'_', closeWith:'_'},
+        {name:'Bulleted List', openWith:'- ' },
+        {name:'Numeric List', openWith:function(markItUp) {
+          return markItUp.line+'. ';
+        }},
+        {name:'Picture', key:'P', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!])'},
+        {name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!])', placeHolder:'Your text to link here...' },
+        {name:'Quotes', openWith:'> '},
+        {name:'Code Block / Code', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'}
+      ];
+      break;
+
+    case 'textile':
+      languageMarkup = [
+        {name:'Heading 1', openWith:'h1. ', placeHolder:'Your title here...' },
+        {name:'Heading 2', openWith:'h2. ', placeHolder:'Your title here...' },
+        {name:'Heading 3', openWith:'h3. ', placeHolder:'Your title here...' },
+        {name:'Heading 4', openWith:'h4. ', placeHolder:'Your title here...' },
+        {name:'Heading 5', openWith:'h5. ', placeHolder:'Your title here...' },
+        {name:'Heading 6', openWith:'h6. ', placeHolder:'Your title here...' },
+        {name:'Bold', key:'B', openWith:'*', closeWith:'*'},
+        {name:'Italic', key:'I', openWith:'_', closeWith:'_'},
+        {name:'Bulleted List', openWith:'(!(* |!|*)!)'},
+        {name:'Numeric List', openWith:'(!(# |!|#)!)'},
+        {name:'Picture', key:'P', replaceWith:'![![Source:!:http://]!]([![Alternative text]!])!'},
+        {name:'Link', key:'L', openWith:'"', closeWith:'([![Title]!])":[![Link:!:http://]!]', placeHolder:'Your text to link here...' },
+        {name:'Quotes', openWith:'bq. '},
+        {name:'Code Block / Code', openWith:'bc. '}
+      ];
+      break;
+
+    default:
+      languageMarkup = [
+        {name:'Heading 1', openWith:'<h1>', closeWith:'</h1>', placeHolder:'Your title here...' },
+        {name:'Heading 2', openWith:'<h2>', closeWith:'</h2>', placeHolder:'Your title here...' },
+        {name:'Heading 3', openWith:'<h3>', closeWith:'</h3>', placeHolder:'Your title here...' },
+        {name:'Heading 4', openWith:'<h4>', closeWith:'</h4>', placeHolder:'Your title here...' },
+        {name:'Heading 5', openWith:'<h5>', closeWith:'</h5>', placeHolder:'Your title here...' },
+        {name:'Heading 6', openWith:'<h6>', closeWith:'</h6>', placeHolder:'Your title here...' },
+        {name:'Bold', key:'B', openWith:'<strong>', closeWith:'</strong>'},
+        {name:'Italic', key:'I', openWith:'<em>', closeWith:'</em>'},
+        {name:'Bulleted List', openWith:'<ul>\n\t<li>', closeWith: '</li>\n</ul>' },
+        {name:'Numeric List', openWith:'<ol>\n\t<li>', closeWith: '</li>\n</ol>' },
+        {name:'Picture', key:'P', replaceWith:'<img src="[![Source:!:http://]!]" alt="[![Alternative text]!]" />' },
+        {name:'Link', key:'L', openWith:'<a href="[![Link:!:http://]!]"(!( title="[![Title]!]")!)>', closeWith:'</a>', placeHolder:'Your text to link...' },
+        {name:'Quotes', openWith:'<blockquote>\n\t<p>', closeWith:'\n</p></blockquote>'},
+        {name:'Code Block / Code', openWith:'<pre><code>', closeWith:'</code></pre>'},
+      ];
+      break;
+  };
+
+
 
   markitupSettings = {
-    previewParserPath:  '',
-    onShiftEnter:   {keepDefault:false, openWith:'\n\n'},
-    markupSet: [
-      {name:'Heading 1', openWith:'# ', placeHolder:'Your title here...' },
-      {name:'Heading 2', openWith:'## ', placeHolder:'Your title here...' },
-      {name:'Heading 3', openWith:'### ', placeHolder:'Your title here...' },
-      {name:'Heading 4', openWith:'#### ', placeHolder:'Your title here...' },
-      {name:'Heading 5', openWith:'##### ', placeHolder:'Your title here...' },
-      {name:'Heading 6', openWith:'###### ', placeHolder:'Your title here...' },
-      {name:'Bold', key:'B', openWith:'**', closeWith:'**'},
-      {name:'Italic', key:'I', openWith:'_', closeWith:'_'},
-      {name:'Bulleted List', openWith:'- ' },
-      {name:'Numeric List', openWith:function(markItUp) {
-        return markItUp.line+'. ';
-      }},
-      {name:'Picture', key:'P', replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!])'},
-      {name:'Link', key:'L', openWith:'[', closeWith:']([![Url:!:http://]!])', placeHolder:'Your text to link here...' },
-      {name:'Quotes', openWith:'> '},
-      {name:'Code Block / Code', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'}
-    ]
-  }
+    previewParserPath: '',
+    onShiftEnter:      {keepDefault:false, openWith:'\n\n'},
+    markupSet:         languageMarkup
+  };
 
   $('.markitup').markItUp(markitupSettings);
 
@@ -178,17 +227,41 @@ $(function() {
   //
   /////////////////////////////////////////
 
-  $('#publish-title').makeSlug({
-    slug: $('.auto-slug')
-  });
+    $(document).ready(function() {
+        var $slug = $('#publish-slug.new-slug'),
+            $title = $('#publish-title');
+        
+        if ($slug.length) {
+            // the slug field is on this page
+                // slug does not already exist in the system
+                $title
+                    .on('keyup', function() {
+                        var options = { "lang": $("html").attr("lang") };
+                        
+                        // if the last move was to erase the title, restart auto-slugging
+                        if ($(this).val() === '') {
+                            $(this).data('slug-edited', false);
+                        }
+                        
+                        // if someone's manually edited the slug, don't auto-slug
+                        if ($(this).data('slug-edited')) {
+                            return true;
+                        }
 
-  // if a default title was set, pre-populate the slug field
-  $(document).ready(function() {
-    if ($("#publish-title").length && $("#publish-title").val().length > 0) {
-      $("#publish-title").keyup();
-    }
-  });
+                        if (transliterate) {
+                            options.custom = transliterate;
+                        }
 
+                        $slug.val(getSlug($(this).val(), options));
+                    });
+                
+                $slug
+                    .on('keyup', function() {
+                        // if someone edits the slug manually, don't allow title to auto-slug
+                        $title.data('slug-edited', true);
+                    })
+        }
+    });
 
 
   /////////////////////////////////////////

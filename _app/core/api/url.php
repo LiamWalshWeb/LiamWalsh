@@ -172,4 +172,16 @@ class URL
         // return appended URL
         return $url . $delimiter . $key . '=' . urlencode($value);
     }
+    
+    
+    /**
+     * Prepends the site's configured site root onto given $url
+     * 
+     * @param string  $url  URL to prepend
+     * @return string
+     */
+    public static function prependSiteRoot($url)
+    {
+        return Path::tidy(Config::getSiteRoot() . $url);
+    }
 }

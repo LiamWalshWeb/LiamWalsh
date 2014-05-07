@@ -97,6 +97,9 @@ class TaxonomySet
         }
 
         $this->data = $data;
+        
+        // re-tally results
+        $this->tallyResults();
     }
 
 

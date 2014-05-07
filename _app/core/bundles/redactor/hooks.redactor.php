@@ -16,16 +16,27 @@ class Hooks_redactor extends Hooks
     {
         if (URL::getCurrent(false) == '/publish') {
 
-            $html = $this->js->link(array('fullscreen.js', 'redactor.min.js'));
-
             $options = $this->getConfig();
 
-            # Load image browser folder
+            // Load Redactor plugins and scripts
+            $plugins = array_get($options, 'plugins', array());
+            $scripts = array();
+            
+            foreach ($plugins as $key => $plugin) {
+                $scripts[] = $plugin . '.js';
+            }
+
+            $scripts[] = 'redactor.min.js';
+
+            $html = $this->js->link($scripts);
+
+            // Load image browser folder
             if (class_exists('Fieldtype_redactor') && method_exists('Fieldtype_redactor', 'get_field_settings')) {
 
                 $field_settings = Fieldtype_redactor::get_field_settings();
                 $field_config = array_get($field_settings, 'field_config', $field_settings);
 
+                // Image uploads
                 if (array_get($field_config, 'image_dir', false)) {
                     $image_path = Path::tidy($field_config['image_dir'].'/');
 
@@ -41,6 +52,7 @@ class Hooks_redactor extends Hooks
                     $options['imageUpload'] = Config::getSiteRoot()."TRIGGER/redactor/upload?path={$image_path}&{$resize_options_string}";
                 }
 
+                // File uploads
                 if (array_get($field_config, 'file_dir', false)) {
                     $file_path = Path::tidy($field_config['file_dir'].'/');
 
@@ -57,17 +69,20 @@ class Hooks_redactor extends Hooks
 
             $redactor_options = json_encode($options, true);
 
+            // Initialization
             $html .= "<script>
 
                 var redactor_options = $redactor_options;
 
-                $(document).ready(
-                  function() {
-                    $.extend(redactor_options, {'imageUploadErrorCallback': callback});
-                    $('.redactor-container textarea').redactor(redactor_options);
-                  }
+                $(document).ready(function() {
+                   
+                    $.extend(redactor_options, {'imageUploadErrorCallback': function(json) {
+                        alert(json.error);
+                    }});
 
-                );
+
+                    $('.redactor-container textarea').redactor(redactor_options);
+                  });
 
 
                 $('body').on('addRow', '.grid', function() {
@@ -100,6 +115,7 @@ class Hooks_redactor extends Hooks
             if (isset($_POST['subfolder'])) {
                 $dir .= $_POST['subfolder'] . '/';
             }
+
 
             Folder::make($dir);
 
@@ -151,7 +167,7 @@ class Hooks_redactor extends Hooks
 
                 echo stripslashes(json_encode($return));
             } else {
-                echo json_encode(array('error' => "Redactor: Could not find directory: '$dir'"));
+                echo json_encode(array('error' => "Redactor: Looks like your image filesize is too big. Check your php.ini settings."));
             }
 
         } else {

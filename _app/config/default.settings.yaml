@@ -37,6 +37,7 @@ _log_file_prefix: site
 _admin_enabled: false
 _admin_path: admin
 _admin_theme: trailhead
+_admin_line_endings: \n
 _admin_nav:
   dashboard: false
   pages: true

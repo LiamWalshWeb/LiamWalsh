@@ -189,7 +189,7 @@ class Parser
                     continue;
                 }
                 // </statamic>
-                
+
                 $loop_data = $this->getVariable($match[1][0], $data);
                 if ($loop_data) {
                     $looped_text = '';
@@ -198,33 +198,14 @@ class Parser
                     // <statamic>
                     // is this data an array?
                     if (is_array($loop_data)) {
-                        // yes
-                        $total_results = count($loop_data);
-
-                        foreach ($loop_data as $loop_key => $loop_value) {
-                            $index++;
-
-                            $new_loop = (is_array($loop_value)) ? $loop_value : array($loop_key => $loop_value);
-
-                            // is the value an array?
-                            if ( ! is_array($loop_value)) {
-                                // no, make it one
-                                $loop_value = array(
-                                    'value' => $loop_value,
-                                    'name' => $loop_value // 'value' alias (legacy)
-                                );
-                            }
-
-                            // set contextual iteration values
-                            $loop_value['key']            = $loop_key;
-                            $loop_value['index']          = $index;
-                            $loop_value['zero_index']     = $index - 1;
-                            $loop_value['total_results']  = $total_results;
-                            $loop_value['first']          = ($index === 1) ? true : false;
-                            $loop_value['last']           = ($index === $loop_value['total_results']) ? true : false;
-
+                        // is this a list, or simply a set of named variables?
+                        if ((bool) count(array_filter(array_keys($loop_data), 'is_string'))) {
+                            // this is a set of named variables, don't actually loop over and over,
+                            // instead, parse the inner contents with this set's local variables that
+                            // have been merged into the bigger scope
+                            
                             // merge this local data with callback data before performing actions
-                            $loop_value = $loop_value + self::$callbackData;
+                            $loop_value = self::$callbackData + $loop_data;
 
                             // perform standard actions
                             $str = $this->extractLoopedTags($match[2][0], $loop_value, $callback);
@@ -233,13 +214,57 @@ class Parser
                             $str = $this->parseVariables($str, $loop_value, $callback);
 
                             if (!is_null($callback)) {
-                                $str = $this->parseCallbackTags($str, $new_loop, $callback);
+                                $str = $this->injectExtractions($str, 'callback_blocks');
+                                $str = $this->parseCallbackTags($str, $loop_value, $callback);
                             }
 
                             $looped_text .= $str;
-                        }
+                            $text = preg_replace('/'.preg_quote($match[0][0], '/').'/m', addcslashes($looped_text, '\\$'), $text, 1);
+                        } else {
+                            // this is a list, let's loop
+                            $total_results = count($loop_data);
 
-                        $text = preg_replace('/'.preg_quote($match[0][0], '/').'/m', addcslashes($looped_text, '\\$'), $text, 1);
+                            foreach ($loop_data as $loop_key => $loop_value) {
+                                $index++;
+
+                                // is the value an array?
+                                if ( ! is_array($loop_value)) {
+                                    // no, make it one
+                                    $loop_value = array(
+                                        'value' => $loop_value,
+                                        'name' => $loop_value // 'value' alias (legacy)
+                                    );
+                                }
+
+                                $new_loop = (is_array($loop_value)) ? $loop_value : array($loop_key => $loop_value);
+
+                                // set contextual iteration values
+                                $loop_value['key']            = $loop_key;
+                                $loop_value['index']          = $index;
+                                $loop_value['zero_index']     = $index - 1;
+                                $loop_value['total_results']  = $total_results;
+                                $loop_value['first']          = ($index === 1) ? true : false;
+                                $loop_value['last']           = ($index === $loop_value['total_results']) ? true : false;
+
+                                // merge this local data with callback data before performing actions
+                                $loop_value = $loop_value + self::$callbackData;
+
+                                // perform standard actions
+                                $str = $this->extractLoopedTags($match[2][0], $loop_value, $callback);
+                                $str = $this->parseConditionals($str, $loop_value, $callback);
+                                $str = $this->injectExtractions($str, 'looped_tags');
+                                $str = $this->parseVariables($str, $loop_value, $callback);
+
+                                if (!is_null($callback)) {
+                                    $str = $this->injectExtractions($str, 'callback_blocks');
+                                    $str = $this->parseCallbackTags($str, $new_loop, $callback);
+                                }
+
+                                $looped_text .= $str;
+                            }
+
+                            $text = preg_replace('/'.preg_quote($match[0][0], '/').'/m', addcslashes($looped_text, '\\$'), $text, 1);
+                        }
 
                     } else {
                         // no, so this is just a value, we're done here
@@ -905,7 +930,7 @@ class Parser
 
         // <statamic>
         // expand allowed characters in variable regex
-        $this->variableRegex = $glue === '\\.' ? '[a-zA-Z0-9_][|a-zA-Z\-\+\*%\^\/,0-9_'.$glue.']*' : '[a-zA-Z0-9_][|a-zA-Z\-\+\*%\^\/,0-9_\.'.$glue.']*';
+        $this->variableRegex = $glue === '.' ? '[a-zA-Z0-9_][|a-zA-Z\-\+\*%\^\/,0-9_'.$glue.']*' : '[a-zA-Z0-9_][|a-zA-Z\-\+\*%\^\/,0-9_\.'.$glue.']*';
         // </statamic>
         $this->callbackNameRegex = $this->variableRegex.$glue.$this->variableRegex;
         $this->variableLoopRegex = '/\{\{\s*('.$this->variableRegex.')\s*\}\}(.*?)\{\{\s*\/\1\s*\}\}/ms';

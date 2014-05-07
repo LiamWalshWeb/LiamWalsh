@@ -59,6 +59,15 @@ class Statamic_View extends \Slim\View
             $template_path = Path::assemble(BASE_PATH, Config::getTemplatesPath(), 'templates', $template);
 
             if (File::exists($template_path . '.html') || file_exists($template_path . '.php')) {
+                // set debug information
+                $this->data['_debug'] = array(
+                    'template'     => $template,
+                    'layout'       => str_replace('layouts/', '', self::$_layout),
+                    'version'      => STATAMIC_VERSION,
+                    'theme'        => array_get($this->data, '_theme', null),
+                    'environment'  => array_get($this->data, 'environment', "(no environment matched)")
+                );
+                
                 # standard lex-parsed template
                 if (File::exists($template_path . '.html')) {
                     $template_type = 'html';
@@ -98,14 +107,11 @@ class Statamic_View extends \Slim\View
      */
     public function _render_layout($_html, $template_type = 'html')
     {
-
         if (self::$_layout != '') {
-
             $this->data['layout_content'] = $_html;
             $layout_path = Path::assemble(BASE_PATH, Config::getTemplatesPath(), self::$_layout);
 
             if ($template_type == 'html') {
-
                 if ( ! File::exists($layout_path . ".html")) {
                     Log::fatal("Can't find the specified theme.", 'core', 'template');
 
@@ -122,12 +128,14 @@ class Statamic_View extends \Slim\View
                 require $layout_path . ".php";
                 $html = ob_get_clean();
             }
-
-            return $html;
-
+        } else {
+            $html = $_html;
         }
 
-        return $_html;
+        // post-render hook
+        $html = \Hook::run('_render', 'after', 'replace', $html, $html);
+
+        return $html;
     }
       
       

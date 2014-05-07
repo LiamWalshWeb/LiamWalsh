@@ -25,7 +25,6 @@ class Environment
         $port   = (int) $_SERVER['SERVER_PORT'];
         $host   = $_SERVER['HTTP_HOST'];
         
-        
         $url = strtolower($scheme . $host);
         if (($scheme === 'https://' && $port !== 443) || ($scheme === 'http://' && $port !== 80)) {
             $url .= ':' . $port;

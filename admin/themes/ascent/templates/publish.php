@@ -115,7 +115,7 @@
         <?php if ($slug !== '/'): ?>
         <div class="input-block input-text required<?php if (array_get($fields, 'slug:hide', false) === true):?> hidden<?php endif ?>">
           <label for="publish-slug"><?php echo Localization::fetch('slug') ?></label>
-          <input type="text" id="publish-slug" data-required="true" tabindex="<?php print tabindex(); ?>" class="text<?php if (isset($new)): ?> auto-slug <?php endif ?>" name="page[meta][slug]" value="<?php print $slug ?>" />
+          <input type="text" id="publish-slug" data-required="true" tabindex="<?php print tabindex(); ?>" class="text<?php if (isset($new)): ?> new-slug <?php endif ?>" name="page[meta][slug]" value="<?php print $slug ?>" />
         </div>
         <?php else: ?>
           <input type="hidden" id="publish-slug" tabindex="<?php print tabindex(); ?>" name="page[meta][slug]" value="<?php print $slug ?>" />

@@ -60,7 +60,7 @@ class Plugin_theme extends Plugin
         $src  = $this->fetchParam('src', Config::getTheme() . '.js', null, false, false);
         $file = $this->theme_path . $this->theme_assets_path . $src;
 
-        return $this->site_root . $file;
+        return URL::assemble($this->site_root, $file);
     }
 
     # Usage example: {{ theme:js src="jquery" }}
@@ -79,8 +79,10 @@ class Plugin_theme extends Plugin
         if ($cache_bust && File::exists($file)) {
             $file .= '?v=' . $last_modified = filemtime($file);
         }
+        
+        $filename = URL::assemble($this->site_root, $file);
 
-        return ($tag) ? '<script src="' . $this->site_root . $file . '"></script>' : $this->site_root . $file;
+        return ($tag) ? '<script src="' . $filename . '"></script>' : $filename;
     }
 
     # Usage example: {{ theme:css src="primary" }}
@@ -100,8 +102,10 @@ class Plugin_theme extends Plugin
         if ($cache_bust && File::exists($file)) {
             $file .= '?v=' . $last_modified = filemtime($file);
         }
+        
+        $filename = URL::assemble($this->site_root, $file);
 
-        return ($tag) ? '<link href="' . $this->site_root . $file . '" rel="stylesheet">' : $this->site_root . $file;
+        return ($tag) ? '<link href="' . $filename . '" rel="stylesheet">' : $filename;
     }
 
     # Usage example: {{ theme:img src="logo.png" }}
@@ -120,7 +124,9 @@ class Plugin_theme extends Plugin
         if ($cache_bust && File::exists($file)) {
             $file .= '?v=' . $last_modified = filemtime($file);
         }
+        
+        $filename = URL::assemble($this->site_root, $file);
 
-        return ($tag) ? '<img src="' . $this->site_root . $file . '" ' . $alt . '>' : $this->site_root . $file;
+        return ($tag) ? '<img src="' . filename . '" ' . $alt . '>' : $filename;
     }
 }

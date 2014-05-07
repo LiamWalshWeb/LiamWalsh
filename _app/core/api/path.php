@@ -220,12 +220,16 @@ class Path
      * @param string  $path  Path to trim
      * @return string
      */
-    public static function toAsset($path)
+    public static function toAsset($path, $as_variable=false)
     {
         $asset_path = Path::trimFilesystem($path);
 
+        if (Pattern::startsWith($asset_path, '{{ _site_root }}')) {
+            $asset_path = str_replace('{{ _site_root }}', '/', $asset_path);
+        }
+        
         if (!Pattern::startsWith($asset_path, Config::getSiteRoot())) {
-            $asset_path = Config::getSiteRoot() . '/' . $asset_path;
+            $asset_path = ($as_variable) ? '{{ _site_root }}' . $asset_path : Config::getSiteRoot() . '/' . $asset_path;
         }
 
         return rtrim(self::tidy($asset_path), '/');
@@ -238,8 +242,12 @@ class Path
      * @param string  $path  Path to start from
      * @return string
      */
-    public static function fromAsset($path)
+    public static function fromAsset($path, $with_variable=false)
     {
+        if ($with_variable) {
+            return self::tidy(BASE_PATH . '/' . str_replace('{{ _site_root }}', '/', $path));
+        }
+
         return self::tidy(BASE_PATH . '/' . str_replace(Config::getSiteRoot(), '/', $path));
     }
 

@@ -318,6 +318,15 @@ $admin_app->post('/publish', function() use ($admin_app) {
     $index_file = false;
     $form_data = Request::post('page');
 
+    // By HTML specifications, browsers are required to canonicalize line breaks
+    // in user input to CR LF (\r\n), and I don’t think any browser gets this wrong.
+    // Reference: clause 17.13.4 Form content types in the HTML 4.01 spec.
+    // Source: http://stackoverflow.com/questions/14217101/what-character-represents-a-new-line-in-a-text-area
+    // Anyway, we want \n for this
+    array_walk_recursive($form_data, function(&$item, $key) {
+      $item = str_replace("\r\n", Config::get('admin_line_endings', "\n"), $item);
+    });
+
     // 1. Validate
     if ($form_data) {
       // ### Intercept the timestamp and convert to something we can work with
@@ -550,7 +559,7 @@ $admin_app->post('/publish', function() use ($admin_app) {
       if (!preg_match(Pattern::NUMERIC, $slug, $matches)) {
         $slug = $numeric.".".$slug;
       }
-      $file = $content_root."/".$path."/".$slug.".".$content_type;
+      $file = $content_root."/".$path."/".$status_prefix.$slug.".".$content_type;
 
     } elseif ($form_data['type'] == 'none') {
       if (!preg_match(Pattern::NUMERIC, $slug, $matches)) {
@@ -558,7 +567,7 @@ $admin_app->post('/publish', function() use ($admin_app) {
         $slug = $numeric."-".$slug;
       }
         
-      $file = $content_root."/".$path."/".$slug."/page.".$content_type;
+      $file = $content_root."/".$path."/".$status_prefix.$slug."/page.".$content_type;
       $file = Path::tidy($file);
 
       if ( ! File::exists(dirname($file))) {
@@ -769,6 +778,20 @@ $admin_app->post('/publish', function() use ($admin_app) {
     unset($file_data['status']);
   }
 
+  
+  /*
+  |--------------------------------------------------------------------------
+  | Prep data & run hook
+  |--------------------------------------------------------------------------
+  |
+  | Set up an array of useful data for the hook and then run that sucker.
+  |
+  */
+   
+  $publish_data = array('yaml' => $file_data, 'content' => $form_data['content']);
+  
+  $publish_data = Hook::run('control_panel', 'publish', 'replace', $publish_data, $publish_data);
+
   /*
   |--------------------------------------------------------------------------
   | Build and write content
@@ -778,7 +801,7 @@ $admin_app->post('/publish', function() use ($admin_app) {
   |
   */
 
-  $file_content = File::buildContent($file_data, $form_data['content']);
+  $file_content = File::buildContent($publish_data['yaml'], $publish_data['content']);
 
   File::put(Path::assemble(BASE_PATH, $file), $file_content);
 
@@ -790,8 +813,6 @@ $admin_app->post('/publish', function() use ($admin_app) {
   | If the slug changed we'll need to rename the file accordingly.
   |
   */
-
-
 
   if ( ! isset($form_data['new'])) {
 
@@ -948,7 +969,7 @@ $admin_app->get('/publish', function() use ($admin_app) {
 
     if ($new) {
       $data['new'] = 'true';
-      $page = 'new-slug';
+      $page = '';
       $folder = $path;
 
       $data['full_slug'] = dirname($path);

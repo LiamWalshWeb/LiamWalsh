@@ -259,6 +259,9 @@ class ContentService
             return $result;
         });
 
+        // re-key the array
+        $output = array_values($output);
+
         // return what we know
         return $output;
     }

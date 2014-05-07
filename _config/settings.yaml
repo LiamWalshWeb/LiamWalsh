@@ -103,9 +103,9 @@ _fix_out_of_range_pagination: true
 # a matching URL, we'll merge the environment-specific config from _config/environments
 _environments:
   dev:
-    - 'http://liamwalsh/'
+    - liamwalsh
   live:
-    - 'http://www.liamwalsh.co.uk/'
+    - www.liamwalsh.co.uk
 
 # Set to 'true' if you want to log system messages
 _log_enabled: true

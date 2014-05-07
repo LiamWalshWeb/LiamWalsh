@@ -784,7 +784,7 @@ class ContentSet
     public function customSupplement($key, $callback)
     {
         foreach ($this->content as $content_key => $content_value) {
-            $this->content[$content_key][$key] = call_user_func($callback, $this->content[$content_key]['url']);
+            $this->content[$content_key][$key] = call_user_func($callback, $this->content[$content_key]);
         }
     }
 

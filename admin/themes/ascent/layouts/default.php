@@ -2,13 +2,19 @@
   $current_user = Auth::getCurrentMember();
   $name = $current_user->get('name');
 ?><!doctype html>
-<html lang="en">
+<html lang="<?php echo Config::getCurrentLanguage(); ?>">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
   <title>Statamic Control Panel</title>
   <link rel="stylesheet" href="<?php echo Path::tidy(Config::getSiteRoot().'/'.$app->config['theme_path']) ?>css/ascent.min.css">
   <link rel="shortcut icon" href="<?php print Path::tidy(Config::getSiteRoot().'/'.$app->config['theme_path'])?>img/favicon.ico" />
+  <script>
+      var transliterate = <?php echo json_encode(Config::get('custom_transliteration', array())); ?>;
+  </script>
+  <script>
+      var content_type = "<?php echo Config::getContentType(); ?>";
+  </script>
   <script type="text/javascript" src="<?php echo Path::tidy(Config::getSiteRoot().'/'.$app->config['theme_path'])?>js/ascent.min.js"></script>
   <?php echo Hook::run('control_panel', 'add_to_head', 'cumulative') ?>
 </head>

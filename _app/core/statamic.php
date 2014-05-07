@@ -435,7 +435,7 @@ class Statamic
             }
 
         } else {
-            list($yaml, $content) = preg_split("/---/", $meta_raw, 2, PREG_SPLIT_NO_EMPTY);
+            list($yaml, $content) = preg_split("/\n---/", $meta_raw, 2, PREG_SPLIT_NO_EMPTY);
             $meta = self::loadYamlCached($yaml);
 
             if ($raw) {

@@ -24,7 +24,7 @@ class Hooks_member extends Hooks
         // test for a valid login
         if (Auth::login($username, $password, $remember)) {
             $this->flash->set('login_success', 'Member logged in.');
-            URL::redirect(URL::assemble(Config::getSiteRoot(), $return));
+            URL::redirect($return);
         } else {
             $this->flash->set('login_error', 'Invalid login.');
             $this->flash->set('old_values', $_POST);
