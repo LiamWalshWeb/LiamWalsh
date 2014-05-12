@@ -5,6 +5,7 @@ categories:
   - freeletics
   - well being
 excerpt: "<p>It's often been said that a healthy body means a healthy mind and I believe that as web professionals we exercise our minds very well. A lot of people in the web industry (including myself) put in a lot of time to learning our trade, whether it be learning about the latest front end development tools or learning about new design patterns and so on. We work hard to be not just good at what we do, but to be great!</p>"
+page_image: '{{ _site_root }}assets/page/img/freeletics.jpg'
 ---
 <p>
 	It's often been said that a healthy body means a healthy mind and I believe that as web professionals we exercise our minds very well. A lot of people in the web industry (including myself) put in a lot of time to learning our trade, whether it be learning about the latest front end development tools or learning about new design patterns and so on. We work hard to be not just good at what we do, but to be great!
@@ -21,8 +22,8 @@ excerpt: "<p>It's often been said that a healthy body means a healthy mind and I
 	<a href="https://www.freeletics.com/en">click here</a>.
 </p>
 <div class="video-container">
-<iframe width="560" height="315" src="//www.youtube.com/embed/vGnAQqlrKoE" frameborder="0" allowfullscreen="">
-</iframe>
+	<iframe width="560" height="315" src="//www.youtube.com/embed/vGnAQqlrKoE" frameborder="0" allowfullscreen="">
+	</iframe>
 </div>
 <p>
 	I have chosen to pick up Freeletics as part of taking my own advice from&nbsp;

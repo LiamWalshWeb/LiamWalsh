@@ -47,7 +47,11 @@
         <?php $status = isset($entry['status']) ? $entry['status'] : 'live'; ?>
           <tr>
             <td class="checkbox-col">
+            <?php if (array_get($entry, '_admin:protected', false)): ?>
+              <span class="ss-icon protected">lock</span>
+            <?php else: ?>
               <input type="checkbox" name="entries[]" value="<?php echo "{$path}/{$slug}" ?>" data-bind="checked: selectedEntries" >
+            <?php endif ?>
             </td>
 
             <td class="title">

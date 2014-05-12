@@ -1,0 +1,11 @@
+# when set to `true`, HTML caching will be enabled
+enable: false
+
+# how long should pages be cached for? set this to either:
+#   - a time value, like "10 minutes"
+#   - "on cache update", which will invalidate the cache whenever any piece of content is touched
+#   - "on last modified", which will invalidate the cache based on that URL's content file's last-modified time
+cache_length: on last modified
+
+# a pipe-separated list of URLs you want to exclude from HTML caching, ending-wildcards OK
+exclude: 

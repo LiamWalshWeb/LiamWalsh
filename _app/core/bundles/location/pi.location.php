@@ -389,12 +389,12 @@ class Plugin_location extends Plugin {
 
         return '
             <!-- leaflet maps -->
-            <link rel="stylesheet" href="' . $add_on_path . '/css/leaflet.css">
+            <link rel="stylesheet" href="' . ENVIRONMENT_PATH_PREFIX . $add_on_path . '/css/leaflet.css">
             <!--[if lte IE 8]>
-                <link rel="stylesheet" href="' . $add_on_path . '/css/leaflet.ie.css">
+                <link rel="stylesheet" href="' . ENVIRONMENT_PATH_PREFIX . $add_on_path . '/css/leaflet.ie.css">
             <![endif]-->
             ' . $override . '
-            <script type="text/javascript" src="' . $add_on_path . '/js/leaflet.js"></script>
+            <script type="text/javascript" src="' . ENVIRONMENT_PATH_PREFIX . $add_on_path . '/js/leaflet.js"></script>
             <script>
                 try {
                     if (typeof _location_maps !== "object") {

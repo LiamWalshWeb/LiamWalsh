@@ -558,6 +558,13 @@ h1, h2, h3, h4, h5, h6 {
     }
   }
 
+  .protected {
+    color: #ccc;
+    margin-left: -1px;
+    position: relative;
+    bottom: -2px;
+  }
+
   .ss-directup, .ss-dropdown {
     @include gradient(#fff, $lightTan);
     border-right: 1px solid $borderColor;

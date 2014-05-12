@@ -1249,7 +1249,7 @@ class ContextualCache extends ContextualObject
 
         $path  = $this->contextualize($folder . "/");
 	    
-	  if ($folder && !Folder::exists($path)) {
+	  if (!Folder::exists($path)) {
 		  return;
 	  }
 	    
@@ -1277,7 +1277,7 @@ class ContextualCache extends ContextualObject
         $this->isValidFilename($folder);
         $path = $this->contextualize($folder . "/");
 
-        if ($folder && !Folder::exists($path)) {
+        if (!Folder::exists($path)) {
             return;
         }
 
@@ -1389,9 +1389,9 @@ class ContextualCSS extends ContextualObject
         $file_location = Config::getAddOnPath($this->context->getAddonName()) . '/';
 
         if (File::exists(APP_PATH . $bundle_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), $file_location . $file);
+            return URL::assemble(Config::getSiteRoot(), ENVIRONMENT_PATH_PREFIX, $file_location . $file);
         } elseif (File::exists(APP_PATH . $bundle_location . 'css/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), $file_location, 'css', $file);
+            return URL::assemble(Config::getSiteRoot(), ENVIRONMENT_PATH_PREFIX, $file_location, 'css', $file);
         } elseif (File::exists(BASE_PATH . $file_location . $file)) {
             return URL::assemble(Config::getSiteRoot(), $file_location . $file);
         } elseif (File::exists(BASE_PATH . $file_location . 'css/' . $file)) {
@@ -1468,9 +1468,9 @@ class ContextualJS extends ContextualObject
         $file_location = Config::getAddOnPath($this->context->getAddonName()) . '/';
 
         if (File::exists(APP_PATH . $bundle_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), $file_location . $file);
+            return URL::assemble(Config::getSiteRoot(), ENVIRONMENT_PATH_PREFIX, $file_location . $file);
         } elseif (File::exists(APP_PATH . $bundle_location . 'js/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), $file_location, 'js', $file);
+            return URL::assemble(Config::getSiteRoot(), ENVIRONMENT_PATH_PREFIX, $file_location, 'js', $file);
         } elseif (File::exists(BASE_PATH . $file_location . $file)) {
             return URL::assemble(Config::getSiteRoot(), $file_location . $file);
         } elseif (File::exists(BASE_PATH . $file_location . 'js/' . $file)) {
@@ -1516,9 +1516,9 @@ class ContextualAssets extends ContextualObject
         $file_location = Config::getAddOnPath($this->context->getAddonName()) . '/';
 
         if (File::exists(APP_PATH . $bundle_location . $file)) {
-            return URL::assemble(Config::getSiteRoot(), $file_location, $file);
+            return URL::assemble(Config::getSiteRoot(), ENVIRONMENT_PATH_PREFIX, $file_location, $file);
         } elseif (File::exists(APP_PATH . $bundle_location . 'assets/' . $file)) {
-            return URL::assemble(Config::getSiteRoot(), $file_location, 'assets', $file);
+            return URL::assemble(Config::getSiteRoot(), ENVIRONMENT_PATH_PREFIX, $file_location, 'assets', $file);
         } elseif (File::exists(BASE_PATH . $file_location . $file)) {
             return URL::assemble(Config::getSiteRoot(), $file_location, $file);
         } elseif (File::exists(BASE_PATH . $file_location . 'assets/' . $file)) {

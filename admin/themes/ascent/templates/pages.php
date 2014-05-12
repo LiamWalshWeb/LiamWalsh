@@ -36,7 +36,10 @@
     <?php $fieldset = 'page' ?>
 
     <ul id="page-tree">
-      <?php foreach ($pages as $page):?>
+      <?php foreach ($pages as $page): ?>
+
+      <?php if (array_get($page, '_admin:hide', false) === false): ?>
+
       <li class="page">
         <?php if (array_get($page, 'has_entries', false)): ?> <div class="has-entries"></div><?php endif ?>
         <div class="page-wrapper">
@@ -78,7 +81,7 @@
             ?>
               <div class="page-view"><a href="<?php print Path::tidy(Config::getSiteRoot() . '/' . $page['url']) ?>" class="tip" title="View Page"><span class="ss-icon">link</span></a></div>
 
-              <?php if (Config::get('_enable_add_child_page', true)): ?>
+              <?php if (Config::get('_enable_add_child_page', true) && ! array_get($page, '_admin:no_children', false)): ?>
               <div class="page-add">
                 <a href="#" data-path="<?php print $folder; ?>" data-title="<?php print $page['title']?>" class="tip add-page-btn add-page-modal-trigger" title="<?php echo Localization::fetch('new_child_page')?>"><span class="ss-icon">addfile</span></a>
               </div>
@@ -86,9 +89,13 @@
 
               <?php if (Config::get('_enable_delete_page', true)):?>
                 <div class="page-delete">
-                  <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="<?php echo Localization::fetch('pagedelete_confirm')?>">
-                    <span class="ss-icon">delete</span>
-                  </a>
+                  <?php if (array_get($page, '_admin:protected', false)): ?>
+                    <a alt="This page is protected" class="tip"><span class="ss-icon protected">lock</span></a>
+                  <?php else: ?>
+                    <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="<?php echo Localization::fetch('pagedelete_confirm')?>">
+                      <span class="ss-icon">delete</span>
+                    </a>
+                  <?php endif ?>
                 </div>
               <?php endif ?>
             <?php endif ?>
@@ -104,6 +111,7 @@
           <?php display_folder($app, $page['children'], $page['slug']) ?>
         <?php endif ?>
       </li>
+      <?php endif ?>
       <?php endforeach ?>
     </ul>
   </div>

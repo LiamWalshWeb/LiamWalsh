@@ -94,7 +94,16 @@ class Statamic_View extends \Slim\View
             }
         }
 
-        return $this->_render_layout($html, $template_type);
+        // get rendered HTML
+        $rendered = $this->_render_layout($html, $template_type);
+
+        // store it into the HTML cache if needed
+        if (Addon::getAPI('html_caching')->isEnabled()) {
+            Addon::getAPI('html_caching')->putCachedPage($rendered);
+        }
+        
+        // return rendered HTML
+        return $rendered;
     }
 
     /**

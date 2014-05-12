@@ -10,6 +10,8 @@
 | depend on these settings.
 |
 */
+
+
 $config = Statamic::loadAllConfigs();
 
 $config['_cookies.secret_key'] = Cookie::getSecretKey();

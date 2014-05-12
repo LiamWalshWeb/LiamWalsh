@@ -205,7 +205,7 @@ class Parser
                             // have been merged into the bigger scope
                             
                             // merge this local data with callback data before performing actions
-                            $loop_value = self::$callbackData + $loop_data;
+                            $loop_value = $loop_data + self::$callbackData;
 
                             // perform standard actions
                             $str = $this->extractLoopedTags($match[2][0], $loop_value, $callback);
@@ -236,8 +236,6 @@ class Parser
                                     );
                                 }
 
-                                $new_loop = (is_array($loop_value)) ? $loop_value : array($loop_key => $loop_value);
-
                                 // set contextual iteration values
                                 $loop_value['key']            = $loop_key;
                                 $loop_value['index']          = $index;
@@ -257,7 +255,7 @@ class Parser
 
                                 if (!is_null($callback)) {
                                     $str = $this->injectExtractions($str, 'callback_blocks');
-                                    $str = $this->parseCallbackTags($str, $new_loop, $callback);
+                                    $str = $this->parseCallbackTags($str, $loop_value, $callback);
                                 }
 
                                 $looped_text .= $str;
@@ -375,7 +373,7 @@ class Parser
         $inCondition = $this->inCondition;
 
         if ($inCondition) {
-            $regex = '/\{\s*('.$this->variableRegex.')(\s+.*?)?\s*\}/ms';
+            $regex = '/\{\{?\s*('.$this->variableRegex.')(\s+.*?)?\s*\}\}?/ms';
         } else {
             $regex = '/\{\{\s*('.$this->variableRegex.')(\s+.*?)?\s*(\/)?\}\}/ms';
         }
@@ -583,9 +581,14 @@ class Parser
             }
             // </statamic>
 
-            if ($inCondition) {
+            // <statamic>
+            // because variables within conditions can now be parsed more than once, this whole thing
+            // may already have been run through $this->valueToLiteral, check to see if that's the case,
+            // and if it is, don't do it again
+            if ($inCondition && (substr($text, 0, 1) !== "'" && substr($text, -1, 1) !== "'")) {
                 $replacement = $this->valueToLiteral($replacement);
             }
+            // </statamic>
             $text = preg_replace('/'.preg_quote($tag, '/').'/m', addcslashes($replacement, '\\$'), $text, 1);
             $text = $this->injectExtractions($text, 'nested_looped_tags');
         }
@@ -659,22 +662,34 @@ class Parser
                 }
             }
 
-            $condition = preg_replace_callback('/\b('.$this->variableRegex.')\b/', array($this, 'processConditionVar'), $condition);
+            // <statamic>
+            // replaced a static-ish call to a callback with an anonymous function so that we could
+            // also pass in the current callback (for later processing callback tags); also setting
+            // $ref so that we can use it within the anonymous function
+            $ref = $this;
+            $condition = preg_replace_callback('/\b('.$this->variableRegex.')\b/', function($match) use ($callback, $ref) {
+                return $ref->processConditionVar($match, $callback); 
+            }, $condition);
+            // </statamic>
 
             // <statamic>
             // inject any found callbacks and parse them
             if ($callback) {
                 $condition = $this->injectExtractions($condition, '__cond_callbacks');
-                $condition = $this->parseCallbackTags($condition, $data, $callback);
+                $condition = $this->parseCallbackTags($condition, $data, $callback, true);
             }
             // </statamic>
 
             // Re-extract the strings that have now been possibly added.
-            if (preg_match_all('/(["\']).*?(?<!\\\\)\1/', $condition, $str_matches)) {
+            // <statamic>
+            // changed this regex to be `s` mode, as in some edge cases, this was causing confusion
+            // and the parser was throwing a harsh error
+            if (preg_match_all('/(["\']).*?(?<!\\\\)\1/s', $condition, $str_matches)) {
                 foreach ($str_matches[0] as $m) {
                     $condition = $this->createExtraction('__cond_str', $m, $m, $condition);
                 }
             }
+            // </statamic>
 
             // Re-process for variables, we trick processConditionVar so that it will return null
             $this->inCondition = false;
@@ -861,10 +876,15 @@ class Parser
      * and returns the value of it, properly formatted.
      *
      * @param  array  $match A match from preg_replace_callback
+     * @param  callable  $callback  A callback to use to process further callback tags
      * @return string
      */
-    protected function processConditionVar($match)
+    public function processConditionVar($match, $callback=null)
     {
+        // <statamic>
+        // made this method public so that it can be used within an anonymous function in PHP 5.3.x
+        // </statamic>
+        
         $var = is_array($match) ? $match[0] : $match;
         if (in_array(strtolower($var), array('true', 'false', 'null', 'or', 'and')) or
             strpos($var, '__cond_str') === 0 or
@@ -880,6 +900,22 @@ class Parser
 
         $value = $this->getVariable($var, $this->conditionalData, '__processConditionVar__');
 
+        // <statamic>
+        // if the resulting value of a variable in a string that contains another variable,
+        // find that variable's value as well
+        if (!is_array($value)) {
+            while (preg_match($this->variableTagRegex, $value, $matches)) {
+                $previous_value = $value;
+                $value = $this->parseVariables($value, $this->conditionalData, $callback);
+                
+                // nothing changed, break out, prevents any sort of infinite looping
+                if ($previous_value === $value) {
+                    break;
+                }
+            }
+        }
+        // </statamic>
+        
         if ($value === '__processConditionVar__') {
             return $this->inCondition ? $var : 'null';
         }

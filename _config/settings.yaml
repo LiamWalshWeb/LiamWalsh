@@ -92,6 +92,11 @@ _parse_order:
 # If a given page is too high to return results in a paginated set, should we show the last page instead?
 _fix_out_of_range_pagination: true
 
+# Experimental: Set http/browser cache length. Plain English is perfect. 1 hour, 1 day, 1 week, etc
+_http_cache_expires: false
+
+_enable_static_pipeline: false
+
 
 ###########################################################################################
 #

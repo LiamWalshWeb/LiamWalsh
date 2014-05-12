@@ -200,7 +200,7 @@ $admin_app->get('/pages', function() use ($admin_app) {
   |
   */
 
-  $pages = Statamic::get_content_tree('/', 1, 1000, false, false, false, false, '/');
+  $pages = Statamic::get_content_tree('/', 1, 1000, false, false, false, true, '/');
 
   // Home page isn't included by default
   $meta = Statamic::get_content_meta("page", '');
@@ -788,7 +788,7 @@ $admin_app->post('/publish', function() use ($admin_app) {
   |
   */
    
-  $publish_data = array('yaml' => $file_data, 'content' => $form_data['content']);
+  $publish_data = array('yaml' => $file_data, 'content' => $form_data['content'], 'file' => $file);
   
   $publish_data = Hook::run('control_panel', 'publish', 'replace', $publish_data, $publish_data);
 
@@ -902,6 +902,18 @@ $admin_app->map('/delete/entry', function() use ($admin_app) {
 
   foreach ($entries as $path) {
     $file = $content_root . "/" . $path . "." . $content_type;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Hook
+    |--------------------------------------------------------------------------
+    |
+    | Runs the delete hook, passing the file path
+    |
+    */
+
+    Hook::run('control_panel', 'delete', null, $file);
+
     File::delete($file);
   }
 
@@ -939,8 +951,23 @@ $admin_app->get('/delete/page', function() use ($admin_app) {
     }
 
     if (File::exists($path)) {
+      
+      /*
+      |--------------------------------------------------------------------------
+      | Delete Hook
+      |--------------------------------------------------------------------------
+      |
+      | Runs the delete hook, passing the file path
+      |
+      */
+
+      Hook::run('control_panel', 'delete', null, $path);
+
       File::delete($path);
+
       $admin_app->flash('success', Localization::fetch('page_deleted'));
+
+
     } else {
       $admin_app->flash('failure', Localization::fetch('page_unable_delete'));
     }

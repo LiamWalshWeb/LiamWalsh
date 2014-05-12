@@ -1,7 +1,16 @@
 <?php
 
-const STATAMIC_VERSION = '1.7.7';
+const STATAMIC_VERSION = '1.7.8';
 const APP_PATH = __DIR__;
+
+// handle the PHP development server
+define("ENVIRONMENT_PATH_PREFIX", (php_sapi_name() === "cli-server") ? "index.php" : "");
+
+
+// setting this now so that we can do things before the configurations are fully loaded
+// without PHP freaking out in PHP 5.3.x
+date_default_timezone_set('UTC');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +69,7 @@ require_once __DIR__ . '/vendor/Spyc/Spyc.php';
 
 require_once __DIR__ . '/vendor/Lex/Parser.php';
 
+
 /*
 |--------------------------------------------------------------------------
 | Internal API & Class Autoloader
@@ -74,3 +84,11 @@ require_once __DIR__ . '/core/functions.php';
 
 // register the Statamic autoloader
 spl_autoload_register("autoload_statamic");
+
+
+// attempt HTML caching
+// although this doesn't really have anything to do with autoloading, putting this
+// here allows us to not force people to update their index.php files
+if (Addon::getAPI('html_caching')->isEnabled() && Addon::getAPI('html_caching')->isPageCached()) {
+    die(Addon::getAPI('html_caching')->getCachedPage());
+}
