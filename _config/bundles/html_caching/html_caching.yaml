@@ -1,5 +1,5 @@
 # when set to `true`, HTML caching will be enabled
-enable: false
+enable: true
 
 # how long should pages be cached for? set this to either:
 #   - a time value, like "10 minutes"
