@@ -42,7 +42,7 @@ buttons:
 cleanup: true
 
 # Automatically replace divs with paragraphs
-convertDivs: true
+convertDivs: false
 
 # Automatically turn image links into <img> tags
 convertImageLinks: false
