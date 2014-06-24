@@ -8,50 +8,54 @@
 
 <url>
   <loc>http://liamwalsh.co.uk/</loc>
-  <changefreq>monthly</changefreq>
-</url>
-<url>
-  <loc>http://liamwalsh.co.uk/humble-tributes</loc>
-  <changefreq>monthly</changefreq>
-</url>
-<url>
-  <loc>http://liamwalsh.co.uk/blog</loc>
-  <changefreq>monthly</changefreq>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
   <loc>http://liamwalsh.co.uk/work</loc>
-  <changefreq>monthly</changefreq>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://liamwalsh.co.uk/humble-tributes/breaking-benjamin</loc>
-  <changefreq>monthly</changefreq>
+  <loc>http://liamwalsh.co.uk/blog</loc>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://liamwalsh.co.uk/blog/starting-new</loc>
-  <changefreq>monthly</changefreq>
+  <loc>http://liamwalsh.co.uk/humble-tributes</loc>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://liamwalsh.co.uk/blog/categories/creative</loc>
-  <changefreq>monthly</changefreq>
-</url>
-<url>
-  <loc>http://liamwalsh.co.uk/blog/categories/statamic</loc>
-  <changefreq>monthly</changefreq>
-</url>
-<url>
-  <loc>http://liamwalsh.co.uk/blog/categories/updates</loc>
-  <changefreq>monthly</changefreq>
+  <loc>http://liamwalsh.co.uk/work/oakgate-badminton</loc>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
   <loc>http://liamwalsh.co.uk/work/jessica-walsh</loc>
-  <changefreq>monthly</changefreq>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
   <loc>http://liamwalsh.co.uk/work/cakey-riddell</loc>
-  <changefreq>monthly</changefreq>
+  <changefreq>weekly</changefreq>
 </url>
 <url>
-  <loc>http://liamwalsh.co.uk/humble-tributes/breaking-benjamin/phobia</loc>
-  <changefreq>monthly</changefreq>
+  <loc>http://liamwalsh.co.uk/blog/week-six-diet</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/week-five-friends</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/week-four-weather</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/week-three-expectations</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/blog/week-two-strength</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://liamwalsh.co.uk/humble-tributes/sabriel</loc>
+  <changefreq>weekly</changefreq>
 </url>
 </urlset>
