@@ -8,7 +8,7 @@
 {{ get_content from="blog" }}
 	<div class="constrain body-section">
 		<section class="blog-list list-article">
-			{{ entries:listing folder="{url}" limit="{blog_limit}" taxonomy="{taxonomy_slug}" }}
+			{{ entries:listing folder="{url}" limit="{limit_posts}" taxonomy="{taxonomy_slug}" }}
 				{{ if first }}
 					<article class="row blog-post blog-post-featured list-item">
 						<div class="box constrain-content">
@@ -27,6 +27,9 @@
 					</article>
 				{{ endif }}
 			{{ /entries:listing }}
+			{{ if limit_posts }}
+				<a class="button icon-link" href="{{ url }}">See more blog posts</a>
+			{{ endif }}
 		</section>
 	</div>
 {{ /get_content }}
