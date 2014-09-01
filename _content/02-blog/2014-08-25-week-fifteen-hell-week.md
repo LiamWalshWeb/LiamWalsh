@@ -23,7 +23,7 @@ excerpt: |
 	<img src="http://liamwalsh/assets/blog/content/virgil-and-dante.jpg" style="font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif; width: 442px; float: right; margin: 0px 0px 10px 10px;" alt="Dante and Virgil">
 </p>
 <p>
-	I don't travel these circle alone though, I have my guide as did Dante with Virgil, I have my ever loving on supportive&nbsp;fiancé Gemma to guide me. I've found that when times are tough and you find yourself battling against something it is always wise to have someone who can steer you, help you feel safe and make sure you're on the right path.
+	I don't travel these circle alone though, I have my guide as did Dante with Virgil, I have my ever loving and supportive fiancé Gemma to guide me. I've found that when times are tough and you find yourself battling against something it is always wise to have someone who can steer you, help you feel safe and make sure you're on the right path.
 </p>
 <blockquote>
 	Midway upon the journey of our life
