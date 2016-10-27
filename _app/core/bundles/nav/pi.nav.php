@@ -10,10 +10,12 @@ class Plugin_nav extends Plugin
         // grab parameters
         $from             = $this->fetchParam('from', URL::getCurrent());
         $exclude          = $this->fetchParam('exclude', false);
+        $limit            = $this->fetchParam('limit', 0, 'is_numeric');
+        $offset           = $this->fetchParam('offset', 0, 'is_numeric');
         $max_depth        = $this->fetchParam('max_depth', 1, 'is_numeric');
         $include_entries  = $this->fetchParam('include_entries', false, false, true);
         $folders_only     = $this->fetchParam('folders_only', true, false, true);
-        $include_content  = $this->fetchParam('include_content', false, false, true);
+        $include_content  = $this->fetchParam('include_content', true, false, true);
         $show_hidden      = $this->fetchParam('show_hidden', false, null, true);
 
         // add in left-/ if not present
@@ -46,9 +48,36 @@ class Plugin_nav extends Plugin
             $this->blink->set($hash, $tree);
         }
 
-        // return the parsed tree
-        if (count($tree)) {
-            return Parse::tagLoop($this->content, $tree, true);
+        // offset & limit
+        if ($offset || $limit) {
+
+            // offset
+            if ($offset) {
+                $start = $offset;
+            } else {
+                $start = 0;
+            }
+
+            // limit
+            if ($limit) {
+                $limited_tree = array();
+                $end = $limit;
+            } else {
+                $end = count($tree);
+            }
+
+            // return filtered nav (limited or offsetted)
+            foreach(array_slice($tree, $start, $end) as $sliced_tree)
+            {
+                $limited_tree[] = $sliced_tree;
+            }
+            return Parse::tagLoop($this->content, $limited_tree, true);
+        } else {
+
+            // return the parsed tree
+            if (count($tree)) {
+                return Parse::tagLoop($this->content, $tree, true);
+            }
         }
 
         return false;
@@ -112,6 +141,8 @@ class Plugin_nav extends Plugin
         $reverse          = $this->fetchParam('reverse', false, false, true);
         $backspace        = $this->fetchParam('backspace', false, 'is_numeric', false);
         $include_content  = $this->fetchParam('include_content', false, null, true);
+        $trim             = $this->fetchParam('trim', true, null, true);
+        $tag_content      = $trim ? trim($this->content) : $this->content;
 
         // add in left-/ if not present
         if (substr($url, 0, 1) !== '/') {
@@ -179,16 +210,20 @@ class Plugin_nav extends Plugin
             }
 
             if (!count($crumbs)) {
-                $output = Parse::template(trim($this->content), array('no_results' => true));
+                $output = Parse::template($tag_content, array('no_results' => true));
 
                 if ($backspace) {
                     $output = substr($output, 0, -$backspace);
                 }
             } else {
-                $output = Parse::tagLoop(trim($this->content), $crumbs);
+                $output = Parse::tagLoop($tag_content, $crumbs);
+
+                if ($backspace) {
+                    $output = substr($output, 0, -$backspace);
+                }
             }
         } else {
-            $output = Parse::template(trim($this->content), array('no_results' => true));
+            $output = Parse::template($tag_content, array('no_results' => true));
         }
 
         // parse the loop

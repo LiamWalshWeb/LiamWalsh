@@ -1,4 +1,5 @@
 <?php
+
 use \Michelf\MarkdownExtra;
 use \Michelf\SmartyPants;
 use \Michelf\SmartyPantsTypographer;
@@ -16,6 +17,8 @@ use Netcarver\Textile\Parser as Textile;
  */
 class Parse
 {
+    private static $parsers = array();
+    
     /**
      * Parse a block of YAML into PHP
      *
@@ -35,16 +38,41 @@ class Parse
      */
     public static function markdown($string)
     {
-        $parser = new MarkdownExtra;
+        // start measuring
+        $hash = Debug::markStart('parsing', 'markdown');
         
-        $parser->no_markup         = Config::get('markdown:no_markup', false);
-        $parser->no_entities       = Config::get('markdown:no_entities', false);
-        $parser->predef_urls       = Config::get('markdown:predefined_urls', array());
-        $parser->predef_abbr       = Config::get('markdown:predefined_abbreviations', array());
-        $parser->code_class_prefix = Config::get('markdown:code_class_prefix', '');
-        $parser->code_attr_on_pre  = Config::get('markdown:code_attr_on_pre', false);
+        // check for parser, create if needed
+        if (!isset(self::$parsers['markdown'])) {
+            if (strtolower(Config::get('markdown_parser', 'standard')) === "parsedown") {
+                $parser = new ParsedownExtra();
+	            $parser->setUrlsLinked(Config::get('markdown:convert_urls_to_links', true));
 
-        return $parser->transform($string);
+            } else {
+                $parser = new MarkdownExtra;
+
+                $parser->no_markup         = Config::get('markdown:no_markup', false);
+                $parser->no_entities       = Config::get('markdown:no_entities', false);
+                $parser->predef_urls       = Config::get('markdown:predefined_urls', array());
+                $parser->predef_abbr       = Config::get('markdown:predefined_abbreviations', array());
+                $parser->code_class_prefix = Config::get('markdown:code_class_prefix', '');
+                $parser->code_attr_on_pre  = Config::get('markdown:code_attr_on_pre', false);
+            }
+
+            self::$parsers['markdown'] = $parser;
+        }
+
+        // parse for markdown
+        if (strtolower(Config::get('markdown_parser', 'standard')) === "parsedown") {
+            $result = self::$parsers['markdown']->text($string);
+        } else {
+            $result = self::$parsers['markdown']->transform($string);
+        }
+        
+        // end measuring
+        Debug::markEnd($hash);
+        Debug::increment('parses', 'markdown');
+        
+        return $result;
     }
 
     /**
@@ -55,8 +83,17 @@ class Parse
      */
     public static function textile($string)
     {
+        // start measuring
+        $hash = Debug::markStart('parsing', 'textile');
+        
         $parser = new Textile();
-        return $parser->textileThis($string);
+        $result = $parser->textileThis($string);
+
+        // end measuring
+        Debug::markEnd($hash);
+        Debug::increment('parses', 'textile');
+        
+        return $result;
     }
 
     /**
@@ -67,13 +104,20 @@ class Parse
      */
     public static function smartypants($string)
     {
-        $typographer = (Config::get('enable_smartypants', TRUE) === 'typographer');
+        // start measuring
+        $hash = Debug::markStart('parsing', 'smartypants');
 
-        if ($typographer) {
-            return SmartyPantsTypographer::defaultTransform($string);
+        if (Config::get('enable_smartypants', true) === 'typographer') {            
+            $result = SmartyPantsTypographer::defaultTransform($string);
+        } else {
+            $result = SmartyPants::defaultTransform($string);
         }
 
-        return SmartyPants::defaultTransform($string);
+        // end measuring
+        Debug::markEnd($hash);
+        Debug::increment('parses', 'smartypants');
+        
+        return $result;
     }
 
 
@@ -88,11 +132,23 @@ class Parse
      */
     public static function template($html, $variables, $callback = array('statamic_view', 'callback'), $context=array())
     {
-        $parser = new \Lex\Parser();
-        $parser->cumulativeNoparse(TRUE);
-        $allow_php = Config::get('_allow_php', false);
+        // start measuring
+        $hash = Debug::markStart('parsing', 'statamic_tmpl');
+        
+        if (!isset(self::$parsers['template_parser'])) {
+            $parser = new \Lex\Parser();
+            $parser->cumulativeNoparse(TRUE);
 
-        return $parser->parse($html, ($variables + $context), $callback, $allow_php);
+            self::$parsers['template_parser'] = $parser;
+        }
+        
+        $result = self::$parsers['template_parser']->parse($html, ($variables + $context), $callback, Config::get('_allow_php', false));
+
+        // end measuring
+        Debug::markEnd($hash);
+        Debug::increment('parses', 'statamic_tmpl');
+        
+        return $result;
     }
 
 
@@ -150,6 +206,28 @@ class Parse
         return $output;
     }
 
+    /**
+     * Checks for and parses front matter
+     *
+     * @param string  $string  Content to parse
+     * @return array
+     */
+    public static function frontMatter($string, $yamlize = true)
+    {
+        $data = array();
+        $content = $string;
+
+        if (Pattern::startsWith($string, "---")) {
+            list($yaml, $content) = preg_split("/\n---/", $string, 2, PREG_SPLIT_NO_EMPTY);
+
+            if ($yamlize) {
+                $data = self::yaml($yaml);
+            }
+        }
+
+        return compact('data', 'content');
+    }
+
 
     /**
      * Parses a conditions string
@@ -159,13 +237,22 @@ class Parse
      */
     public static function conditions($conditions)
     {
-        $conditions = explode(",", $conditions);
+        // start measuring
+        $hash = Debug::markStart('parsing', 'conditions');
+        Debug::increment('parses', 'condition_statements');
+        $replacement = '__TEMP_COMMA_' . substr(md5(time()), 0, 12) . '__';
+        
+        $conditions = explode(",", str_replace('\,', $replacement, $conditions));
         $output = array();
 
         foreach ($conditions as $condition) {
-            $result = Parse::condition($condition);
+            Debug::increment('parses', 'conditions');
+            $result = Parse::condition(str_replace($replacement, ',', $condition));
             $output[$result['key']] = $result['value'];
         }
+
+        // end measuring
+        Debug::markEnd($hash);
 
         return $output;
     }
@@ -237,6 +324,26 @@ class Parse
                     "kind" => "comparison",
                     "type" => "in",
                     "value" => explode("|", $value)
+                );
+            }
+        } else if (strstr($value, "&")) {
+            if (substr($value, 0, 1) == "!") {
+                $item = array(
+                    "kind" => "comparison",
+                    "type" => "has_none",
+                    "value" => explode("&", substr($value, 1))
+                );
+            } elseif (substr($value, 0, 2) == "! ") {
+                $item = array(
+                    "kind" => "comparison",
+                    "type" => "has_none",
+                    "value" => explode("&", substr($value, 2))
+                );
+            } else {
+                $item = array(
+                    "kind" => "comparison",
+                    "type" => "has_all",
+                    "value" => explode("&", $value)
                 );
             }
         } else {
@@ -385,6 +492,34 @@ class Parse
         }
 
         return array_unique($output);
+    }
+
+    /**
+     * Parse from mixed sources
+     *
+     * @param string  $file  a filename or string to retreive data from
+     * @param bool    $type  if the type is known, you can pass it
+     * @return array
+     **/
+    public static function mixed($file, $type = false)
+    {
+        if ( ! $type) {
+            // resolve type
+        }
+
+        switch ($type) {
+            case "md":
+            case "markdown":
+                return Statamic::yamlize_content($file);
+            case "textile":
+                return Statamic::yamlize_content($file);
+            case "yaml":
+                return self::yaml($file);
+            case "json":
+                return json_decode($file);
+            default:
+                return false;
+        }
     }
     
 

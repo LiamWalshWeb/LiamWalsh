@@ -4,6 +4,7 @@ namespace Stampie;
 
 use Stampie\Adapter\AdapterInterface;
 use Stampie\Adapter\ResponseInterface;
+use Stampie\Util\IdentityUtils;
 
 /**
  * Minimal implementation of a MailerInterface
@@ -77,7 +78,8 @@ abstract class Mailer implements MailerInterface
         $response = $this->getAdapter()->send(
             $this->getEndpoint(),
             $this->format($message),
-            $this->getHeaders()
+            $this->getHeaders(),
+            $this->getFiles($message)
         );
 
         // We are all clear if status is HTTP 2xx OK
@@ -102,6 +104,20 @@ abstract class Mailer implements MailerInterface
     }
 
     /**
+     * Return an key -> value array of files
+     *
+     * example:
+     *     array('attachmentname.jpg' => '/path/to/file.jpg')
+     *
+     * @param MessageInterface $message
+     * @return string[]
+     */
+    protected function getFiles(MessageInterface $message)
+    {
+        return array();
+    }
+
+    /**
      * @return string
      */
     abstract protected function getEndpoint();
@@ -121,8 +137,40 @@ abstract class Mailer implements MailerInterface
      * each Mailer should then throw an HttpException with an optional
      * ApiException to help identify the problem.
      *
+     * @param ResponseInterface $response
+     *
      * @throws \Stampie\Exception\ApiException
      * @throws \Stampie\Exception\HttpException
      */
     abstract protected function handle(ResponseInterface $response);
+
+    /**
+     * @param IdentityInterface|string $identity
+     *
+     * @return IdentityInterface
+     */
+    protected function normalizeIdentity($identity)
+    {
+        return IdentityUtils::normalizeIdentity($identity);
+    }
+
+    /**
+     * @param IdentityInterface[]|string $identities
+     *
+     * @return IdentityInterface[]
+     */
+    protected function normalizeIdentities($identities)
+    {
+        return IdentityUtils::normalizeIdentities($identities);
+    }
+
+    /**
+     * @param IdentityInterface[]|IdentityInterface|string $identities
+     *
+     * @return string
+     */
+    protected function buildIdentityString($identities)
+    {
+        return IdentityUtils::buildIdentityString($identities);
+    }
 }

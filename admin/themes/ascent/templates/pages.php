@@ -3,7 +3,9 @@
     <li><a href="<?php echo $app->urlFor("pages"); ?>" class="active"><?php echo Localization::fetch('pages') ?></a></li>
     <li class="separator">&nbsp;</li>
     <?php foreach($listings as $listing): ?>
-      <li><a href="entries?path=<?php echo $listing['slug']?>"><?php echo $listing['title'] ?></a></li>
+      <?php if (CP_Helper::is_page_visible($listing)): ?>
+        <li><a href="entries?path=<?php echo $listing['slug']?>"><?php echo $listing['title'] ?></a></li>
+      <?php endif ?>
     <?php endforeach ?>
   </ul>
 </div>
@@ -38,11 +40,16 @@
     <ul id="page-tree">
       <?php foreach ($pages as $page): ?>
 
-      <?php if (array_get($page, '_admin:hide', false) === false): ?>
+      <?php if (CP_Helper::is_page_visible($page)): ?>
 
-      <li class="page">
+      <li class="page" data-url="<?php echo $page['url'] ?>">
         <?php if (array_get($page, 'has_entries', false)): ?> <div class="has-entries"></div><?php endif ?>
         <div class="page-wrapper">
+          <?php if (isset($page['children']) && (sizeof($page['children'])> 0)): ?>
+            <button class="toggle-children">
+              <span class="ss-icon">directdown</span>
+            </button>
+          <?php endif; ?>
           <div class="page-primary">
           <?php
           $base = $page['slug'];
@@ -59,7 +66,7 @@
           <?php if (array_get($page, 'has_entries', false)): ?>
             <div class="control-entries">
               <span class="ss-icon">textfile</span>
-              <span class="muted"><?php echo Localization::fetch('entries')?>:</span>
+              <span class="muted"><?php echo $page['entries_label'] ?>:</span>
               <a href="<?php print $app->urlFor('entries')."?path={$base}"; ?>">
                 <?php echo Localization::fetch('list')?>
               </a>
@@ -119,8 +126,14 @@
   <?php function display_folder($app, $folder, $base="") {  ?>
   <ul class="subpages">
   <?php foreach ($folder as $page):?>
-  <li class="page">
+  <?php if (CP_Helper::is_page_visible($page)): ?>
+  <li class="page" data-url="<?php echo $page['url'] ?>">
     <div class="page-wrapper">
+      <?php if (array_get($page, 'children', 0) > 0): ?>
+        <button class="toggle-children">
+          <span class="ss-icon">directdown</span>
+        </button>
+      <?php endif; ?>
       <div class="page-primary">
 
       <!-- PAGE TITLE -->
@@ -135,7 +148,7 @@
       <?php if (isset($page['has_entries']) && $page['has_entries']): ?>
         <div class="control-entries">
           <span class="ss-icon">textfile</span>
-          <span class="muted"><?php echo Localization::fetch('entries')?>:</span>
+          <span class="muted"><?php echo $page['entries_label'] ?>:</span>
           <a href="<?php print $app->urlFor('entries')."?path={$base}/{$page['slug']}"; ?>">
             <?php echo Localization::fetch('list')?>
           </a>
@@ -161,11 +174,15 @@
         <?php endif; ?>
 
         <?php if (Config::get('_enable_delete_page', true)):?>
-        <div class="page-delete">
-          <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="<?php echo Localization::fetch('pagedelete_confirm')?>">
-            <span class="ss-icon">delete</span>
-          </a>
-        </div>
+          <div class="page-delete">
+            <?php if (array_get($page, '_admin:protected', false)): ?>
+              <a alt="This page is protected" class="tip"><span class="ss-icon protected">lock</span></a>
+            <?php else: ?>
+              <a class="confirm tip" href="<?php print $app->urlFor('delete_page') . '?path=' . $page['raw_url'] . '&type=' . $page['type']?>" title="<?php echo Localization::fetch('delete_page')?>" data-confirm-message="<?php echo Localization::fetch('pagedelete_confirm')?>">
+                <span class="ss-icon">delete</span>
+              </a>
+            <?php endif ?>
+          </div>
         <?php endif ?>
 
         <div class="slug-preview">
@@ -180,6 +197,7 @@
     } ?>
 
   </li>
+  <?php endif ?>
   <?php endforeach ?>
   </ul>
   <?php } #end function ?>

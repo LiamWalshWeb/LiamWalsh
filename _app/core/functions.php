@@ -1,4 +1,7 @@
 <?php
+
+use Symfony\Component\VarDumper\VarDumper;
+
 /**
  * @todo merge this file with Helper
  */
@@ -115,6 +118,41 @@ function array_set(&$array, $key, $value)
   $array[array_shift($keys)] = $value;
 }
 
+function array_split($array, $value)
+{
+    $position = array_search($value, $array);
+    return array_slice($array, $position);
+}
+
+function array_map_deep($array, $callback)
+{
+    $new = array();
+
+    if (is_array($array)) {
+        foreach ($array as $key => $val) {
+            if (is_array($val)) {
+                $new[$key] = array_map_deep($val, $callback);
+            } else {
+                $new[$key] = call_user_func($callback, $val);
+            }
+        }
+    } else {
+        $new = call_user_func($callback, $array);
+    }
+
+    return $new;
+}
+
+function array_flatten(array $array) {
+    $return = array();
+
+    array_walk_recursive($array, function($a) use (&$return) {
+        $return[] = $a;
+    });
+
+    return $return;
+}
+
 /**
  * Dump the given value and kill the script.
  *
@@ -146,9 +184,7 @@ function rd($value)
  * @return void
  */
 function r($value){
-    echo "<pre>";
-    print_r($value);
-    echo "</pre>";
+    VarDumper::dump($value);
 }
 
 /**
@@ -158,9 +194,7 @@ function r($value){
  * @return void
  */
 function d($value){
-    echo "<pre>";
-    var_dump($value);
-    echo "</pre>";
+    VarDumper::dump($value);
 }
 
 
@@ -176,7 +210,9 @@ function autoload_statamic($class) {
         APP_PATH . '/core/api/',
         APP_PATH . '/core/extend/',
         APP_PATH . '/core/content/',
+        APP_PATH . '/core/private_api/',
         APP_PATH . '/core/members/',
+        APP_PATH . '/core/email/',
         APP_PATH . '/core/',
         APP_PATH . '/core/bundles/',
         BASE_PATH . '/_add-ons/'
@@ -188,7 +224,9 @@ function autoload_statamic($class) {
         'Modifier'  => 'mod',
         'Hooks'     => 'hooks',
         'Tasks'     => 'tasks',
-        'API'       => 'api'
+        'API'       => 'api',
+        'Core'      => 'core',
+        'Interface' => 'interface'
     );
     
     // loop through known locations looking for files
@@ -213,4 +251,29 @@ function autoload_statamic($class) {
             }
         }
     }
+}
+
+
+/**
+ * Shortcut to translation
+ * 
+ * @param string  $fetch_key  Key of translation to fetch
+ * @param mixed  $language  Language to translate to
+ * @param mixed  $lower  Auto-lowercase returned value?
+ * @return mixed
+ */
+function __($fetch_key, $language=null, $lower=null) {
+    if (strpos($fetch_key, ' ') !== false) {
+        // multi-translate
+        $keys = explode(' ' , $fetch_key);
+        $output = '';
+        
+        foreach ($keys as $key) {
+            $output .= ' ' . Localization::fetch($key, $language, $lower);
+        }
+        
+        return trim($output);
+    }
+    
+    return Localization::fetch($fetch_key, $language, $lower);
 }

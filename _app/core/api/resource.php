@@ -11,12 +11,14 @@
  */
 class Resource
 {
-    const PLUGIN     = 1;
-    const FIELDTYPE  = 2;
-    const HOOKS      = 4;
-    const TASKS      = 8;
-    const MODIFIER   = 16;
-    const API        = 32;
+    const _PLUGIN     = 1;
+    const _FIELDTYPE  = 2;
+    const _HOOKS      = 4;
+    const _TASKS      = 8;
+    const _MODIFIER   = 16;
+    const _API        = 32;
+    const _CORE       = 64;
+    const _INTERFACE  = 128;
     
     
     /**
@@ -28,7 +30,7 @@ class Resource
      */
     public static function loadModifier($name)
     {        
-        return self::loadAddonResource(self::MODIFIER, $name);
+        return self::loadAddonResource(self::_MODIFIER, $name);
     }
     
     
@@ -41,7 +43,7 @@ class Resource
      */
     public static function loadPlugin($name)
     {        
-        return self::loadAddonResource(self::PLUGIN, $name);
+        return self::loadAddonResource(self::_PLUGIN, $name);
     }
     
     
@@ -54,7 +56,7 @@ class Resource
      */
     public static function loadFieldtype($name)
     {        
-        return self::loadAddonResource(self::FIELDTYPE, $name);
+        return self::loadAddonResource(self::_FIELDTYPE, $name);
     }
     
     
@@ -67,7 +69,7 @@ class Resource
      */
     public static function loadHooks($name)
     {        
-        return self::loadAddonResource(self::HOOKS, $name);
+        return self::loadAddonResource(self::_HOOKS, $name);
     }
     
     
@@ -80,7 +82,20 @@ class Resource
      */
     public static function loadTasks($name)
     {        
-        return self::loadAddonResource(self::TASKS, $name);
+        return self::loadAddonResource(self::_TASKS, $name);
+    }
+    
+    
+    /**
+     * Attempts to load core
+     * 
+     * @param string  $name  Name of core to load
+     * @return Core
+     * @throws Exception
+     */
+    public static function loadCore($name)
+    {        
+        return self::loadAddonResource(self::_CORE, $name);
     }
     
     
@@ -93,7 +108,20 @@ class Resource
      */
     public static function loadAPI($name)
     {        
-        return self::loadAddonResource(self::API, $name);
+        return self::loadAddonResource(self::_API, $name);
+    }
+    
+    
+    /**
+     * Attempts to load Interface
+     * 
+     * @param string  $name  Name of Interface to load
+     * @return Tasks
+     * @throws Exception
+     */
+    public static function loadInterface($name)
+    {        
+        return self::loadAddonResource(self::_INTERFACE, $name);
     }
     
     
@@ -110,29 +138,37 @@ class Resource
         $folders  = Config::getAddOnLocations();
         $file     = null;
         $type_map = array(
-            self::PLUGIN => array(
+            self::_PLUGIN => array(
                 'abbreviation' => 'pi',
                 'name' => 'plugin'
             ),
-            self::FIELDTYPE => array(
+            self::_FIELDTYPE => array(
                 'abbreviation' => 'ft',
                 'name' => 'fieldtype'
             ),
-            self::HOOKS => array(
+            self::_HOOKS => array(
                 'abbreviation' => 'hooks',
                 'name' => 'hooks'
             ),
-            self::TASKS => array(
+            self::_TASKS => array(
                 'abbreviation' => 'tasks',
                 'name' => 'tasks'
             ),
-            self::MODIFIER => array(
+            self::_MODIFIER => array(
                 'abbreviation' => 'mod',
                 'name' => 'modifier'
             ),
-            self::API => array(
+            self::_API => array(
                 'abbreviation' => 'api',
                 'name' => 'API'
+            ),
+            self::_CORE => array(
+                'abbreviation' => 'core',
+                'name' => 'Core'
+            ),
+            self::_INTERFACE => array(
+                'abbreviation' => 'interface',
+                'name' => 'Interface'
             )
         );
         
@@ -148,21 +184,21 @@ class Resource
 
         // loop through folders looking for addon
         foreach ($folders as $folder) {
-            if (Folder::exists($folder.$addon) && File::exists($folder.$addon.'/'.$abbr.'.'.$addon.'.php')) {
+            if (File::exists(BASE_PATH.'/'.$folder.$addon.'/'.$abbr.'.'.$addon.'.php')) {
                 $file = $folder.$addon.'/'.$abbr.'.'.$addon.'.php';
                 break;
             }
         }
 
         if (!$file) {
-            Log::error("Could not find files to load the `{$addon}` {$name}.", "API", "Resource");
-            throw new Exception("Could not find files to load the `{$addon}` {$name}.");
+//            Log::error("Could not find files to load the `{$addon}` {$name}.", "API", "Resource");
+            throw new ResourceNotFoundException("Could not find files to load the `{$addon}` {$name}.");
         }
 
         $class = ucwords($name) . "_" . $addon;
 
         if (!class_exists($class)) {
-            throw new Exception("Improperly formatted {$name} object.");
+            throw new ResourceNotFoundException("Improperly formatted {$name} object.");
         }
 
         return new $class();

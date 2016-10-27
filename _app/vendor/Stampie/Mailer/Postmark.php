@@ -3,10 +3,14 @@
 namespace Stampie\Mailer;
 
 use Stampie\Mailer;
+use Stampie\Message\TaggableInterface;
+use Stampie\Message\AttachmentsAwareInterface;
 use Stampie\MessageInterface;
 use Stampie\Adapter\ResponseInterface;
+use Stampie\Attachment;
 use Stampie\Exception\HttpException;
 use Stampie\Exception\ApiException;
+use Stampie\Util\AttachmentUtils;
 
 /**
  * Sends emails to Postmark server
@@ -56,15 +60,81 @@ class Postmark extends Mailer
      */
     protected function format(MessageInterface $message)
     {
-        $parameters = array_filter(array(
-            'From'     => $message->getFrom(),
-            'To'       => $message->getTo(),
-            'Subject'  => $message->getSubject(),
-            'Headers'  => $message->getHeaders(),
-            'TextBody' => $message->getText(),
-            'HtmlBody' => $message->getHtml(),
-        ));
+        $headers = array();
+        foreach ($message->getHeaders() as $name => $value) {
+            $headers[] = array('Name' => $name, 'Value' => $value);
+        }
 
-        return json_encode($parameters);
+        $parameters = array(
+            'From'     => $this->buildIdentityString($message->getFrom()),
+            'To'       => $this->buildIdentityString($message->getTo()),
+            'Subject'  => $message->getSubject(),
+            'Headers'  => $headers,
+            'HtmlBody' => $message->getHtml(),
+            'TextBody' => $message->getText(),
+            'ReplyTo'  => $message->getReplyTo(),
+        );
+
+        if ($message instanceof TaggableInterface) {
+            $tag = $message->getTag();
+
+            if (is_array($tag)) {
+                $tag = reset($tag);
+            }
+
+            $parameters['Tag'] = $tag ;
+        }
+
+        if ($message instanceof AttachmentsAwareInterface) {
+            $attachments = $this->processAttachments($message->getAttachments());
+
+            if ($attachments) {
+                $parameters['Attachments'] = $attachments;
+            }
+        }
+
+        return json_encode(array_filter($parameters));
+    }
+
+    /**
+     * @param Attachment $attachment
+     * @return string
+     */
+    protected function getAttachmentContent(Attachment $attachment)
+    {
+        return file_get_contents($attachment->getPath());
+    }
+
+    /**
+     * @param Attachment[] $attachments
+     * @return array An array containing arrays of the following format:
+     *     array(
+     *         'Name'                 => name,
+     *         'Content'              => base64-encoded content,
+     *         'ContentType'          => type,
+     *         (optional) 'ContentID' => id,
+     *     )
+     */
+    protected function processAttachments(array $attachments)
+    {
+        $attachments = AttachmentUtils::processAttachments($attachments);
+
+        $processedAttachments = array();
+        foreach ($attachments as $name => $attachment) {
+            $item = array(
+                'Name'        => $name,
+                'Content'     => base64_encode($this->getAttachmentContent($attachment)),
+                'ContentType' => $attachment->getType(),
+            );
+
+            $id = $attachment->getId();
+            if (isset($id)) {
+                $item['ContentID'] = $id;
+            }
+
+            $processedAttachments[] = $item;
+        }
+
+        return $processedAttachments;
     }
 }

@@ -12,9 +12,12 @@
 */
 
 
-$config = Statamic::loadAllConfigs();
+// auto-determine site root
+$doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+define("SITE_ROOT", str_replace(realpath($doc_root), '', realpath(BASE_PATH)) . '/');
 
-$config['_cookies.secret_key'] = Cookie::getSecretKey();
+
+$config = Statamic::loadAllConfigs();
 
 $config['log_enabled'] = TRUE;
 $config['log.level'] = Log::convert_log_level($config['_log_level']);
@@ -50,13 +53,23 @@ date_default_timezone_set(Helper::pick($config['_timezone'], @date_default_timez
 |
 */
 
+// mark milestone for debug panel
+Debug::markMilestone('bootstrapped');
+
 $app = new \Slim\Slim(array_merge($config, array('view' => new Statamic_View)));
+
+// mark milestone for debug panel
+Debug::markMilestone('app created');
 
 // Initialize Whoops middleware
 $app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
 
 // Pass Statamic config to Slim
 $app->config = $config;
+
+// mark milestone for debug panel
+Debug::markMilestone('app configured');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +81,11 @@ $app->config = $config;
 */
 
 Localization::initialize();
+
+// mark milestone for debug panel
+Debug::markMilestone('localization ready');
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +134,8 @@ Statamic_View::set_layout("layouts/default");
 
 Statamic::setDefaultTags();
 
+// mark milestone for debug panel
+Debug::markMilestone('app defaults set');
 
 /*
 |--------------------------------------------------------------------------
@@ -125,8 +145,11 @@ Statamic::setDefaultTags();
 | Look for updated content to cache
 |
 */
-Cache::update();
-//Cache::dump();
+_Cache::update();
+//_Cache::dump();
+
+// mark milestone for debug panel
+Debug::markMilestone('caches updated');
 
 /*
 |--------------------------------------------------------------------------

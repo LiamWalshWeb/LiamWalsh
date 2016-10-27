@@ -13,11 +13,16 @@ class Plugin_theme extends Plugin
 
     # Usage example: {{ theme:partial src="sidebar" }}
     public function partial()
-    {
+    {        
+        $start      = time();
         $src        = $this->fetchParam('src', null, null, false, false);
         $extensions = array(".html", ".md", ".markdown", ".textile");
-        $html     = null;
+        $html       = null;
 
+        // measurement
+        $hash = Debug::markStart('partials', $src, $start);
+        Debug::increment('partials', $src);
+        
         if ($src) {
             foreach ($extensions as $extension) {
                 $full_src = Path::assemble(BASE_PATH, $this->theme_root, 'partials', ltrim($src . $extension, '/'));
@@ -50,6 +55,8 @@ class Plugin_theme extends Plugin
                 $html = Parse::smartypants($html);
             }
         }
+        
+        Debug::markEnd($hash);
 
         return $html;
     }
@@ -70,6 +77,7 @@ class Plugin_theme extends Plugin
         $file       = $this->theme_path . $this->theme_assets_path . 'js/' . $src;
         $cache_bust = $this->fetchParam('cache_bust', Config::get('theme_cache_bust', false), false, true, true);
         $tag        = $this->fetchParam('tag', false, null, true, false);
+        $extension  = $this->fetchParam('extension', true, null, true, false);
 
         # Add '.js' to the end if not present.
         if (!preg_match("(\.js)", $file)) {
@@ -82,6 +90,10 @@ class Plugin_theme extends Plugin
         
         $filename = URL::assemble($this->site_root, $file);
 
+        if (!$extension) {
+            $filename = substr($filename, 0, strrpos($filename, '.'));
+        }
+
         return ($tag) ? '<script src="' . $filename . '"></script>' : $filename;
     }
 
@@ -92,6 +104,7 @@ class Plugin_theme extends Plugin
         $file       = $this->theme_path . $this->theme_assets_path . 'css/' . $src;
         $cache_bust = $this->fetchParam('cache_bust', Config::get('theme_cache_bust', false), false, true, true);
         $tag        = $this->fetchParam('tag', false, null, true, false);
+        $extension  = $this->fetchParam('extension', true, null, true, false);
 
         # Add '.css' to the end if not present.
         if (!preg_match("(\.css)", $file)) {
@@ -104,6 +117,10 @@ class Plugin_theme extends Plugin
         }
         
         $filename = URL::assemble($this->site_root, $file);
+        
+        if (!$extension) {
+            $filename = substr($filename, 0, strrpos($filename, '.'));
+        }
 
         return ($tag) ? '<link href="' . $filename . '" rel="stylesheet">' : $filename;
     }
@@ -116,6 +133,7 @@ class Plugin_theme extends Plugin
         $alt        = $this->fetchParam('alt', null, null, false, false);
         $tag        = $this->fetchParam('tag', false, null, true, false);
         $cache_bust = $this->fetchParam('cache_bust', Config::get('theme_cache_bust', false), false, true, true);
+        $extension  = $this->fetchParam('extension', true, null, true, false);
 
         if ($alt) {
             $alt = ' alt="' . $alt . '"';
@@ -127,6 +145,10 @@ class Plugin_theme extends Plugin
         
         $filename = URL::assemble($this->site_root, $file);
 
-        return ($tag) ? '<img src="' . filename . '" ' . $alt . '>' : $filename;
+        if (!$extension) {
+            $filename = substr($filename, 0, strrpos($filename, '.'));
+        }
+
+        return ($tag) ? '<img src="' . $filename . '" ' . $alt . '>' : $filename;
     }
 }

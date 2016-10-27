@@ -17,7 +17,8 @@ class Fieldtype_checkboxes extends Fieldtype
     {
         $options = array_get($this->field_config, 'options', array());
 
-        $html = '';
+        $html = '<input type="hidden" name="' . $this->fieldname . '" value="false" />';
+
         foreach ($options as $key => $option) {
             $attributes = array(
                 'name'     => $this->fieldname . '[]',
@@ -28,7 +29,7 @@ class Fieldtype_checkboxes extends Fieldtype
                 'checked'  => ''
             );
 
-            if (in_array($key, Helper::ensureArray($this->field_data))) {
+            if ($this->field_data && in_array($key, Helper::ensureArray($this->field_data))) {
                 $attributes['checked'] = 'checked';
             }
 
@@ -39,5 +40,12 @@ class Fieldtype_checkboxes extends Fieldtype
         }
 
         return $html;
+    }
+
+    public function process()
+    {
+        // if nothing is checked, the value will be a string "false"
+        // we need to convert that to a boolean
+        return ($this->field_data == 'false') ? false : $this->field_data;
     }
 }

@@ -9,7 +9,20 @@
  */
 class Modifier_img extends Modifier
 {
-    public function index($value, $parameters=array()) {
-        return '<img src="' . Path::toAsset($value) . '">';
-    }
+	public function index($value, $parameters=array()) {
+		$dimensions_str = '';
+		
+		if ( ! empty($parameters)) {
+			$dimensions = explode(',', $parameters[0]);
+			$width = $dimensions[0];
+			$dimensions_str .= " width=\"$width\"";
+
+			if (isset($dimensions[1])) {
+				$height = $dimensions[1];
+				$dimensions_str .= " height=\"$height\"";
+			}
+		}
+
+		return '<img src="' . Path::toAsset($value) . '"' . $dimensions_str . ' />';
+	}
 }

@@ -41,6 +41,8 @@ class Statamic
      */
     public static function loadAllConfigs($admin = false)
     {
+        $hash = Debug::markStart('config', 'finding');
+        
         /*
         |--------------------------------------------------------------------------
         | YAML Mode
@@ -51,8 +53,8 @@ class Statamic
         |
         */
 
-        $preload_config = YAML::parse(Config::getConfigPath() . '/settings.yaml');
-        $yaml_mode      = array_get($preload_config, '_yaml_mode', 'loose');
+        $preload_config  = YAML::parse(Config::getConfigPath() . '/settings.yaml');
+        $yaml_mode       = array_get($preload_config, '_yaml_mode', 'loose');
 
         /*
         |--------------------------------------------------------------------------
@@ -63,8 +65,8 @@ class Statamic
         | us to always have clean defaults.
         |
         */
-
-        $default_config = YAML::parse(Config::getAppConfigPath() . '/default.settings.yaml');
+        
+        $settings_to_parse = File::get(Config::getAppConfigPath() . '/default.settings.yaml');
 
         /*
         |--------------------------------------------------------------------------
@@ -74,10 +76,8 @@ class Statamic
         | Next we parse and override the user's settings.
         |
         */
-
-        $user_config = YAML::parse(Config::getConfigPath() . '/settings.yaml', $yaml_mode);
-
-        $config = array_merge($default_config, $user_config);
+        
+        $settings_to_parse .= "\n\n" . File::get(Config::getConfigPath() . '/settings.yaml');
 
         /*
         |--------------------------------------------------------------------------
@@ -89,19 +89,9 @@ class Statamic
         |
         */
 
-        $routes = array();
-        if (File::exists(Config::getConfigPath() . '/routes.yaml')) {
-            $routes['_routes'] = YAML::parse('_config/routes.yaml', $yaml_mode);
-        }
-
-        // check for vanity URLs first, we may need to redirect
-        $vanity = array();
-        if (File::exists(Config::getConfigPath() . '/vanity.yaml')) {
-            $vanity['_vanity_urls'] = YAML::parse(Config::getConfigPath() . '/vanity.yaml', $yaml_mode);
-        }
-
-        $config = array_merge($config, $routes, $vanity);
-
+        $settings_to_parse .= "\n\n_routes:\n  " . trim(preg_replace("/\n/", "\n  ", File::get(Config::getConfigPath() . '/routes.yaml')));
+        $settings_to_parse .= "\n\n_vanity_urls:\n  " . trim(preg_replace("/\n/", "\n  ", File::get(Config::getConfigPath() . '/vanity.yaml')));
+                
         /*
         |--------------------------------------------------------------------------
         | Global Variables
@@ -111,25 +101,32 @@ class Statamic
         | the config folder and make them available as global template variables.
         |
         */
-
-        if (Folder::exists($config_files_location = Config::getConfigPath())) {
-            $finder = new Finder();
-
-            $files = $finder->files()
-                ->in($config_files_location)
-                ->name('*.yaml')
-                ->notName('routes.yaml')
-                ->notName('vanity.yaml')
-                ->notName('settings.yaml')
-                ->depth(0)
-                ->followLinks();
-
-            if (iterator_count($files) > 0) {
+        
+        if (Folder::exists($config_files_location = Config::getConfigPath())) {            
+            $files = glob($config_files_location . '/*.yaml');
+            
+            if ($files) {
                 foreach ($files as $file) {
-                    $config = array_merge($config, YAML::parse($file->getRealPath(), $yaml_mode));
+                    if (strpos($file, 'routes.yaml') !== false || strpos($file, 'vanity.yaml') !== false || strpos($file, 'settings.yaml')) {
+                        continue;
+                    }
+                    
+                    $settings_to_parse .= "\n\n" . File::get($file);
                 }
             }
         }
+
+        Debug::markEnd($hash);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Parse settings up until now
+        |--------------------------------------------------------------------------
+        |
+        | Parses the concatenated settings string we've made so far.
+        |
+        */
+        $config = YAML::parse($settings_to_parse, $yaml_mode);
 
         /*
         |--------------------------------------------------------------------------
@@ -141,25 +138,31 @@ class Statamic
         |
         */
 
+        $hash = Debug::markStart('config', 'finding');
+        
         $themes_path = array_get($config, '_themes_path', '_themes');
-        $theme_name  = array_get($config, '_theme', 'denali');
+        $theme_name  = array_get($config, '_theme', 'acadia');
+        
+        // reset
+        $settings_to_parse = '';
 
         if (Folder::exists($theme_files_location = Path::assemble(BASE_PATH, $themes_path, $theme_name))) {
+            $theme_files = glob(Path::tidy($theme_files_location . '/*.yaml'));
 
-            $finder = new Finder(); // clear previous Finder interator results
-
-            $theme_files = $finder->files()
-                ->in($theme_files_location)
-                ->name('*.yaml')
-                ->depth(0)
-                ->followLinks();
-
-            if (iterator_count($theme_files) > 0) {
+            if ($theme_files) {
                 foreach ($theme_files as $file) {
-                    $config = array_merge($config, YAML::parse($file->getRealPath(), $yaml_mode));
+                    $settings_to_parse .= "\n\n" . File::get($file);
                 }
             }
         }
+        
+        Debug::markEnd($hash);
+        
+        // parse theme settings if any
+        if ($settings_to_parse) {
+            $config = YAML::parse($settings_to_parse, $yaml_mode) + $config;
+        }
+        
 
         /*
         |--------------------------------------------------------------------------
@@ -172,7 +175,7 @@ class Statamic
         |
         */
 
-        Environment::establish($config);
+        _Environment::establish($config);
 
         /*
         |--------------------------------------------------------------------------
@@ -180,7 +183,7 @@ class Statamic
         |--------------------------------------------------------------------------
         */
 
-        $config = array_merge($config, array('_mimes' => require Config::getAppConfigPath() . '/mimes.php'));
+        $config['_mimes'] = require Config::getAppConfigPath() . '/mimes.php';
 
         /*
         |--------------------------------------------------------------------------
@@ -194,11 +197,29 @@ class Statamic
 
         $config['_translations']       = array();
         $config['_translations']['en'] = YAML::parse(Config::getAppConfigPath() . '/default.en.yaml');
-
+;
         if ($lang = array_get($config, '_language', false)) {
             if (File::exists(Config::getTranslation($lang))) {
-                $config['_translations'][$lang] = YAML::parse(Config::getTranslation($lang));
+                $translation = YAML::parse(Config::getTranslation($lang));
+                $config['_translations'][$lang] = Helper::arrayCombineRecursive($config['_translations']['en'], $translation);
             }
+        }
+
+        $finder = new Finder(); // clear previous Finder interator results
+
+        try {
+            $translation_files = $finder->files()
+                ->in(BASE_PATH . Config::getAddonsPath() . '/*/translations')
+                ->name($lang.'.*.yaml')
+                ->depth(0)
+                ->followLinks();
+
+            foreach ($translation_files as $file) {
+                $translation = YAML::parse($file->getRealPath());
+                $config['_translations'][$lang] = Helper::arrayCombineRecursive($translation, $config['_translations'][$lang]);
+            }
+        } catch(Exception $e) {
+            // meh. not important.
         }
 
         /*
@@ -212,7 +233,8 @@ class Statamic
         */
 
         // $config['view'] = new Statamic_View();
-        $config['cookies.lifetime'] = $config['_cookies.lifetime'];
+        $config['cookies.lifetime']     = $config['_cookies.lifetime'];
+        $config['_cookies.secret_key']  = Cookie::getSecretKey();
 
         if ($admin) {
             $admin_theme = array_get($config, '_admin_theme', 'ascent');
@@ -223,7 +245,6 @@ class Statamic
 
             $theme_path = Path::tidy('/' . $config['_admin_path'] . '/' . 'themes/' . $admin_theme . '/');
 
-            $config['_admin_path']    = $config['_admin_path'];
             $config['theme_path']     = $theme_path;
             $config['templates.path'] = '.' . $theme_path;
 
@@ -232,6 +253,10 @@ class Statamic
 
             $config['theme_path']     = $themes_path . '/' . $config['_theme'] . '/';
             $config['templates.path'] = Path::tidy($public_path . $themes_path . '/' . $config['_theme'] . '/');
+        }
+        
+        if (!array_get($config, '_display_debug_panel', false)) {
+            Debug::disable();
         }
 
         return $config;
@@ -253,8 +278,9 @@ class Statamic
 
         // current path
         // note: not using API because it's not ready yet
-        $uri     = $_SERVER['REQUEST_URI'];
-        $query   = $_SERVER['QUERY_STRING'];
+        $uri     = array_get($_SERVER, 'REQUEST_URI');
+        $query   = array_get($_SERVER, 'QUERY_STRING');
+
         $current = ($query) ? str_replace("?" . $query, "", $uri) : $uri;
 
         // loop through configured vanity URLs
@@ -372,6 +398,12 @@ class Statamic
         $app->config['post']     = URL::sanitize($_POST);
         $app->config['get_post'] = $app->config['get'] + $app->config['post'];
         $app->config['homepage'] = Config::getSiteRoot();
+        $app->config['now']      = time();
+	    
+	    // optional setting
+        if (!array_get($app->config, '_site_root', false)) {
+            $app->config['_site_root'] = SITE_ROOT;
+        }
     }
 
     public static function get_entry_type($path)
@@ -908,8 +940,9 @@ class Statamic
 
         $taxonomy_url = false;
         if (Taxonomy::isTaxonomyURL($current_url)) {
-            list($taxonomy_type, $taxonomy_name) = Taxonomy::getCriteria($current_url);
-            $taxonomy_url = self::remove_taxonomy_from_path($current_url, $taxonomy_type, $taxonomy_name);
+            $taxonomy = Taxonomy::getCriteria($current_url);
+
+            $taxonomy_url = self::remove_taxonomy_from_path($current_url, $taxonomy['type'], $taxonomy['slug']);
         }
 
         $directory = '/' . $directory . '/'; #ensure proper slashing
@@ -979,6 +1012,9 @@ class Statamic
                         // has entries?
                         if (File::exists(Path::tidy($path . "/fields.yaml"))) {
                             $node['has_entries'] = true;
+                            $fields_raw  = File::get(Path::tidy($path . "/fields.yaml"));
+                            $fields_data = YAML::parse($fields_raw);
+                            $node['entries_label'] = array_get($fields_data, '_entries_label', Localization::fetch('entries'));
                         } else {
                             $node['has_entries'] = false;
                         }

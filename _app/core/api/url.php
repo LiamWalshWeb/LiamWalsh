@@ -61,7 +61,44 @@ class URL
      */
     public static function makeFull($url)
     {
-        return self::tidy(Config::getSiteURL() . '/' . $url);
+        return (self::isRelativeUrl($url)) ? self::tidy(self::getSiteUrl() . $url) : $url;
+    }
+
+
+    /**
+     * Checks whether a URL is relative or not
+     * @param  string  $url
+     * @return boolean
+     */
+    public static function isRelativeUrl($url)
+    {
+        $parts = parse_url($url);
+
+        return ! array_get($parts, 'scheme', false);
+    }
+
+
+    /**
+     * Checks whether a URL is external or not
+     * @param  string  $url
+     * @return boolean
+     */
+    public static function isExternalUrl($url)
+    {
+        return ! Pattern::startsWith(URL::makeFull($url), URL::getSiteUrl());
+    }
+
+
+    /**
+     * Get the current site url from Apache headers
+     * @return string
+     */
+    public static function getSiteUrl()
+    {
+        $protocol = ( ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $domainName = $_SERVER['HTTP_HOST'] . '/';
+        
+        return $protocol . $domainName;
     }
 
 
@@ -75,6 +112,10 @@ class URL
     public static function redirect($url, $status = 302)
     {
         $app = \Slim\Slim::getInstance();
+
+        if (self::isRelativeUrl($url)) {
+            $url = self::makeFull($url);
+        }
 
         $app->redirect($url, $status);
     }
@@ -183,5 +224,28 @@ class URL
     public static function prependSiteRoot($url)
     {
         return Path::tidy(Config::getSiteRoot() . $url);
+    }
+
+    /**
+     * Strip taxonomy segments from the URL
+     * 
+     * @param string  $url  URL to prepend
+     * @return string
+     */
+    public static function stripTaxonomy($url)
+    {
+        $taxonomies = Config::getTaxonomies();
+        $segments = explode('/', ltrim($url, '/'));
+        
+        array_pop($segments);
+        array_pop($segments);
+
+        return implode($segments, '/');
+    }
+
+    public static function fromPath($path)
+    {
+        $url = Path::clean(Url::assemble($path));
+        return preg_replace('/\/page$/', '', $url);
     }
 }

@@ -31,58 +31,43 @@ class Hooks_color extends Hooks
                 $html .= $this->js->inline("
                     var spectrum_options = {$spectrum_options};
                     $(document).ready(function() {
+
+                        function initSpectrum(el) {
+                            var preferences = $.extend({}, spectrum_options, el.data('spectrum'));
+                            el.spectrum({
+                                color: el.val() || preferences.starting_color,
+                                flat: preferences.select_on_page,
+                                showInput: preferences.show_input,
+                                showInitial: preferences.show_initial,
+                                showAlpha: preferences.show_alpha,
+                                localStorageKey: preferences.local_storage_key,
+                                showPalette: preferences.show_palette,
+                                showPaletteOnly: preferences.show_palette_only,
+                                showSelectionPalette: preferences.show_selection_palette,
+                                cancelText: preferences.cancel_text,
+                                chooseText: preferences.choose_text,
+                                preferredFormat: preferences.preferred_format,
+                                maxSelectionSize: preferences.max_selection_size,
+                                palette: preferences.palette
+                            });
+                        }
+
                         $('input[type=text].colorpicker').each(function() {
-                            var preferences = $.extend({}, spectrum_options, $(this).data('spectrum'));
-                            $(this)
-                                .spectrum({
-                                    color: $(this).val() || preferences.starting_color,
-                                    flat: preferences.select_on_page,
-                                    showInput: preferences.show_input,
-                                    showInitial: preferences.show_initial,
-                                    showAlpha: preferences.show_alpha,
-                                    localStorageKey: preferences.local_storage_key,
-                                    showPalette: preferences.show_palette,
-                                    showPaletteOnly: preferences.show_palette_only,
-                                    showSelectionPalette: preferences.show_selection_palette,
-                                    cancelText: preferences.cancel_text,
-                                    chooseText: preferences.choose_text,
-                                    preferredFormat: preferences.preferred_format,
-                                    maxSelectionSize: preferences.max_selection_size,
-                                    palette: preferences.palette
-                                });
+                            initSpectrum($(this));
                         });
 
-                        // for dynamically loaded rows
+                        // grid
                         $('body').on('addRow', '.grid', function() {
-                            var input = $(this).find('input[type=text].colorpicker');
+                            $(this).find('input[type=text].colorpicker').each(function() {
+                                initSpectrum($(this));
+                            });
+                        });
 
-                            input
-                                .each(function() {
-                                    var preferences = $.extend({}, spectrum_options, $(this).data('spectrum'));
-
-                                    // check for already-initialized fields
-                                    if ($(this).next().is('.sp-replacer')) {
-                                        return;
-                                    }
-
-                                    $(this)
-                                        .spectrum({
-                                            color: $(this).val() || preferences.starting_color,
-                                            flat: preferences.select_on_page,
-                                            showInput: preferences.show_input,
-                                            showInitial: preferences.show_initial,
-                                            showAlpha: preferences.show_alpha,
-                                            localStorageKey: preferences.local_storage_key,
-                                            showPalette: preferences.show_palette,
-                                            showPaletteOnly: preferences.show_palette_only,
-                                            showSelectionPalette: preferences.show_selection_palette,
-                                            cancelText: preferences.cancel_text,
-                                            chooseText: preferences.choose_text,
-                                            preferredFormat: preferences.preferred_format,
-                                            maxSelectionSize: preferences.max_selection_size,
-                                            palette: preferences.palette
-                                        });
-                                });
+                        // replicator
+                        $('body').on('addSet', function(e, set) {
+                            $(set).find('input[type=text].colorpicker').each(function() {
+                                initSpectrum($(this));
+                            });
                         });
                     });
                 ");

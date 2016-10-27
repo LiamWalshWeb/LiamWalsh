@@ -16,6 +16,7 @@ $orange:   #9e5200;
 $red:      #bf1d2d;
 $yellow:   #debb42;
 $blue:     #2066d0;
+$green:    #3daa5e;
 $lightTan: #edede7;
 $dark:     #61787e;
 
@@ -38,10 +39,18 @@ $linkActiveColor: $orange;
 @import 'grid';
 @import 'fonts';
 @import 'mixins';
+@import 'replicator';
+@import 'table';
+@import 'file';
+@import 'revisions';
+@import 'metrics';
+@import 'pagination';
 @import 'third-party';
   @import 'vendor/picker/default';
   @import 'vendor/picker/default.date';
   @import 'vendor/picker/default.time';
+  @import 'vendor/redactor/redactor';
+  @import 'vendor/redactor/override';
 
 body {
   background: $lightTan;
@@ -84,7 +93,6 @@ h1, h2, h3, h4, h5, h6 {
 *:focus, {
   outline: none;
 }
-
 
 ///////////////////
 // PAGE: LOGIN
@@ -293,6 +301,10 @@ h1, h2, h3, h4, h5, h6 {
   overflow:hidden;
   .status-block {
     float: left;
+    text-overflow: ellipsis;
+    max-width: 50%;
+    white-space: nowrap;
+    overflow: hidden;
   }
   ul {
     @include reset-list;
@@ -433,6 +445,13 @@ h1, h2, h3, h4, h5, h6 {
     padding-right: 5px;
     position: relative;
     top: 2px;
+  }
+  &.-gray {
+    @include gradient(lighten(#b8b8b8, 5%), darken(#b8b8b8, 5%));
+    border: 1px solid darken(#b8b8b8, 8%);
+    &:hover {
+      @include gradient(#b8b8b8, darken(#b8b8b8, 10%));
+    }
   }
 }
 
@@ -835,10 +854,12 @@ table.log {
     &.specifically {
       width: 2%;
       padding-left: 3px;
+      white-space: nowrap;
     }
     &.when {
-      width: 2%;
+      width: 90px;
       text-align: right;
+      white-space: nowrap;
     }
     &.colon {
       text-align: center;
@@ -955,7 +976,20 @@ table.log {
 }
 
 
-#publish-submit {margin-bottom: 50px;}
+#publish-submit {margin-bottom: 25px;}
+#publish-submit-continue {margin-bottom: 50px;}
+
+.capitalize {
+  float: right;
+  margin-top: -1em;
+  font-size: 13px;
+
+  .ss-icon {
+    display: inline-block;
+    vertical-align: top;
+    margin: -1px 0 0 0;
+  }
+}
 
 .field {
   position: relative;
@@ -1027,7 +1061,7 @@ table.log {
   }
 }
 
-.block-action {
+.take-action .block-action {
   margin-right: 25px;
   position: relative;
   top: -1px;
@@ -1151,44 +1185,6 @@ code textarea {
   display:none;
 }
 
-.file-field-container {
-  @extend .clearfix;
-  @include border-radius(3px);
-  @include border-box;
-  background: $inputBackground;
-  position: relative;
-  display: block;
-  border: 1px solid rgba(0,0,0,.15);
-  box-shadow: inset 0px 1px 2px rgba(0,0,0,.1);
-  padding: 0;
-  width: 100%;
-  input {
-    line-height: 16px;
-  }
-
-  .file-exists {
-
-  }
-
-  img {
-    float:left;
-    max-height:50px;
-    max-width:50%;
-  }
-  p {
-    margin:0 0 0 10px;
-    float:left;
-    line-height:50px;
-  }
-  .btn {
-    float:right;
-    font-size: 14px;
-    margin:10px 10px 0 0;
-    line-height:25px;
-    padding:2px 15px;
-  }
-}
-
 .count-placeholder {
   @extend .muted;
   padding: 5px 0;
@@ -1202,6 +1198,10 @@ code textarea {
     @include gradient(#fff, $inputBackground);
     padding: 8px 10px;
     font-size: 16px;
+    vertical-align: top;
+    small {
+      font-size: 12px;
+    }
   }
 
   tbody tr td {padding:10px;}
@@ -1213,9 +1213,8 @@ code textarea {
   .cell-text input, .cell-date input, .cell-time input {
     @include border-radius(0);
     @include border-box;
-    border:1px solid rgba(0,0,0,.15);
-    box-shadow: inset 0px 1px 2px rgba(0,0,0,.1);
-    padding:.5em 10px;
+    border: none;
+    padding: 0;
     width:100%;
   }
   .cell-date, .cell-time {
@@ -1230,13 +1229,17 @@ code textarea {
     }
     &:hover .icon, :hover .ss-icon {opacity:1;}
   }
+  td small.above, td small.below {
+    display: none;
+  }
   .cell-textarea textarea, .cell-markitup textarea {
     @include border-box;
-    border:1px solid rgba(0,0,0,.15);
-    box-shadow: inset 0px 1px 2px rgba(0,0,0,.1);
-    padding:.5em 10px;
-    min-height:50px;
+    border: none;
     width:100%;
+  }
+  .cell-text:hover, .cell-date:hover, .cell-time:hover, .cell-textarea:hover {
+    background: lighten($inputBackground, 3);
+    input, textarea { background: lighten($inputBackground, 3); }
   }
   .grid-delete-row {
     display: none;
@@ -1257,7 +1260,7 @@ code textarea {
     color:#ddd;
     text-shadow:0px 1px 0px #fff;
     font-family: $defaultFont;
-    font-size:24px;
+    font-size: 21px;
     font-weight:lighter;
     padding:2px !important;
     text-align:center;
@@ -1332,6 +1335,7 @@ code textarea {
         top:0px;
         position: relative;
         line-height:18px;
+        opacity: .6;
       }
       &:hover {
         // @include gradient(#f4f4f4, #e9e9e9);
@@ -1341,7 +1345,7 @@ code textarea {
       }
     }
     th.row-count {font-size:18px;}
-    .action .icon, .ss-icon {font-size:26px; opacity:.6}
+    .action .icon {font-size:26px; opacity:.6}
   }
 }
 .grid-add-row {
@@ -1386,9 +1390,12 @@ code textarea {
   }
   .page-primary {
     float:left;
+    text-overflow: ellipsis;
+    max-width: 50%;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .page-extras {
-    float:right;
     text-align:right;
     a {
       line-height: 50px;
@@ -1451,6 +1458,23 @@ code textarea {
       color:$textColor;
     }
   }
+
+  .toggle-children {
+    float: left;
+    border: 0;
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFF), to(#F8F8F6));
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    height: 50px;
+    padding: 0 10px;
+    color: #CCC;
+
+    &:hover {
+      color: #1E3640;
+    }
+    .ss-icon {
+      margin: 0;
+    }
+  }
 }
 
 .page-view, .page-add, .page-delete {
@@ -1495,6 +1519,9 @@ code textarea {
     border-bottom:1px dotted #ccc;
     text-decoration:none;
     &:hover {color:#000;}
+  }
+  h2, h3 {
+    margin-bottom: 15px;
   }
 }
 
@@ -1718,6 +1745,25 @@ code textarea {
 }
 
 
+.stats-table {
+
+  width: 100%;
+  th {text-align: left;}
+  .right {
+    text-align: right;
+  }
+  th, td {
+    padding: 10px 0;
+    border-bottom: 1px solid $borderColor;
+  }
+  tr:last-child {
+    th, td {
+      border-bottom: none;
+    }
+  }
+}
+
+
 .warning {color:$red}
 .muted, .subtle {color:#aaa;}
 .modal-backdrop{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;background:#5e5c49 url(../img/topo-bigger-white.png);}.modal-backdrop.fade{opacity:0;}
@@ -1738,10 +1784,6 @@ code textarea {
 .input-location {
   overflow: hidden;
 
-  & > label {
-    float: left;
-  }
-
   .map {
     -webkit-transition-property: height;
     -moz-transition-property: height;
@@ -1760,6 +1802,14 @@ code textarea {
     float: left;
     height: 20em;
     border: 1px solid #ccc;
+    position: relative;
+    z-index: 10; // magic number to prevent zoom buttons from overlapping redactor fullscreen mode
+  }
+
+  .below {
+    display: block;
+    clear: both;
+    padding-top: 5px;
   }
 
   .entry {
@@ -1929,3 +1979,85 @@ code textarea {
 }
 
 
+// markituploader
+// ----------------------------------------------------------------------------
+
+.markituploader {
+
+  .modal {
+    width: 450px;
+    margin-left: -225px;
+  }
+
+  .alt {
+    margin-top: 20px;
+  }
+
+  .drop-area {
+    width: 100%;
+  }
+
+  .existing-files {
+    text-align: center;
+  }
+
+  .file-field-container .existing-files .dz-preview {
+    display: inline-block;
+    margin-left: 0;
+    float: none;
+  }
+}
+
+
+// tooltip
+// ----------------------------------------------------------------------------
+
+.ui-tooltip {
+  float: left;
+  max-width: 300px;
+  padding: 10px;
+  background: white;
+  @include border-radius(2px);
+  @include border-box;
+  box-shadow: 0px 1px 2px rgba(0,0,0,.1);
+  border: 1px solid $borderColor;
+
+  &:before, &:after {
+    content: '';
+    border: 6px solid transparent;
+    border-bottom-color: white;
+    position: absolute;
+    top: -12px;
+    left: 10px;
+    z-index: 2;
+  }
+
+  &:after {
+    border-bottom-color: darken($borderColor, 10);
+    z-index: 1;
+    top: -13px;
+  }
+}
+
+.ui-helper-hidden-accessible { display: none; }
+
+
+// static file generator
+// ----------------------------------------------------------------------------
+
+.static-file-list {
+
+  .status {
+    padding-bottom: 0;
+  }
+
+  .ss-icon { 
+    display: inline-block;
+    font-size: 16px;
+    margin: 2px 0 0 0;
+    color: #aaa;
+  }
+
+  .success .ss-icon { color: $green; }
+
+}

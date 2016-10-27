@@ -1196,6 +1196,74 @@ class Slim
 
         //Send body
         echo $body;
+        
+        // <statamic>
+        // debug panel
+        $end = microtime(true);
+        global $is_debuggable_route;
+
+        if ($is_debuggable_route && \Config::get('_display_debug_panel')) {
+            $html  = '<style>';
+            $html .= '#statamic_debug {font-size:16px !important; overflow:hidden !important; line-height:1.6 !important; margin:0 !important; border-top:3px solid #222 !important; background:#f6f6f3 !important; color:#222 !important; padding:20px 16px 24px !important;} ';
+            $html .= '#statamic_debug .statamic_debug_wrapper {margin:0 auto !important; width:100% !important; max-width:870px !important;} ';
+            $html .= '#statamic_debug h2 {margin:0 !important; font-size:1.25em !important; font-weight:bold !important;} ';
+            $html .= '#statamic_debug p {margin:1em 0 0 !important;} ';
+            $html .= '#statamic_debug p:first-child {margin-top:0 !important;} ';
+            $html .= '#statamic_debug p.statamic_debug_note {color:#858582 !important; font-style:italic !important; border-bottom:1px solid #d4d4d1 !important; padding-bottom:0.5em !important; margin: 0.25em 0 0 !important; font-size: 0.875em;} ';
+            $html .= '#statamic_debug pre, #statamic_debug code {margin:0 !important; font-style:normal !important; padding:0 !important; font-size:14px !important; background:none !important; color:inherit !important; border:none !important;} ';
+            $html .= '#statamic_debug .statamic_debug_header {padding-top: 1em !important;} ';
+            $html .= '#statamic_debug .statamic_debug_details {float:left !important; overflow: hidden !important;} ';
+            $html .= '#statamic_debug .statamic_debug_set {width:285px !important; float:left !important; padding-top:1em !important;} ';
+            $html .= '#statamic_debug .statamic_debug_set em {font-style: normal !important; color: #858582 !important;} ';
+            $html .= '#statamic_debug .statamic_debug_set em span {color: #cfcfc9 !important;} ';
+            $html .= '#statamic_debug .statamic_debug_set_0 {width:245px !important; overflow:hidden !important;} ';
+            $html .= '#statamic_debug .statamic_debug_set_2 {width:340px !important;} ';
+            $html .= '</style>';
+
+            $html .= '<div id="statamic_debug"><div class="statamic_debug_wrapper">';
+            $html .= '<h2>Statamic Debug Panel</h2>';
+            $html .= '<p class="statamic_debug_note">You’re seeing this panel because <code>_display_debug_panel</code> is <code>true</code> in your site&nbsp;settings.</p>';
+
+            $debug_vars = \Debug::getAll();
+            unset($debug_vars['time_logs']);
+            $set_1 = $debug_vars;
+            unset($set_1['counts']);
+            unset($set_1['timeline']);
+            $set_1a = array('activity' => $debug_vars['time_spent']);
+            unset($set_1['time_spent']);
+            $set_2 = array('counts' => $debug_vars['counts']);
+            $set_3 = array_intersect_key($debug_vars, array('timeline' => '1'));
+            $set_3['timeline'][number_format($end - STATAMIC_START, 4) . 's'] = '<em>---------</em> end';
+
+            $dumper = new \Modifier_dump();
+            $dump_1 = $dumper->index($set_1);
+            $dump_1a = preg_replace("/([\n]?)^([^:\s]+:)/im", "$1$1<strong>$2</strong>", $dumper->index($set_1a));
+            $dump_1a = preg_replace("/([^\s])\n\s{2}(\S)/im", "$1\n\n  $2", $dump_1a);
+            $dump_2 = preg_replace("/([\n]?)^([^:\s]+:)/im", "$1$1<strong>$2</strong>", $dumper->index($set_2));
+            $dump_3 = $dumper->index($set_3);
+            $dump_3 = preg_replace("/([\n]?)^([^:\s]+:)/im", "$1$1<strong>$2</strong>", $dump_3);
+            
+            // build html
+            $html .= '<div class="statamic_debug_header"><p>Page rendered in: <code style="font-size: 20px !important; display: inline-block; font-weight: bold !important; padding:0 10px !important; margin-left:4px !important; background: #ffc !important;">' . number_format($end - STATAMIC_START, 6) . 's</code></p></div><div class="statamic_debug_set statamic_debug_set_0"><pre><code>';
+
+            $html .= preg_replace("/([\n]?)^([^:\s]+:)/im", "$1$1<strong>$2</strong>", $dump_1);
+            $html .= "\n\n" . preg_replace("/([^\s])\n\s{2}(\S)/im", "$1\n\n  $2", $dump_2);
+            $html .= '</code></pre></div>';
+            $html .= '<div class="statamic_debug_details">';
+
+            $html .= '<div class="statamic_debug_set statamic_debug_set_1"><pre><code>';
+            $html .= preg_replace("/^\s{4}\d+_/m", '    ', $dump_1a);
+            $html .= '</code></pre></div>';
+
+            $html .= '<div class="statamic_debug_set statamic_debug_set_2"><pre><code>';
+            $html .= preg_replace("/^\s{2}\d+_/m", '  ', $dump_3);
+            $html .= '</code></pre></div>';
+
+            $html .= '</div></div></div>';
+
+            echo $html;
+        }
+        // </statamic>
 
         restore_error_handler();
     }

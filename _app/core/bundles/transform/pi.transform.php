@@ -28,19 +28,44 @@ class Plugin_transform extends Plugin
         | Transform just needs the path to an image to get started. If it exists,
         | the fun begins.
         |
+        | The way to do this changes depending on whether its an internal or
+        | external file.
+        |
         */
 
         $image_src = $this->fetchParam('src', null, false, false, false);
-        
-        // Set full system path
-        $image_path = Path::standardize(Path::fromAsset($image_src));
 
-        // Check if image exists before doing anything.
-        if ( ! File::isImage($image_path)) {
+        // External URL
+        if ($is_external = URL::isExternalUrl($image_src)) {
 
-            Log::error("Could not find requested image to transform: " . $image_path, "core", "Transform");
+            $image_path = $image_src;
 
-            return;
+            // Check if file is an image before doing anything.
+            // @TODO: Maybe check that the file exists.
+            $img_info = pathinfo($image_src);
+            $is_image = in_array($img_info['extension'], array('jpg', 'jpeg', 'png', 'gif'));
+
+            if ( ! $is_image) {
+                Log::error("Requested file is not an image: " . $image_path, "core", "Transform");
+
+                return;
+            }
+
+        }
+
+        // Internal URL
+        else {
+
+            // Set full system path
+            $image_path = Path::standardize(Path::fromAsset($image_src));
+
+            // Check if image exists before doing anything.
+            if ( ! File::isImage($image_path)) {
+                Log::error("Could not find requested image to transform: " . $image_path, "core", "Transform");
+
+                return;
+            }
+
         }
 
 
@@ -65,7 +90,7 @@ class Plugin_transform extends Plugin
         $pos_x  = $this->fetchParam('pos_x', 0, 'is_numeric');
         $pos_y  = $this->fetchParam('pos_y', 0, 'is_numeric');
 
-        $quality = $this->fetchParam('quality', '75', 'is_numeric');
+        $quality = $this->fetchParam('quality', Config::get('transform_quality'), 'is_numeric');
 
 
         /*
@@ -98,6 +123,8 @@ class Plugin_transform extends Plugin
         $blur      = $this->fetchParam('blur', false, 'is_numeric');
         $pixelate  = $this->fetchParam('pixelate', false, 'is_numeric');
         $greyscale = $this->fetchParam(array('greyscale', 'grayscale'), false, false, true);
+        $watermark = $this->fetchParam('watermark', false, false, false, false);
+        $invert    = $this->fetchParam('invert', false, false, true);
 
 
         /*
@@ -112,7 +139,7 @@ class Plugin_transform extends Plugin
         */
 
         // Late modified time of original image
-        $last_modified = File::getLastModified($image_path);
+        $last_modified = ($is_external) ? false : File::getLastModified($image_path);
 
         // Find .jpg, .png, etc
         $extension = File::getExtension($image_path);
@@ -132,7 +159,8 @@ class Plugin_transform extends Plugin
             'blur'      => $blur,
             'pixelate'  => $pixelate,
             'greyscale' => $greyscale,
-            'modified'  => $last_modified
+            'modified'  => $last_modified,
+            'invert'    => $invert
         );
 
         // Start with a 1 character action flag
@@ -159,7 +187,7 @@ class Plugin_transform extends Plugin
             // Method checks to see if folder exists before creating it
             Folder::make($destination);
 
-            $stripped_image_path = Path::tidy($destination . '/' . basename($stripped_image_path));
+            $stripped_image_path = Path::tidy($destination . '/' . urlencode(basename($stripped_image_path)));
         }
 
         // Reassembled filename with all flags filtered and delimited
@@ -250,6 +278,30 @@ class Plugin_transform extends Plugin
             $image->pixelate($pixelate);
         }
 
+        if ($invert) {
+            $image->invert();
+        }
+
+        // Positioning options via ordered pipe settings:
+        // source|position|x offset|y offset
+
+        if ($watermark) {
+
+            // Why not support more than one watermark?
+            $watermarks = explode(',', $watermark);
+
+            foreach ($watermarks as $watermark) {
+                $watermark_options = Helper::explodeOptions($watermark);
+                
+                $source = Path::tidy(BASE_PATH . '/' . array_get($watermark_options, 0, null));
+                $anchor = array_get($watermark_options, 1, null);
+                $pos_x  = array_get($watermark_options, 2, 0);
+                $pos_y  = array_get($watermark_options, 3, 0);
+
+                $image->insert($source, $pos_x, $pos_y, $anchor);
+            }
+        }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -267,6 +319,6 @@ class Plugin_transform extends Plugin
             throw new Exception('Could not write new images. Try checking your file permissions.');
         }
 
-        return File::cleanURL($new_image_path);
+	    return File::cleanURL(URL::prependSiteRoot($new_image_path));
     }
 }

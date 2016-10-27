@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL|E_STRICT);
+ini_set('display_errors', 'on');
+
 /*
 |--------------------------------------------------------------------------
 | Statamic
@@ -9,11 +12,11 @@
 | engine, built for developers, designers, and clients alike.
 |
 | @author Jack McDade (jack@statamic.com)
-| @author Mubasher Iqbal (mubs@statamic.com)
 | @author Fred LeBlanc (fred@statamic.com)
 | @copyright 2013 Statamic
 |
 */
+
 
 /*
 |--------------------------------------------------------------------------
@@ -55,7 +58,7 @@ require_once BASE_PATH . '/_app/autoload.php';
 | Start the Engine
 |--------------------------------------------------------------------------
 |
-| All the heavy initilization and configuration happens right here.
+| All the heavy initialization and configuration happens right here.
 | Let's get going!
 |
 */

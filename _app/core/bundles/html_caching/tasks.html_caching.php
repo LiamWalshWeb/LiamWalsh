@@ -13,13 +13,12 @@ class Tasks_html_caching extends Tasks
         // check to see if html-caching is on
         $global_enable = (bool) $this->fetchConfig('enable', false, null, true);
         
-        if (!$global_enable) {
+        if (!$global_enable || !Cache::exists()) {
             return false;
         }
 
         // check that the URL being requested is a content file
-        $bare_url  = (strpos($url, '?') !== false) ? substr($url, 0, strpos($url, '?')) : $url;
-        $data      = ContentService::getContent($bare_url);
+        $data      = ContentService::getContent($this->getCleanUri($url));
 
         // not a content file, not enabled
         if (!$data) {
@@ -74,18 +73,20 @@ class Tasks_html_caching extends Tasks
         if (!(bool) $cache_length) {
             return false;
         }
+        
+        if ($this->fetchConfig('ignore_query_strings', false, null, true)) {
+            $url = $this->removeQueryString($url);
+        }
 
         // create the hash now so we don't have to do it many times below
         $url_hash = Helper::makeHash($url);
         
-        // are we doing this on cache update?
-        if ($cache_length == 'on cache update') {
-            // purge any cache file from before the last cache update
-            $this->cache->purgeFromBefore(Cache::getLastCacheUpdate());
-            
-            // return if the file still exists
-            return $this->cache->exists($url_hash);
-        } elseif ($cache_length == 'on last modified') {
+        // we're no longer allowing `on cache update` here, as its a flawed concept:
+        // it only appeared to work because new pages were being hit, however, once
+        // every page is hit and then HTML-cached, the cache will no longer update
+        // because procedurally, that happens *after* we look for and load a version
+        // that has been cached
+        if ($cache_length == 'on cache update' || $cache_length == 'on last modified') {
             // ignore the cached version if the last modified time of this URL's
             // content file is newer than when the cached version was made
 
@@ -114,6 +115,10 @@ class Tasks_html_caching extends Tasks
      */
     public function getCachedPage($url)
     {
+        if ($this->fetchConfig('ignore_query_strings', false, null, true)) {
+            $url = $this->removeQueryString($url);
+        }
+        
         return $this->cache->get(Helper::makeHash($url), '');
     }
 
@@ -127,6 +132,67 @@ class Tasks_html_caching extends Tasks
      */
     public function putCachedPage($url, $html)
     {
+        if ($this->fetchConfig('ignore_query_strings', false, null, true)) {
+            $url = $this->removeQueryString($url);
+        }
+        
         $this->cache->put(Helper::makeHash($url), $html);
     }
+
+
+    /**
+     * Invalidated the cache
+     * 
+     * @param string  $url  An optional URL to invalidate the HTML cache for
+     * @return void
+     */
+    public function invalidateCache($url=null)
+    {
+        // url-specific
+        if (!is_null($url) && $this->isPageCached($url)) {
+            $this->cache->delete(Helper::makeHash($url));
+            return;
+        }
+        
+        // the whole thing
+        $this->cache->destroy();
+    }
+
+
+    /**
+     * Strips out the query string (except for pagination) from a URL
+     *
+     * eg. /blog?page=2&foo=bar will become /blog?page=2
+     * 
+     * @param string  $url  URL to remove query strings from
+     * @return string
+     */
+    protected function removeQueryString($url)
+    {
+        if (strpos($url, '?') !== false) {
+	        $split = explode('?', $url);
+	        parse_str($split[1], $params);
+	        $url = $split[0] . '?page=' . $params['page'];
+        }
+
+        return $url;
+    }
+
+
+	/**
+	 * Completely removes the query string from a URL
+	 *
+	 * eg. /blog?page=2&foo=bar will become /blog
+	 *
+	 * @param string  $url  URL to remove query strings from
+	 * @return string
+	 */
+	protected function getCleanUri($url)
+	{
+		if (strpos($url, '?') !== false) {
+			$url = substr($url, 0, strpos($url, '?'));
+		}
+
+		return $url;
+	}
 }

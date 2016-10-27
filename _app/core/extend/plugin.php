@@ -37,7 +37,7 @@ abstract class Plugin extends Addon
      *
      * @param mixed  $keys  Key of value to retrieve, an array will allow fallback param names
      * @param mixed  $default  Default value if no value is found
-     * @param string  $validity_check  Allows a boolean callback function to validate parameter
+     * @param callable  $validity_check  Allows a callback function to validate parameter
      * @param boolean  $is_boolean  Indicates parameter is boolean
      * @param boolean  $force_lower  Force the parameter's value to be lowercase?
      * @return mixed
@@ -52,7 +52,7 @@ abstract class Plugin extends Addon
 
                 $value = ($force_lower) ? strtolower($this->attributes[$key]) : $this->attributes[$key];
 
-                if ( ! $validity_check || ($validity_check && function_exists($validity_check) && $validity_check($value) === TRUE)) {
+                if ( ! $validity_check || ($validity_check && is_callable($validity_check) && $validity_check($value) === TRUE)) {
                     // account for yes/no parameters
                     if ($is_boolean === TRUE) {
                         return !in_array(strtolower($value), array("no", "false", "0", "", "-1"));
@@ -90,7 +90,7 @@ abstract class Plugin extends Addon
      *
      * @param string  $keys  Key of value to retrieve
      * @param mixed  $default  Default value if no value is found
-     * @param string  $validity_check  Allows a boolean callback function to validate parameter
+     * @param callable  $validity_check  Allows a boolean callback function to validate parameter
      * @param boolean  $is_boolean  Indicates parameter is boolean
      * @param boolean  $force_lower  Force the parameter's value to be lowercase?
      * @return mixed

@@ -9,7 +9,7 @@ class UserAuth
      */
     public static function getUserProfile($username)
     {
-        if (!UserAuth::isUser($username)) {
+        if (!Member::exists($username)) {
             return null;
         }
         

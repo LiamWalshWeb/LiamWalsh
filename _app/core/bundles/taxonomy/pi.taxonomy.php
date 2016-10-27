@@ -20,7 +20,8 @@ class Plugin_taxonomy extends Plugin
             'min_count'   => $this->fetchParam('min_count', 1, 'is_numeric'),
             'show_future' => $this->fetchParam('show_future', false, null, true, false),
             'show_past'   => $this->fetchParam('show_past', true, null, true, false),
-            'conditions'  => trim($this->fetchParam('conditions', null))
+            'conditions'  => trim($this->fetchParam('conditions', null, false, false, false)),
+            'where'       => trim($this->fetchParam('where', null, false, false, false))
         ));
 
         // sort as needed

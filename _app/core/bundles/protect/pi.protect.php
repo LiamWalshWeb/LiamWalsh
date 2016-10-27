@@ -36,6 +36,29 @@ class Plugin_protect extends Plugin
     }
     
     
+    public function require_password()
+    {
+        $password_list    = trim($this->fetchParam('allowed', '', null, false, false));
+        $passwords        = explode('|', $password_list);
+        $password_url     = $this->fetch('password_url', null, null, false, false);
+        $no_access_url    = $this->fetch('no_access_url', '/', null, false, false);
+        $return_variable  = $this->fetch('return_variable', 'return', null, false, false);
+
+        // no passwords set? this is OK
+        if (!$password_list) {
+            return;
+        }
+
+        // determine form URL
+        $form_url = Helper::pick($password_url, $no_access_url);
+        
+        if (!$this->tasks->hasPassword(URL::getCurrent(), $passwords)) {
+            URL::redirect(URL::appendGetVariable($form_url, $return_variable, URL::getCurrent()), 302);
+            exit();
+        }
+    }
+    
+    
     public function messages()
     {
         return Parse::template($this->content, array(

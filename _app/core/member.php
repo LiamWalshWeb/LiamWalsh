@@ -253,7 +253,7 @@ class Member
         if (!$this->hasRole($role)) {
             $roles = $this->get('roles');
             $roles[] = $role;
-            $this->set('roles', $roles);
+            $this->set('roles', array_values($roles));
         }
     }
 
@@ -520,7 +520,7 @@ class Member
             
             // create a list of fields that should not be returned
             $protected_fields = array_fill_keys(
-                array_diff(array('password', 'encrypted_password', 'salt', 'password_hash', '_uid'), $do_not_exclude),
+                array_diff(array('password', 'encrypted_password', 'salt', 'password_hash'), $do_not_exclude),
                 null);
 
             // return Member data minus the fields that shouldn't be returned
@@ -528,6 +528,29 @@ class Member
         } catch (Exception $e) {
             // something went pear-shaped, return null
             return null;
+        }
+    }
+    
+    
+    public static function getProfileByUID($uid, $do_not_exclude=array())
+    {
+        $member_set = MemberService::getMembers();
+        $member_set->filter(array('conditions' => '_uid:' . $uid));
+        $members = $member_set->get();
+        
+        // no members found
+        if (!$members) {
+            return null;
+        }
+
+        // create a list of fields that should not be returned
+        $protected_fields = array_fill_keys(
+            array_diff(array('password', 'encrypted_password', 'salt', 'password_hash'), $do_not_exclude),
+            null);
+        
+        foreach ($members as $member_data) {
+            // only want the first one
+            return array_diff_key($member_data, $protected_fields);
         }
     }
 

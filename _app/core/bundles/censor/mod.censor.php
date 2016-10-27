@@ -27,7 +27,7 @@ class Modifier_censor extends Modifier
         }
         
         // determine the type of replacement we're doing
-        switch (strtolower($type) {
+        switch (strtolower($type)) {
             case "redact":
                 $mode = self::REDACT;
                 break;

@@ -77,6 +77,7 @@ if ($admin_enabled !== true && strtolower($admin_enabled) != 'yes') {
 |
 */
 
+Statamic_View::set_cp_view();
 Statamic_View::set_layout("layouts/default");
 
 /*
@@ -100,7 +101,7 @@ Statamic::setDefaultTags();
 | Look for updated content to cache
 |
 */
-Cache::update();
+_Cache::update();
 
 
 /*

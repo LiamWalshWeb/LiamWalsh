@@ -97,21 +97,23 @@ class Fieldtype_location extends Fieldtype
             $html .= " data-location-configuration='" . json_encode($settings) . "'";
         }
 
+        $field_name = str_replace('page[', '', $this->fieldname) . '[';
+
         $html .= '></div>';
         $html .= '<div class="entry">';
 
         $html .= '	<div class="name">';
         $html .= '		<p>';
-        $html .= Fieldtype::render_fieldtype('text', 'yaml][' . $this->field . '][name', array('display' => Localization::fetch('location_name')), $values['name'], NULL, NULL, $random_keys['name']);
+        $html .= Fieldtype::render_fieldtype('text', $field_name . 'name', array('display' => Localization::fetch('location_name')), $values['name'], NULL, NULL, $random_keys['name']);
         $html .= '		</p>';
         $html .= '	</div>';
 
         $html .= '	<div class="coordinates">';
         $html .= '		<p class="latitude">';
-        $html .= Fieldtype::render_fieldtype('text', 'yaml][' . $this->field . '][latitude', array('display' => Localization::fetch('latitude')), $values['latitude'], NULL, NULL, $random_keys['latitude']);
+        $html .= Fieldtype::render_fieldtype('text', $field_name . 'latitude', array('display' => Localization::fetch('latitude')), $values['latitude'], NULL, NULL, $random_keys['latitude']);
         $html .= '		</p>';
         $html .= '		<p class="longitude">';
-        $html .= Fieldtype::render_fieldtype('text', 'yaml][' . $this->field . '][longitude', array('display' => Localization::fetch('longitude')), $values['longitude'], NULL, NULL, $random_keys['longitude']);
+        $html .= Fieldtype::render_fieldtype('text', $field_name . 'longitude', array('display' => Localization::fetch('longitude')), $values['longitude'], NULL, NULL, $random_keys['longitude']);
         $html .= '		</p>';
         $html .= '	</div>';
 

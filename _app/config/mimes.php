@@ -51,6 +51,8 @@ return array(
     'mpga'  => 'audio/mpeg',
     'mp2'   => 'audio/mpeg',
     'mp3'   => array('audio/mpeg', 'audio/mpg', 'audio/mpeg3', 'audio/mp3'),
+    'm4a'   => 'video/mp4',
+    'm4v'   => 'video/x-f4v',
     'aif'   => 'audio/x-aiff',
     'aiff'  => 'audio/x-aiff',
     'aifc'  => 'audio/x-aiff',

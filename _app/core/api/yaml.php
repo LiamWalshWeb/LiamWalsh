@@ -33,20 +33,45 @@ class YAML
      */
     public static function parse($yaml, $mode = null)
     {
+        // start measuring
+        $hash = Debug::markStart('parsing', 'yaml');
+        
         $mode = $mode ? $mode : self::getMode();
 
-        switch ($mode) {
-            case('loose'): return Spyc::YAMLLoad($yaml);
-            case('strict'): return sYAML::parse($yaml);
-            case('transitional'):
+        switch ($mode) {            
+            case 'loose':
+                $result = Spyc::YAMLLoad($yaml);
+                break;
+            
+            case 'strict': 
+                $result = sYAML::parse($yaml);
+                break;
+            
+            case 'transitional':
                 try {
-                    return sYaml::parse($yaml);
+                    $result = sYaml::parse($yaml);
                 } catch(Exception $e) {
                     Log::error($e->getMessage() . ' Falling back to loose mode.', 'core', 'yaml');
-                    return Spyc::YAMLLoad($yaml);
+                    $result = Spyc::YAMLLoad($yaml);
                 }
-            default: return Spyc::YAMLLoad($yaml);
+                break;
+            
+            default:
+                // check for new lines, is this a file?
+                $has_newline = (strpos($yaml, "\n") !== false);
+                if (!$has_newline && File::exists($yaml)) {
+                    // seems like it is
+                    $yaml = File::get($yaml);
+                }
+                
+                $result = Statamic\Dipper\Dipper::parse($yaml);
         }
+
+        // end measuring
+        Debug::markEnd($hash);
+        Debug::increment('parses', 'yaml');
+        
+        return $result;
     }
 
 
@@ -78,6 +103,7 @@ class YAML
         $mode = $mode ? $mode : self::getMode();
 
         switch ($mode) {
+            case 'quick':
             case 'loose':
                 return Spyc::YAMLDump($array, false, Config::get('yaml:wrap', 0));
 

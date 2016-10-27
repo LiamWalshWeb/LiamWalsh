@@ -86,12 +86,14 @@ class MemberSet
         
         $roles = null;
         $conditions = null;
+        $where = null;
         
         // standardize filters
         $given_filters = $filters;
         $filters = array(
             'role'        => (isset($given_filters['role']))       ? $given_filters['role']       : null,
-            'conditions'  => (isset($given_filters['conditions'])) ? $given_filters['conditions'] : null
+            'conditions'  => (isset($given_filters['conditions'])) ? $given_filters['conditions'] : null,
+            'where'       => (isset($given_filters['where']))      ? $given_filters['where']      : null
         );
         
         // determine filters
@@ -101,6 +103,10 @@ class MemberSet
         
         if ($filters['conditions']) {
             $conditions = Parse::conditions($filters['conditions']);
+        }
+        
+        if ($filters['where']) {
+            $where = $filters['where'];
         }
         
         // run filters
@@ -118,6 +124,11 @@ class MemberSet
                     unset($this->members[$username]);
                     continue;
                 }
+            }
+
+            if ($where && !(bool) Parse::template("{{ if " . $where . " }}1{{ else }}0{{ endif }}", $data)) {
+                unset($this->members[$username]);
+                continue;
             }
             
             if ($conditions) {
@@ -394,11 +405,13 @@ class MemberSet
         $i = 1;
 
         // loop through the content adding contextual data
-        foreach ($this->members as $username => $item) {
-            $this->members[$username]['first']         = ($i === 1);
-            $this->members[$username]['last']          = ($i === $count);
-            $this->members[$username]['count']         = $i;
-            $this->members[$username]['total_results'] = $count;
+        foreach ($this->members as $member => $item) {
+            $username = $item['username'];
+
+            $this->members[$member]['first']         = ($i === 1);
+            $this->members[$member]['last']          = ($i === $count);
+            $this->members[$member]['count']         = $i;
+            $this->members[$member]['total_results'] = $count;
             
             $file = sprintf(Config::getConfigPath() . '/users/%s.yaml', $username);
 
@@ -407,8 +420,8 @@ class MemberSet
                 $raw_file = substr(File::get($file), 3);
                 $divide = strpos($raw_file, "\n---");
 
-                $this->members[$username]['biography_raw']  = trim(substr($raw_file, $divide + 4));
-                $this->members[$username]['biography']      = Content::parse($this->members[$username]['biography_raw'], $item);
+                $this->members[$member]['biography_raw']  = trim(substr($raw_file, $divide + 4));
+                $this->members[$member]['biography']      = Content::parse($this->members[$member]['biography_raw'], $item);
             }
 
             $i++;

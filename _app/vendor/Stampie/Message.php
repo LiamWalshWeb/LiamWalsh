@@ -26,11 +26,12 @@ abstract class Message implements MessageInterface
     protected $text;
 
     /**
-     * @param string $to
+     * @param IdentityInterface|string $to
      */
     public function __construct($to)
     {
-        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        $email = $to instanceof IdentityInterface ? $to->getEmail() : $to;
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException('Invalid email');
         }
 
@@ -55,7 +56,7 @@ abstract class Message implements MessageInterface
 
     /**
      * @param string $text
-     * @throws \InvalidArgument
+     * @throws \InvalidArgumentException
      */
     public function setText($text)
     {
@@ -83,7 +84,7 @@ abstract class Message implements MessageInterface
     }
 
     /**
-     * @return true
+     * @return array
      */
     public function getHeaders()
     {
@@ -95,7 +96,13 @@ abstract class Message implements MessageInterface
      */
     public function getReplyTo()
     {
-        return $this->getFrom();
+        $from = $this->getFrom();
+
+        if ($from instanceof IdentityInterface) {
+            $from = $from->getEmail();
+        }
+
+        return $from;
     }
 
     /**

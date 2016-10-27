@@ -27,6 +27,7 @@ class Fieldtype_checkbox extends Fieldtype
           $attributes['checked'] = 'checked';
         }
 
-        return HTML::makeInput('checkbox', $attributes, $this->is_required);
+        return HTML::makeInput('hidden', array('name' => $this->fieldname, 'value' => false)) .
+               HTML::makeInput('checkbox', $attributes, $this->is_required);
     }
 }

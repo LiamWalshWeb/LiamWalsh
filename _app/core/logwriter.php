@@ -26,7 +26,7 @@ class Statamic_Logwriter {
 		$this->settings['path'] = rtrim($this->settings['path'], DIRECTORY_SEPARATOR);
 
 		if (!in_array(substr($this->settings['path'], 0, 1), array("/", "."))) {
-			$this->settings['path'] = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->settings['path'];
+			$this->settings['path'] = Path::tidy(BASE_PATH . DIRECTORY_SEPARATOR . $this->settings['path']);
 		}
 	}
 

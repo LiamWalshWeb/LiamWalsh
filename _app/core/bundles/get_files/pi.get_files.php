@@ -162,7 +162,7 @@ class Plugin_Get_Files extends Plugin
         | Sort By
         |--------------------------------------------------------------------------
         |
-        | Recursively traverse directories, starting at 0.
+        | Sort by name, file, or type
         |
         */
 
@@ -213,6 +213,20 @@ class Plugin_Get_Files extends Plugin
 
         if ($sort_dir === 'desc') {
             $files = array_reverse($files);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Randomizing
+        |--------------------------------------------------------------------------
+        |
+        | You can't sort randomly using Symfony finder, so we'll do it manually.
+        |
+        */
+
+        if ($sort_by === 'random') {
+            shuffle($files);
         }
 
 

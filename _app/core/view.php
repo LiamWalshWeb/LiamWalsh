@@ -14,6 +14,9 @@ class Statamic_View extends \Slim\View
 {
     protected static $_layout = null;
     protected static $_templates = null;
+    protected static $_template_location = null;
+    protected static $_control_panel = false;
+    protected static $_extra_data = null;
     public static $_dataStore = array();
 
 
@@ -24,9 +27,11 @@ class Statamic_View extends \Slim\View
      * @param mixed $list Template (or array of templates, in order of preference) to use for page render
      * @return void
      */
-    public static function set_templates($list)
+    public static function set_templates($list, $location=false)
     {
         self::$_templates = $list;
+
+        self::$_template_location = ($location) ? $location : Path::assemble(BASE_PATH, Config::getTemplatesPath(), 'templates');
     }
 
     /**
@@ -38,7 +43,21 @@ class Statamic_View extends \Slim\View
      */
     public static function set_layout($layout = null)
     {
-        self::$_layout = $layout;
+        self::$_layout = Path::assemble(BASE_PATH, Config::getTemplatesPath(), $layout);
+
+        $layout = Parse::frontMatter(File::get(self::$_layout . '.html'));
+        self::$_extra_data = $layout['data'];
+    }
+
+    /**
+     * set_cp_view
+     * Let the view controller know we are in the control panel
+     *
+     * @return void
+     */
+    public static function set_cp_view()
+    {
+        self::$_control_panel = true;
     }
 
     /**
@@ -49,40 +68,65 @@ class Statamic_View extends \Slim\View
      * @return string
      */
     public function render($template)
-    {
+    {        
         $html = '<p style="text-align:center; font-size:28px; font-style:italic; padding-top:50px;">No template found.</p>';
 
         $list = $template ? $list = array($template) : self::$_templates;
         $template_type = 'html';
 
+        // Allow setting where to get the template from
+        if ( ! self::$_template_location) {
+            self::$_template_location = Path::assemble(BASE_PATH, Config::getTemplatesPath(), 'templates');
+        }
+
         foreach ($list as $template) {
-            $template_path = Path::assemble(BASE_PATH, Config::getTemplatesPath(), 'templates', $template);
+            $template_path = Path::assemble(self::$_template_location, $template);
+            $override_path = Path::assemble(BASE_PATH, Config::getThemesPath(), Config::getTheme(), 'admin', $template);
 
             if (File::exists($template_path . '.html') || file_exists($template_path . '.php')) {
                 // set debug information
-                $this->data['_debug'] = array(
-                    'template'     => $template,
-                    'layout'       => str_replace('layouts/', '', self::$_layout),
-                    'version'      => STATAMIC_VERSION,
-                    'theme'        => array_get($this->data, '_theme', null),
-                    'environment'  => array_get($this->data, 'environment', "(no environment matched)")
-                );
+                Debug::setValue('template', $template);
+                Debug::setvalue('layout', str_replace('layouts/', '', basename(self::$_layout)));
+                Debug::setValue('statamic_version', STATAMIC_VERSION);
+                Debug::setValue('php_version', phpversion());
+                Debug::setValue('theme', array_get($this->data, '_theme', null));
+                Debug::setValue('environment', array_get($this->data, 'environment', '(none)'));
                 
+                $this->data['_debug'] = array(
+                    'template'          => Debug::getValue('template'),
+                    'layout'            => Debug::getValue('layout'),
+                    'version'           => Debug::getValue('statamic_version'),
+                    'statamic_version'  => Debug::getValue('statamic_version'),
+                    'php_version'       => Debug::getValue('php_version'),
+                    'theme'             => Debug::getValue('theme'),
+                    'environment'       => Debug::getValue('environment')
+                );
+
                 # standard lex-parsed template
                 if (File::exists($template_path . '.html')) {
                     $template_type = 'html';
 
-                    $this->mergeNewData($this->data);
+                    $this->appendNewData($this->data);
 
-                    $html = Parse::template(Theme::getTemplate($template), Statamic_View::$_dataStore, array($this, 'callback'));
+                    // Fetch template and parse any front matter
+                    $template = Parse::frontMatter(File::get($template_path . '.html'));
+                    
+                    self::$_extra_data = $template['data'] + self::$_extra_data;
+                    $this->prependNewData(self::$_extra_data);
+
+                    $html = Parse::template($template['content'], Statamic_View::$_dataStore, array($this, 'callback'));
                     break;
 
                 # lets forge into raw data
-                } elseif (File::exists($template_path . '.php')) {
+                } elseif (File::exists($override_path . '.php') || File::exists($template_path . '.php')) {
 
                     $template_type = 'php';
                     extract($this->data);
                     ob_start();
+
+                    if (File::exists($override_path . '.php')) {
+                        $template_path = $override_path;
+                    }
 
                     require $template_path . ".php";
                     $html = ob_get_clean();
@@ -93,15 +137,21 @@ class Statamic_View extends \Slim\View
                 }
             }
         }
+        
+        // mark milestone for debug panel
+        Debug::markMilestone('template rendered');
 
         // get rendered HTML
         $rendered = $this->_render_layout($html, $template_type);
+        
+        // mark milestone for debug panel
+        Debug::markMilestone('layout rendered');
 
         // store it into the HTML cache if needed
         if (Addon::getAPI('html_caching')->isEnabled()) {
             Addon::getAPI('html_caching')->putCachedPage($rendered);
         }
-        
+
         // return rendered HTML
         return $rendered;
     }
@@ -116,34 +166,40 @@ class Statamic_View extends \Slim\View
      */
     public function _render_layout($_html, $template_type = 'html')
     {
-        if (self::$_layout != '') {
+        if (self::$_layout) {
             $this->data['layout_content'] = $_html;
-            $layout_path = Path::assemble(BASE_PATH, Config::getTemplatesPath(), self::$_layout);
 
-            if ($template_type == 'html') {
-                if ( ! File::exists($layout_path . ".html")) {
+            if ($template_type != 'html' OR self::$_control_panel) {
+                extract($this->data);
+                ob_start();
+                require self::$_layout . ".php";
+                $html = ob_get_clean();
+
+            } else {
+                if ( ! File::exists(self::$_layout . ".html")) {
                     Log::fatal("Can't find the specified theme.", 'core', 'template');
 
                     return '<p style="text-align:center; font-size:28px; font-style:italic; padding-top:50px;">We can\'t find your theme files. Please check your settings.';
                 }
 
-                $this->mergeNewData($this->data);
-                $html = Parse::template(File::get($layout_path . ".html"), Statamic_View::$_dataStore, array($this, 'callback'));
-                $html = Lex\Parser::injectNoparse($html);
+                $this->appendNewData($this->data);
 
-            } else {
-                extract($this->data);
-                ob_start();
-                require $layout_path . ".php";
-                $html = ob_get_clean();
+                // Fetch layout and parse any front matter
+                $layout = Parse::frontMatter(File::get(self::$_layout . '.html'), false);
+
+                $html = Parse::template($layout['content'], Statamic_View::$_dataStore, array($this, 'callback'));
             }
+            
+            // inject noparse
+            $html = Lex\Parser::injectNoparse($html);
         } else {
             $html = $_html;
         }
 
         // post-render hook
         $html = \Hook::run('_render', 'after', 'replace', $html, $html);
-
+        
+        Debug::setValue('memory_used', File::getHumanSize(memory_get_usage(true)));
         return $html;
     }
       
@@ -159,11 +215,13 @@ class Statamic_View extends \Slim\View
      * @param string $content
      * @param array $context
      * @return string
+     * @throws Exception
      */
     public static function callback($name, $attributes, $content, $context=array())
     {
-        $output = null;
-        $file   = null;
+        $now = time();
+            
+        $output = false;
         $pos    = strpos($name, ':');
 
         # single function plugins
@@ -173,61 +231,69 @@ class Statamic_View extends \Slim\View
         } else {
             $plugin = substr($name, 0, $pos);
             $call   = substr($name, $pos + 1);
-            
-            if (!$call) {
-                return null;
-            }
         }
 
-        # check the plugin directories
-        $plugin_folders = Config::getAddOnLocations();
-        foreach ($plugin_folders as $folder) {
-            if (Folder::exists($folder . $plugin) && File::exists($folder . $plugin . '/pi.' . $plugin . '.php')) {
+        // mark start of debug timing
+        $hash = Debug::markStart('plugins', $plugin . ':' . $call, $now);
 
-                $file = $folder . $plugin . '/pi.' . $plugin . '.php';
-                break;
-
-            } elseif (File::exists($folder . '/pi.' . $plugin . '.php')) {
-
-                $file = $folder . '/pi.' . $plugin . '.php';
-                break;
-            }
-        }
-
-        # no file? return
-        if (!$file) {
+        // if nothing to call, abort
+        if (!$call) {
+            Debug::markEnd($hash);
             return null;
         }
-        
-        # file exists, it's plugin time
-        $class  = 'Plugin_' . $plugin;
-        $output = false;
-        
-        if (is_callable(array(new $class, $call), false)) {
-            $plug = new $class();
 
-            $plug->attributes = $attributes;
-            $plug->content    = $content;
-            $plug->context    = $context;
+        try {
+            // will throw an exception if resource isn't available
+            $plugin_obj = Resource::loadPlugin($plugin);
             
-            $output = $plug->$call();
+            if (!is_callable(array($plugin_obj, $call))) {
+                throw new Exception('Method not callable.');
+            }
+
+            $plugin_obj->attributes = $attributes;
+            $plugin_obj->content    = $content;
+            $plugin_obj->context    = $context;
+
+            Debug::increment('plugins', $plugin);
+
+            $output = call_user_func(array($plugin_obj, $call));
+
+            if (is_array($output)) {
+                $output = Parse::template($content, $output);
+            }
+            
+        } catch (\Slim\Exception\Stop $e) {
+            // allow plugins to halt the app
+            throw $e;
+        } catch (\Slim\Exception\Pass $e) {
+            // allow plugins to halt the app
+            throw $e;
+        } catch (ResourceNotFoundException $e) {
+            // resource not found, do nothing
+
+        } catch (FatalException $e) {
+            throw $e;
+            
+        } catch (Exception $e) {
+            // everything else, do nothing if debug is off
+            if (Config::get('debug')) {
+                throw $e;
+            }            
         }
 
-        if (is_array($output)) {
-            $output = Parse::template($content, $output);
-        }
+        Debug::markEnd($hash);
 
         return $output;
     }
 
 
     /**
-     * Merges any new data into this view's data store
+     * Appends any new data into this view's data store
      * 
      * @param $data  array  Array of data to merge
      * @return void
      */
-    function mergeNewData($data)
+    function appendNewData($data)
     {
         foreach ($data as $key => $item) {
             if (is_object($item)) {
@@ -236,5 +302,22 @@ class Statamic_View extends \Slim\View
         }
 
         Statamic_View::$_dataStore = $data + Statamic_View::$_dataStore;
+    }
+
+    /**
+     * Prepend any new data into this view's data store
+     * 
+     * @param $data  array  Array of data to merge
+     * @return void
+     */
+    public static function prependNewData($data)
+    {
+        foreach ($data as $key => $item) {
+            if (is_object($item)) {
+                unset($data[$key]);
+            }
+        }
+
+        Statamic_View::$_dataStore = Statamic_View::$_dataStore + $data;
     }
 }

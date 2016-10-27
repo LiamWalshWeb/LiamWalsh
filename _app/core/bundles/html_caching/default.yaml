@@ -9,3 +9,9 @@ cache_length: on last modified
 
 # a pipe-separated list of URLs you want to exclude from HTML caching, ending-wildcards OK
 exclude: 
+
+# when `true`, different query strings in URLs will all result in the same page being shown,
+# for example /about and /about?something will all show the same page: /about
+# this prevents people from appending "?whatever" to URLs to force the page to re-cache, but
+# will break any pages relying on query strings, like pages with pagination
+ignore_query_strings: false

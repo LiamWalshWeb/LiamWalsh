@@ -9,6 +9,9 @@
  * @package     API
  * @copyright   2013 Statamic
  */
+
+use \Carbon\Carbon;
+
 class Date
 {
     /**
@@ -19,7 +22,15 @@ class Date
      */
     public static function resolve($date)
     {
-        return (!is_numeric($date)) ? strtotime($date) : $date;
+        if (! is_numeric($date)) {
+            if (strpos($date, '-')) {
+                $date = Carbon::parse(date($date))->timestamp;
+            } else {
+                $date = strtotime($date);
+            }
+        }
+
+        return $date;
     }
 
 

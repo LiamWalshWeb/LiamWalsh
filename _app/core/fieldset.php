@@ -4,7 +4,7 @@ class statamic_fieldset
   protected $data = array();
   protected $name = null;
 
-  public function Statamic_Fieldset($data)
+  public function __construct($data)
   {
     $this->data = $data;
   }
@@ -58,14 +58,34 @@ class statamic_fieldset
           $fields['fields'] = array_merge($fields['fields'], $meta['fields']);
         }
 
+        // Order fields by 'field_order'
+        if (isset($meta['field_order'])) {
+          $fields['fields'] = array_merge(array_flip($meta['field_order']), $fields['fields']);
+        }
+
         $fieldset_names[] = $name;
       }
     }
+
+    Statamic_Fieldset::checkForDashes($fields['fields']);
 
     $set = new Statamic_Fieldset($fields);
     $set->set_name($fieldset_names);
 
     return $set;
+  }
+
+  private static function checkForDashes($fields)
+  {
+    foreach ($fields as $key => $val) {
+      if (strpos($key, '-')) {
+        throw new Exception('Field names may not contain dashes. Please use underscores.');
+      }
+
+      if (is_array($val) && isset($val['fields'])) {
+        Statamic_Fieldset::checkForDashes($val['fields']);
+      }
+    }
   }
 
   public static function fetch_fieldset($fieldset)

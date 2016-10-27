@@ -67,7 +67,7 @@ class Theme
         $parser         = new Lex\Parser();
         $template_path  = Config::getTemplatesPath() . '/templates/' . ltrim($template, '/') . '.html';
 
-        return $parser->parse(File::get($template_path, ""), $data, array('statamic_view', 'callback'));
+        return $parser->parse(File::get($template_path, ""), $data, array('statamic_view', 'callback'), Config::get('_allow_php', false));
     }
 
 

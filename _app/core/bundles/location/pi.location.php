@@ -1,10 +1,9 @@
 <?php
 /**
  * Plugin_location
- * Display helper for location-based entries
+ * Display helper for locations and maps
  *
  * @author  Jack McDade <jack@statamic.com>
- * @author  Mubashar Iqbal <mubs@statamic.com>
  * @author  Fred LeBlanc <fred@statamic.com>
  *
  * @copyright  2014
@@ -15,10 +14,40 @@ class Plugin_location extends Plugin {
 
     var $meta = array(
         'name'       => 'Location',
-        'version'    => '1.0',
-        'author'     => 'Fred LeBlanc',
+        'version'    => '1.1',
+        'author'     => 'Statamic',
         'author_url' => 'http://statamic.com'
     );
+
+
+    public function map()
+    {
+        // parse settings
+        $settings = $this->parseParameters();
+
+        $latitude = $this->fetchParam('latitude');
+        $longitude = $this->fetchParam('longitude');
+
+        // check for valid center point
+        if (preg_match(Pattern::COORDINATES, $this->fetchParam('center_point'), $matches)) {
+            $settings['starting_latitude']  = $matches[1];
+            $settings['starting_longitude'] = $matches[2];
+        } else {
+            $settings['starting_latitude']  = $latitude;
+            $settings['starting_longitude'] = $longitude;
+        }
+
+        // overrides
+        $settings['auto_center'] = 'false';
+        $settings['clusters'] = 'false';
+
+        $content['marker'] = array(
+            'latitude' => $latitude,
+            'longitude' => $longitude
+        );
+
+        return $this->buildScript($content, $settings);
+    }
     
     
     public function map_url()
@@ -285,11 +314,10 @@ class Plugin_location extends Plugin {
         } else {
             // no blink content exists, get data the hard way
             if ($settings['taxonomy']) {
-                $taxonomy_parts  = Taxonomy::getCriteria(URL::getCurrent());
-                $taxonomy_type   = $taxonomy_parts[0];
-                $taxonomy_slug   = Config::get('_taxonomy_slugify') ? Slug::humanize($taxonomy_parts[1]) : urldecode($taxonomy_parts[1]);
+                $taxonomy  = Taxonomy::getCriteria(URL::getCurrent());
+                $taxonomy_slug   = Config::get('_taxonomy_slugify') ? Slug::humanize($taxonomy['slug']) : urldecode($taxonomy['slug']);
 
-                $content_set = ContentService::getContentByTaxonomyValue($taxonomy_type, $taxonomy_slug, $settings['folders']);
+                $content_set = ContentService::getContentByTaxonomyValue($taxonomy['type'], $taxonomy_slug, $settings['folders']);
             } else {
                 $content_set = ContentService::getContentByFolders($settings['folders']);
             }
@@ -321,7 +349,7 @@ class Plugin_location extends Plugin {
     public function getMappingServiceVariables($settings)
     {
         $osm      = '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-        $mapquest = 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png" style="width: auto !important; height: auto !important; display: inline !important; margin: 0 !important; vertical-align: text-bottom;">';
+        $mapquest = 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="//developer.mapquest.com/content/osm/mq_logo.png" style="width: auto !important; height: auto !important; display: inline !important; margin: 0 !important; vertical-align: text-bottom;">';
         
         switch ($settings['mapping_service']) {
             case 'mapbox':
@@ -362,7 +390,7 @@ class Plugin_location extends Plugin {
             
             default:
                 return array(
-                    'tiles' => 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    'tiles' => '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     'service_attr' => $osm
                 );
                 break;

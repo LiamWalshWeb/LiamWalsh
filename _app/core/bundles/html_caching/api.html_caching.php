@@ -45,6 +45,25 @@ class API_html_caching extends API
     {
         $this->tasks->putCachedPage($this->getCurrentURL(), $html);
     }
+
+
+    /**
+     * Invalidates the entire current HTML cache
+     *
+     * @param string  $url  Optionally only invalidate cache for one URL
+     * @return void
+     */
+    public function invalidateCache($url=null)
+    {
+        // url-specific
+        if (!is_null($url) && $this->tasks->isPageCached($url)) {
+            $this->tasks->invalidateCache($url);
+            return;
+        }
+        
+        // the whole thing
+        $this->tasks->invalidateCache();
+    }
     
     
     /**

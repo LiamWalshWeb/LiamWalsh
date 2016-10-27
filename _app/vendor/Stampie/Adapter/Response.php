@@ -12,7 +12,7 @@ class Response implements ResponseInterface
     /**
      * @var array Array of reason phrases and their corresponding status codes
      */
-    private static $statusTexts = array(
+    static private $statusTexts = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',

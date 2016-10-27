@@ -51,9 +51,6 @@
             $val = $value['default'];
           }
 
-          // If no display label is set, we'll prettify the fieldname itself
-          $value['display'] = array_get($value, 'display', Slug::prettify($key));
-
           // By default all fields are part of the 'yaml' key. They may need to be overridden
           // to set a meta/system field, like Content.
           $input_key = array_get($value, 'input_key', '[yaml]');
@@ -76,7 +73,13 @@
 
           if ($fieldtype === 'show_password') {
             $wrapper_attributes[] = "data-bind='visible: showChangePassword() !== true'";
+            if ( ! array_get($value, 'display')) {
+              $value['display'] = Localization::fetch('password');
+            }
           }
+
+          // If no display label is set, we'll prettify the fieldname itself
+          $value['display'] = array_get($value, 'display', Slug::prettify($key));
 
         ?>
 

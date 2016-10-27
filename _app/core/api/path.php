@@ -215,24 +215,48 @@ class Path
 
 
     /**
-     * Creates a URL-friendly path from webroot
+     * Removes the _site_root from a path if the site is in a subdirectory
      *
      * @param string  $path  Path to trim
      * @return string
      */
-    public static function toAsset($path, $as_variable=false)
+    public static function trimSubdirectory($path)
+    {
+        $site_root = Config::getSiteRoot();
+
+        if ($site_root != '/') {
+            $path = str_replace($site_root, '/', $path);
+        }
+
+        return $path;
+    }
+
+
+    /**
+     * Creates a URL-friendly path to an asset
+     *
+     * @param string  $path        Full path to asset
+     * @param boolean $as_variable Prefix path with the {{ _site_root }} var (for _content files)
+     * @param boolean $relative    Returns only the relative part of the path relative to {{ _site_root }}
+     * @return string
+     */
+    public static function toAsset($path, $as_variable = false, $relative = false)
     {
         $asset_path = Path::trimFilesystem($path);
 
         if (Pattern::startsWith($asset_path, '{{ _site_root }}')) {
             $asset_path = str_replace('{{ _site_root }}', '/', $asset_path);
         }
-        
-        if (!Pattern::startsWith($asset_path, Config::getSiteRoot())) {
-            $asset_path = ($as_variable) ? '{{ _site_root }}' . $asset_path : Config::getSiteRoot() . '/' . $asset_path;
+
+        if ( ! Pattern::startsWith($asset_path, Config::getSiteRoot())) {
+            $asset_path = ($as_variable)
+                          ? '{{ _site_root }}' . $asset_path
+                          : ($relative ? '' : Config::getSiteRoot()) . '/' . $asset_path;
         }
 
-        return rtrim(self::tidy($asset_path), '/');
+        $asset_path = rtrim(self::tidy($asset_path), '/');
+
+        return ($relative ? ltrim($asset_path, '/') : $asset_path);
     }
 
 

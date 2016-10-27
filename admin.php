@@ -9,7 +9,6 @@
 | engine, built for developers, designers, and clients alike.
 |
 | @author Jack McDade (jack@statamic.com)
-| @author Mubasher Iqbal (mubs@statamic.com)
 | @author Fred LeBlanc (fred@statamic.com)
 | @copyright 2012 Statamic
 |
@@ -26,6 +25,9 @@
 
 define("BASE_PATH", str_replace('\\', '/',  __DIR__));
 
+// define site root
+$doc_root = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
+define("SITE_ROOT", str_replace($doc_root, '', BASE_PATH) . '/');
 /*
 |--------------------------------------------------------------------------
 | Running Above Web Root

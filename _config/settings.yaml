@@ -79,10 +79,14 @@ _transform_destination: false
 _allow_php: false
 
 # Choose your YAML mode:
+#  - quick (Dipper, some of YAML 1.0)
 #  - loose (YAML 1.0)
 #  - transitional (YAML 1.2 falling back to 1.0 if parse failure, logging warnings)
 #  - strict (YAML 1.2)
 _yaml_mode: loose
+
+# Choose the markdown parser to use (standard | parsedown)
+_markdown_parser: standard
 
 # Choose whether you want your content (e.g. Markdown, Textile...) or your tags parsed first
 _parse_order:
@@ -97,6 +101,9 @@ _http_cache_expires: false
 
 _enable_static_pipeline: false
 
+# Skip caching member files, will disable the use of member:listing but will allow for many, many more members
+_disable_member_cache: true
+
 
 ###########################################################################################
 #
@@ -110,7 +117,7 @@ _environments:
   dev:
     - liamwalsh
   live:
-    - www.liamwalsh.co.uk
+    - '*.co.uk'
 
 # Set to 'true' if you want to log system messages
 _log_enabled: true
@@ -132,6 +139,9 @@ _log_file_path: _logs
 
 # Prefixes your log file, helpful if you're collecting multiple Statamic site logs in one directory
 _log_file_prefix: site
+
+# Will show some debugging information about your page at the bottom of each page
+_display_debug_panel: true
 
 
 ###########################################################################################
@@ -174,15 +184,42 @@ _enable_add_child_page: true
 # Enable/Disable the ability to delete pages via the CP
 _enable_delete_page: true
 
-# Change this to make your site more secure
-_cookies.secret_key: wQuvjuCK6VNd6sJhvD8ZxjJ6
+# Whether or not to prepend the {{ _site_root }} variable to uploads
+_prepend_site_root_to_uploads: false
+
+# What should be used for handling content revisions (if anything at all)
+# _revisions: local_revisions
+
+# Allow deleting files through the File field
+_allow_file_field_deletions: false
+
+###########################################################################################
+#
+#  MISC CONFIGURATION
+#
+###########################################################################################
 
 # plain english works just fine here.
-_cookies.lifetime: 3 months
+_cookies.lifetime: 1 day
 
 # For advanced users only. Here be dragons.
 _cookies.cipher: MCRYPT_RIJNDAEL_256
 _cookies.cipher_mode: MCRYPT_MODE_CBC
+
+# If the slug-maker isn't doing something to your linking, you can override it here;
+# for example, to have "*" be converted to "star" in a slug, you'd do:
+#   "*": "star"
+_custom_transliteration:
+
+
+###########################################################################################
+#
+#  FILE CREATION
+#
+###########################################################################################
+
+# The default permissions Statamic will use for files it creates
+_mode: 0755
 
 
 ###########################################################################################

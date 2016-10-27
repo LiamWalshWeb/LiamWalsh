@@ -23,12 +23,13 @@ class Tasks_protect extends Tasks
      * Does this user have a correct password for a given $url?
      * 
      * @param string  $url  URL to check password for
+     * @param array  $allowed  Override URL list with given list of allowed passwords
      * @return bool
      */
-    public function hasPassword($url)
+    public function hasPassword($url, $allowed=array())
     {
         $passwords  = $this->getUserPasswords($url);
-        $allowed    = $this->getAllowedPasswords($url);
+        $allowed    = (is_array($allowed) && count($allowed)) ? $allowed : $this->getAllowedPasswords($url);
         
         // no allowed passwords? get out
         if (empty($allowed)) {
@@ -59,7 +60,7 @@ class Tasks_protect extends Tasks
         }
 
         // check for matches
-        return in_array($ip_address, $allowed);
+        return Helper::isIPInRange($ip_address, $allowed);
     }
 
 
@@ -98,22 +99,7 @@ class Tasks_protect extends Tasks
         $data = Content::get($url);
 
         // is there data?
-        if (empty($data)) {
-            return array();
-        }
-
-        // is _protect set?
-        if (!isset($data['_protect']) || !is_array($data['_protect'])) {
-            return array();
-        }
-
-        // is password the scheme used?
-        if (!isset($data['_protect']['password']) || !is_array($data['_protect']['password'])) {
-            return array();
-        }
-
-        // are passwords set?
-        if (!isset($data['_protect']['password']['allowed'])) {
+        if (empty($data['_protect']['password']['allowed'])) {
             return array();
         }
 
@@ -134,22 +120,7 @@ class Tasks_protect extends Tasks
         $data = Content::get($url);
 
         // is there data?
-        if (empty($data)) {
-            return array();
-        }
-
-        // is _protect set?
-        if (!isset($data['_protect']) || !is_array($data['_protect'])) {
-            return array();
-        }
-
-        // is password the scheme used?
-        if (!isset($data['_protect']['ip_address']) || !is_array($data['_protect']['ip_address'])) {
-            return array();
-        }
-
-        // are passwords set?
-        if (!isset($data['_protect']['ip_address']['allowed'])) {
+        if (empty($data['_protect']['ip_address']['allowed'])) {
             return array();
         }
 

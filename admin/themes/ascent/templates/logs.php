@@ -7,6 +7,10 @@
     <?php if (CP_Helper::show_page('logs', true)): ?>
     <li><a href="<?php echo $app->urlFor("logs"); ?>"<?php if ($route === "logs"):?> class="active"<?php endif ?>><?php echo Localization::fetch('logs')?></a></li>
     <?php endif ?>
+
+    <?php if (CP_Helper::show_page('export', true)): ?>
+    <li><a href="<?php echo $app->urlFor("export"); ?>"<?php if ($route === "export"):?> class="active"<?php endif ?>><?php echo Localization::fetch('export_to_html')?></a></li>
+    <?php endif ?>
   </ul>
 </div>
 

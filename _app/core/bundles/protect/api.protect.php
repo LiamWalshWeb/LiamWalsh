@@ -59,6 +59,11 @@ class API_protect extends API
         
         // get the current URL
         $current_url     = ($use_full_url) ? URL::tidy(Config::getSiteURL() . '/' . URL::getCurrent()) : URL::getCurrent();
+        
+        // append query string
+        if (!empty($_GET)) {
+            $current_url .= '?' . http_build_query($_GET, '', '&');
+        }
 
         // store if we've matched
         $match = false;
@@ -134,8 +139,8 @@ class API_protect extends API
             }
         }
     }
-    
-    
+
+
     /**
      * Evaluates a password for a given $url
      * 

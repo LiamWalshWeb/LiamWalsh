@@ -109,14 +109,14 @@ abstract class Fieldtype extends Addon
         if (is_array($this->field_config['instructions'])) {
             if (isset($this->field_config['instructions']['above'])) {
                 // above-specific instructions exist
-                return "<small class='above'>" . htmlspecialchars($this->field_config['instructions']['above']) . "</small>";
+                return "<small class='above'>" . nl2br(htmlspecialchars($this->field_config['instructions']['above'])) . "</small>";
             }
 
             // no above-specific instructions exist
             return "";
         } else {
             // instructions isn't an array, assume instructions belong above
-            return "<small class='above'>" . htmlspecialchars($this->field_config['instructions']) . "</small>";
+            return "<small class='above'>" . nl2br(htmlspecialchars($this->field_config['instructions'])) . "</small>";
         }
     }
 
@@ -145,7 +145,7 @@ abstract class Fieldtype extends Addon
         }
 
         // below-specific instructions exist
-        return "<small class='below'>" . htmlspecialchars($this->field_config['instructions']['below']) . "</small>";
+        return "<small class='below'>" . nl2br(htmlspecialchars($this->field_config['instructions']['below'])) . "</small>";
     }
 
 

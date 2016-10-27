@@ -17,25 +17,19 @@ class Taxonomy
      * @param string  $path  Path to query
      * @return mixed
      */
-    public static function getCriteria($path)
+    public static function getCriteria($url)
     {
-        $app = \Slim\Slim::getInstance();
+        $taxonomies = Config::getTaxonomies();
+        
+        $segments = explode('/', ltrim($url, '/'));
 
-        if (isset($app->config['_taxonomy'])) {
-            $taxonomies = $app->config['_taxonomy'];
-            // get the last 2 segments of the path
-            // format: /<taxonomy_type>/<slug>
-            $items = explode("/", $path);
-            if (sizeof($items) > 2) {
-                $slug = array_pop($items);
-                $type = array_pop($items);
-
-                foreach ($taxonomies as $key => $taxonomy) {
-
-                    if ($type == $taxonomy) {
-                        return array($type, $slug);
-                    }
-                }
+        foreach ($taxonomies as $taxonomy) {
+            if (in_array($taxonomy, $segments)) {
+                $data = array_split($segments, $taxonomy);
+                return array(
+                    'type' => array_get($data, 0),
+                    'slug' => array_get($data, 1)
+                );
             }
         }
 
@@ -52,19 +46,10 @@ class Taxonomy
     public static function isTaxonomyURL($url)
     {
         $taxonomies = Config::getTaxonomies();
+        $segments = explode('/', ltrim($url, '/'));
 
-        # get the last 2 segments of the path, format: /<taxonomy_type>/<slug>
-        $items = explode("/", $url);
-
-        if (sizeof($items) > 2) {
-            $slug = array_pop($items);  // unused here, but needed to get to $type
-            $type = array_pop($items);
-
-            foreach ($taxonomies as $taxonomy) {
-                if ($type == $taxonomy) {
-                    return TRUE;
-                }
-            }
+        if (count(array_intersect($segments, $taxonomies)) > 0) {
+            return TRUE;
         }
 
         return FALSE;

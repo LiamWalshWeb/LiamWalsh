@@ -3,11 +3,9 @@ class Plugin_get_content extends Plugin
 {
     public function index()
     {
-        $from = $this->fetchParam('from', false); // defaults to null
+        $from = $this->fetchParam('from', false);
 
-        if (!$from) {
-            return null;
-        }
+        if ( ! $from) return null;
 
         // account for subfolder
         if (strpos($from, Config::getSiteRoot()) !== 0) {
@@ -15,7 +13,6 @@ class Plugin_get_content extends Plugin
         }
         
         $from = Path::addStartingSlash($from);
-        $from = (strlen($from) > 1) ? rtrim($from, "/") : $from;
 
         $content_set = ContentService::getContentByURL($from);
 

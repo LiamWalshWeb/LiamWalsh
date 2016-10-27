@@ -155,7 +155,7 @@
 
 			// attribution re-use
 			osmLink = '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-			mapquestLink = 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png" style="width: auto !important; height: auto !important; display: inline !important; margin: 0 !important; vertical-align: text-bottom;">';
+			mapquestLink = 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="//developer.mapquest.com/content/osm/mq_logo.png" style="width: auto !important; height: auto !important; display: inline !important; margin: 0 !important; vertical-align: text-bottom;">';
 
 			// mapping service
 			if (settings.mapping_service === 'mapbox') {
@@ -175,7 +175,7 @@
 				service_attr = (settings.mapping_service_style === 'sat') ? 'Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency, ' + mapquestLink : osmLink + ' ' + mapquestLink;
 				subdomains = '1234';
 			} else {
-				tiles = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+				tiles = '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 				service_attr = osmLink;
 			}
 			

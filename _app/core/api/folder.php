@@ -22,6 +22,7 @@ class Folder
      */
     public static function make($dirs, $mode = 0777)
     {
+        Debug::increment('folders', 'created');
         $fs = new Filesystem();
 
         $fs->mkdir($dirs, $mode);
@@ -38,6 +39,7 @@ class Folder
      */
     public static function move($source, $destination, $options = fIterator::SKIP_DOTS)
     {
+        Debug::increment('folders', 'moved');
         return self::copy($source, $destination, TRUE, $options);
     }
 
@@ -54,6 +56,7 @@ class Folder
     public static function copy($source, $destination, $delete = FALSE, $options = fIterator::SKIP_DOTS)
     {
         if ( ! is_dir($source)) return FALSE;
+        Debug::increment('folders', 'copied');
 
         // First we need to create the destination directory if it doesn't already exist.
         // Our make() method takes care of the check.
@@ -104,6 +107,7 @@ class Folder
      */
     public static function delete($directories, $preserve = FALSE)
     {
+        Debug::increment('folders', 'deleted');
         $fs = new Filesystem();
 
         $fs->remove($directories);
@@ -122,6 +126,7 @@ class Folder
      */
     public static function wipe($directory)
     {
+        Debug::increment('folders', 'emptied');
         self::delete($directory, TRUE);
     }
 

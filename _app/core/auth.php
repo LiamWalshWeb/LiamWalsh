@@ -28,17 +28,38 @@ class Auth
         
         // if no Member object, or checkPassword fails, return false
         if (!$user || !$user->checkPassword($password)) {
+            Hook::run('auth', 'login_failed', 'call', null, $user);
             return false;
         }
+        
+        // log in member
+        self::loginMember($username, $remember);
+        
+        return true;
+    }
+
+
+    /**
+     * Logs a given member in
+     * 
+     * @param string  $username  Username of user to log in
+     * @param bool  $remember  Should we remember this user?
+     * @return void
+     */
+    public static function loginMember($username, $remember=false) {
+        $user = self::getMember($username);
         
         // we made it! prepare the app and some data...
         $app      = \Slim\Slim::getInstance();
         $expires  = ($remember) ? '20 years' : $app->config['_cookies.lifetime'];
         $hash     = self::createHash($user);
-        
+
+        // trigger a hook
+        Hook::run('auth', 'login', 'call', null, $user);
+
         // ...set the cookie and return true
         $app->setEncryptedCookie('stat_auth_cookie', $hash, $expires);
-        return true;
+
     }
 
 
@@ -49,6 +70,9 @@ class Auth
      */
     public static function logout()
     {
+        // trigger a hook
+        Hook::run('auth', 'logout', 'call', null, Auth::getCurrentMember());
+        
         $app = \Slim\Slim::getInstance();
         $app->deleteCookie('stat_auth_cookie');
     }

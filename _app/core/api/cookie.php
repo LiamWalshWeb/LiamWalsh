@@ -20,13 +20,14 @@ class Cookie
         $key = Helper::getRandomString(128, true);
         
         // check the result, log errors if needed
-        $result = File::put($secret_key_file, $key);
+        File::put($secret_key_file, $key, 0777);
         
-        if (!$result) {
+        if (!File::exists($secret_key_file) || !strlen(File::get($secret_key_file))) {
             Log::error("Could not create a secret cookie key.", "core", "cookie");
+            return false;
         }
         
-        return (bool) $result;
+        return true;
     }
     
     

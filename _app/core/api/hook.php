@@ -13,8 +13,8 @@ use Symfony\Component\Finder\Finder as Finder;
  */
 class Hook
 {
-    private static $hooks = null;
-    private static $hooks_loaded = false;
+    private static $hook_files = array();
+    private static $hooks_found = false;
     
     /**
      * Run the instance of a given hook
@@ -28,78 +28,75 @@ class Hook
      */
     public static function run($namespace, $hook, $type = NULL, $return = NULL, $data = NULL)
     {
-        // check to see if this hook is enabled
-        if (!Hook::isEnabled($namespace, $hook)) {
-            return $return;
-        }
+        $mark_as_init = !self::$hooks_found;
         
-        // @Todo: Clean this up globally
-        $addons_path = BASE_PATH.Config::getAddOnsPath();
+        if (!self::$hooks_found) {
+            $hash = Debug::markStart('hooks', 'finding');
+            
+            // we went finding
+            self::$hooks_found = true;
 
-        if (Folder::exists($addons_path) && Folder::exists(APP_PATH . '/core/bundles')) {
-            $finder = new Finder();
+            // set paths
+            $addons_path   = BASE_PATH . Config::getAddOnsPath();
+            $bundles_path  = APP_PATH . '/core/bundles';
+            $pattern       = '/*/hooks.*.php';
+            
+            // globbing with a brace doesn't seem to work on some system,
+            // it's not just Windows-based servers, seems to affect some
+            // linux-based ones too
+            $bundles  = glob($bundles_path . $pattern);
+            $addons   = glob($addons_path . $pattern);
+            
+            $bundles  = (empty($bundles)) ? array() : $bundles;
+            $addons   = (empty($addons)) ? array() : $addons;
+            
+            self::$hook_files = array_merge($bundles, $addons);
+            
+            Debug::markEnd($hash);
+        }
 
-            $files = $finder->files()
-                ->in($addons_path)
-                ->in(APP_PATH . '/core/bundles')
-                ->depth('<3')
-                ->name("hooks.*.php")
-                ->followLinks();
-
-            foreach ($files as $file) {
-                if (!is_callable(array('Hooks_' . $file->getRelativePath(), $namespace . '__' . $hook), false)) {
+        $hash = Debug::markStart('hooks', 'running');
+        
+        if (self::$hook_files) {
+            foreach (self::$hook_files as $file) {
+                $name = substr($file, strrpos($file, '/') + 7);
+                $name = substr($name, 0, strlen($name) - 4);
+    
+                $class_name = 'Hooks_' . $name;
+                
+                if (!is_callable(array($class_name, $namespace . '__' . $hook), false)) {
                     continue;
                 }
-
-                $class_name = 'Hooks_' . $file->getRelativePath();
-                $hook_class = new $class_name();
-
-                $method = $namespace . '__' . $hook;
-
-                if ($type == 'cumulative') {
-                    $response = $hook_class->$method($data);
-                    if (is_array($response)) {
-                        $return = is_array($return) ? $return + $response : $response;
+                
+                try {
+                    $hook_class = Resource::loadHooks($name);
+    
+                    $method = $namespace . '__' . $hook;
+        
+                    if ($type == 'cumulative') {
+                        $response = $hook_class->$method($data);
+                        if (is_array($response)) {
+                            $return = is_array($return) ? $return + $response : $response;
+                        } else {
+                            $return .= $response;
+                        }
+                    } elseif ($type == 'replace') {
+                        $return = $hook_class->$method($data);
                     } else {
-                        $return .= $response;
+                        $hook_class->$method($data);
                     }
-                } elseif ($type == 'replace') {
-                    $return = $hook_class->$method($data);
-                } else {
-                    $hook_class->$method($data);
+                } catch (Exception $e) {
+                    continue;
                 }
             }
-        } else {
-            Log::error('Add-ons path not found', 'hooks');
         }
 
+        if ($mark_as_init) {
+            Debug::markMilestone('hooks initialized');
+        }
+        
+        Debug::markEnd($hash);
+
         return $return;
-    }
-    
-    
-    /**
-     * Checks to see if a given hook is enabled
-     * 
-     * @param string  $namespace  Namespace that hook exists in
-     * @param string  $hook  Hook to check
-     * @return bool
-     */
-    public static function isEnabled($namespace, $hook)
-    {
-        if (!self::$hooks_loaded) {
-            self::$hooks_loaded = true;
-            self::$hooks = Config::get('_enable_hooks');
-        }
-        
-        // always allow control panel hooks
-        if (substr($namespace, 0, 1) !== "_") {
-            return true;
-        }
-        
-        if (isset(self::$hooks[$namespace]) && is_array(self::$hooks[$namespace]) && isset(self::$hooks[$namespace][$hook])) {
-            return (bool) self::$hooks[$namespace][$hook];
-        }
-        
-        return false;
     }
 }

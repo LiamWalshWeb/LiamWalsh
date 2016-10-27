@@ -49,28 +49,60 @@ class File
      */
     public static function get($path, $default = null)
     {
-        return (File::exists($path)) ? file_get_contents($path) : Helper::resolveValue($default);
+        if (File::exists($path)) {
+            Debug::increment('files', 'opened');
+            return file_get_contents($path);
+        } else {
+            return Helper::resolveValue($default);
+        }
     }
 
 
     /**
      * Atomically dump content into a file.
      *
-     * @param  string  $filename  Path of file to store
-     * @param  string  $content   Content to store
+     * @param string  $filename  Path of file to store
+     * @param string  $content   Content to store
+     * @param int  $mode  File mode to set 
      * @return void
      */
     public static function put($filename, $content, $mode = null)
     {
+        Debug::increment('files', 'written');
         $fs = new Filesystem();
+        
+        // custom umask and file mode
+//        $custom_umask  = Config::get('_umask', false);
+        $custom_mode   = Config::get('_mode', false);
+        $old_umask     = null;
+        
+        // Dipper accurately recognizes octal numbers, where the others don't
+        if (Config::get('yaml_mode') !== 'quick') {
+//            $custom_umask = octdec($custom_umask);
+            $custom_mode  = octdec($custom_mode);
+        }
+        
+        // if a custom umask was set, set it and remember the old one
+//        if ($custom_umask !== false) {
+//            $old_umask = umask($custom_umask);
+//        }
         
         if (File::exists($filename)) {
             $mode = intval(substr(sprintf('%o', fileperms($filename)), -4), 8);
         } elseif (is_null($mode)) {
-            $mode = 0755;
+            $mode = ($custom_mode !== false) ? $custom_mode : 0755;
         }
         
-        $fs->dumpFile($filename, $content, $mode);
+        try {
+            $fs->dumpFile($filename, $content, $mode);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        
+        // if a custom umask was set, replace the old value
+//        if ($custom_umask !== false) {
+//            umask($old_umask);
+//        }
     }
 
 
@@ -83,6 +115,8 @@ class File
      */
     public static function append($path, $data)
     {
+        Debug::increment('files', 'written');
+        Debug::increment('files', 'appended');
         Folder::make(dirname($path));
         return file_put_contents($path, $data, LOCK_EX | FILE_APPEND);
     }
@@ -97,6 +131,8 @@ class File
      */
     public static function prepend($path, $data)
     {
+        Debug::increment('files', 'written');
+        Debug::increment('files', 'prepended');
         Folder::make(dirname($path));
         return file_put_contents($path, $data . File::get($path, ""), LOCK_EX);
     }
@@ -110,6 +146,7 @@ class File
      */
     public static function delete($files)
     {
+        Debug::increment('files', 'deleted');
         $fs = new Filesystem();
         
         $fs->remove($files);
@@ -126,6 +163,7 @@ class File
      */
     public static function move($origin, $target, $overwrite = false)
     {
+        Debug::increment('files', 'moved');
         $fs = new Filesystem();
 
         $fs->rename($origin, $target, $overwrite);
@@ -141,6 +179,7 @@ class File
      */
     public static function rename($origin, $target, $overwrite = false)
     {
+        Debug::increment('files', 'renamed');
         $fs = new Filesystem();
 
         if ( ! self::inBasePath($origin)) {
@@ -162,21 +201,45 @@ class File
      * @return boolean
      */
     public static function inBasePath($path) {
-        return stripos($path, BASE_PATH);
+        return stripos($path, BASE_PATH) !== false;
     }
 
     /**
-     * Upload a file.
-     *
-     * @param string  $file  Name of file
-     * @param string  $target  target of file
-     * @param string  $filename  Name of new file
-     * @return bool
-     **/
-    public static function upload($file, $target, $filename = null)
+     * Upload a file
+     * 
+     * @param  array   $file               The file array
+     * @param  string  $destination        Where to upload
+     * @param  boolean $add_root_variable  Whether or not to prepend {{ _site_root }}
+     * @param  mixed   $renamed_file       A custom filename
+     * @return string                      Path to uploaded asset
+     */
+    public static function upload($file, $destination, $add_root_variable = false, $renamed_file = false)
     {
-        Folder::make($target);
-        return move_uploaded_file($file, $target . '/' . $filename);
+        Folder::make($destination);
+
+        $info      = pathinfo($file['name']);
+        $extension = $info['extension'];
+        $filename  = $renamed_file ?: $info['filename'];
+
+        // build filename
+        $new_filename = Path::assemble(BASE_PATH, $destination, $filename . '.' . $extension);
+
+        // check for dupes
+        if (File::exists($new_filename)) {
+            $new_filename = Path::assemble(BASE_PATH, $destination, $filename . '-' . date('YmdHis') . '.' . $extension);
+        }
+
+        // Check if destination is writable
+        if ( ! Folder::isWritable($destination)) {
+            Log::error('Upload failed. Directory "' . $destination . '" is not writable.', 'core');
+
+            return null;
+        }
+
+        // write file
+        move_uploaded_file($file['tmp_name'], $new_filename);
+
+        return Path::toAsset($new_filename, $add_root_variable);
     }
 
 
@@ -193,6 +256,7 @@ class File
      */
     public static function copy($originFile, $targetFile, $override = false)
     {
+        Debug::increment('files', 'copied');
         $fs = new Filesystem();
 
         $fs->copy($originFile, $targetFile, $override);
@@ -208,6 +272,7 @@ class File
      */
     public static function buildContent(Array $data, $content)
     {
+        Debug::increment('content', 'files_built');
         $file_content  = "---\n";
         $file_content .= preg_replace('/\A^---\s/ism', "", YAML::dump($data));
         $file_content .= "---\n";
@@ -252,10 +317,11 @@ class File
         return filesize($path);
     }
 
+    
     /**
      * Get the human file size of a given file.
      *
-     * @param  string  $path  Path of file
+     * @param int  $bytes  Number of bytes
      * @return int
      */
     public static function getHumanSize($bytes)
@@ -459,11 +525,34 @@ class File
      *
      * @return Boolean
      */
-    public function isAbsolutePath($file)
+    public static function isAbsolutePath($file)
     {
         $fs = new Filesystem();
 
         return $fs->isAbsolutePath($file);
     }
+    
+    
+    /**
+     * Recursively glob through folders looking for files of a given $type
+     * 
+     * @param string  $path  Path to start at
+     * @param string  $type  Type of files to grab
+     * @return array
+     */
+    public static function globRecursively($path, $type)
+    {
+        $output = array();
+        $files  = glob($path, GLOB_NOSORT);
 
+        foreach ($files as $file) {
+            if (is_dir($file)) {
+                $output = array_merge($output, self::globRecursively($file . '/*', $type));
+            } elseif (substr($file, -(strlen($type) + 1)) === '.' . $type) {
+                $output[] = $file;
+            }
+        }
+
+        return $output;
+    }
 }

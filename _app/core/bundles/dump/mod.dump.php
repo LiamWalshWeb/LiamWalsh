@@ -16,7 +16,7 @@ class Modifier_dump extends Modifier
         
         if (is_array($value)) {
             foreach ($value as $key => $val) {
-                $output .= "\n" . str_repeat(" ", $depth * 3) . $key . ": " . $this->buildDump($val, $depth + 1);
+                $output .= "\n" . str_repeat(" ", $depth * 2) . $key . ": " . $this->buildDump($val, $depth + 1);
             }
             
             return $output;
