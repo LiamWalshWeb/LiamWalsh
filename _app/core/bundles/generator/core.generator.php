@@ -29,7 +29,7 @@ class Core_generator extends Core
 
 	/**
 	 * Copies folders
-	 * 
+	 *
 	 * @return void
 	 */
 	public function copyAssets()
@@ -52,7 +52,7 @@ class Core_generator extends Core
 	 */
 	public function generateFileList()
 	{
- 		$files = $this->generateFilesFromCache() + 
+ 		$files = $this->generateFilesFromCache() +
  		         $this->generateManualFiles();
 
 		return compact('files');
@@ -61,7 +61,7 @@ class Core_generator extends Core
 
 	/**
 	 * Generates a list of files from the content cache
-	 * 
+	 *
 	 * @return array
 	 */
 	private function generateFilesFromCache()
@@ -83,7 +83,7 @@ class Core_generator extends Core
 
 	/**
 	 * Generates a list of files manually specified in the config.
-	 * 
+	 *
 	 * @return array
 	 */
 	private function generateManualFiles()
@@ -111,7 +111,7 @@ class Core_generator extends Core
 
 	/**
 	 * Generate files from a specified taxonomy type
-	 * 
+	 *
 	 * @param  string $type The taxonomy type/name, ie. tags or categories
 	 * @param  string $url  The URL containing that needs modifying
 	 * @return array
@@ -131,7 +131,7 @@ class Core_generator extends Core
 
 	/**
 	 * Generates a static version of a page
-	 * 
+	 *
 	 * @param  string $url The URL to be generated
 	 * @return array       A response containing the success
 	 */
@@ -192,9 +192,9 @@ class Core_generator extends Core
 
 
 	/**
-	 * Generates the path the generated HTML file will be and 
+	 * Generates the path the generated HTML file will be and
 	 * outputs an array used by the file listing
-	 * 
+	 *
 	 * @param  string $url
 	 * @return array
 	 */
@@ -209,7 +209,7 @@ class Core_generator extends Core
 
 	/**
 	 * Takes a URL and responds the corresponding static html filename
-	 * 
+	 *
 	 * @param  string $url    URL
 	 * @param  array $detail  Optional details from cache. Saves another lookup if we already have it.
 	 * @return string
@@ -221,8 +221,7 @@ class Core_generator extends Core
 		}
 
 		$filename  = $url;
-		$filename .= (Pattern::endsWith($detail['file'], '/page.md')) ? '/index' : '';
-		$filename .= '.html';
+		$filename .= '/index.html';
 
 		return $filename;
 	}
@@ -245,7 +244,7 @@ class Core_generator extends Core
 
 	/**
 	 * Creates and downloads a zip file of the static pages
-	 * 
+	 *
 	 * @return void
 	 */
 	public function download()
