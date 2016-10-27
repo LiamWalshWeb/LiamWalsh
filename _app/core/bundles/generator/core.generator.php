@@ -221,7 +221,8 @@ class Core_generator extends Core
 		}
 
 		$filename  = $url;
-		$filename .= '/index.html';
+		$filename .= (Pattern::endsWith($detail['file'], '/page.md')) ? '/index' : '';
+		$filename .= '.html';
 
 		return $filename;
 	}
@@ -254,8 +255,6 @@ class Core_generator extends Core
 		$zip_name = 'site-' . time() . '.zip';
 		$zip_filename = Path::assemble(BASE_PATH, '_cache/_add-ons/', $this->addon_name, $zip_name);
 
-		var_dump($zip_filename);
-
 		$zip = new ZipArchive();
 		$zip->open($zip_filename, ZipArchive::CREATE);
 
@@ -273,9 +272,6 @@ class Core_generator extends Core
 		}
 
 		$zip->close();
-
-		var_dump($zip);
-		die();
 
 		header('Content-Type: application/zip');
 		header('Content-disposition: attachment; filename=' . $zip_name);
