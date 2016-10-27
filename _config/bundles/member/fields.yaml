@@ -39,6 +39,7 @@ fields:
     error_messages: "Passwords do not match."
     instructions: "Passwords must match."
   show_password:
+    display: Password
     type: show_password
     save_value: false
   roles:
