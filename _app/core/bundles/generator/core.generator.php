@@ -142,6 +142,8 @@ class Core_generator extends Core
 		try {
 			$this->write($filename, $this->getHtml($url));
 		} catch (Exception $e) {
+			var_dump($e);
+			die();
 			return array('success' => false);
 		}
 
@@ -186,9 +188,6 @@ class Core_generator extends Core
 	private function getHtml($uri)
 	{
 		$url = $this->site_url . $uri;
-
-		var_dump(file_get_contents($url, false, $this->request_context));
-		die();
 
 		return file_get_contents($url, false, $this->request_context);
 	}
