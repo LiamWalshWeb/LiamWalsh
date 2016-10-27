@@ -267,11 +267,15 @@ class Core_generator extends Core
                 continue;
 			}
 
+			var_dump($filename);
+
 			$filename = trim(Path::trimFilesystem($file), '_');
 			$zip->addFile($file->getPathname(), $filename);
 		}
 
 		$zip->close();
+
+		die();
 
 		header('Content-Type: application/zip');
 		header('Content-disposition: attachment; filename=' . $zip_name);
