@@ -142,8 +142,6 @@ class Core_generator extends Core
 		try {
 			$this->write($filename, $this->getHtml($url));
 		} catch (Exception $e) {
-			var_dump($e);
-			die();
 			return array('success' => false);
 		}
 
