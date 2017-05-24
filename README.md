@@ -1,4 +1,0 @@
-LiamWalsh
-=========
-
-My personal website!
