@@ -1,0 +1,17 @@
+{
+  "name": "LiamWalsh",
+  "version": "2.0.0",
+  "description": "My personal website",
+  "main": "index.js",
+  "repository": "git@github.com:LiamWalshWeb/LiamWalsh.git",
+  "author": "LiamWalshWeb <walshlv.business@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "blendid": "^4.1.1"
+  },
+  "scripts": {
+    "start": "yarn run blendid",
+    "build": "yarn run blendid -- build",
+    "gh-pages": "yarn run blendid -- gh-pages"
+  }
+}
