@@ -1,3 +1,6 @@
 // import './modules'
 
-// console.log(`app.js has loaded!`)
+// Let's register our serviceworker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+}

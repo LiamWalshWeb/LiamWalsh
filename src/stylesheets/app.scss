@@ -215,9 +215,81 @@ a {
 	}
 }
 
+.work-list {
+	margin-left: 0;
+	margin-right: 0;
+	padding: 0;
+
+	list-style: none;
+}
+
+.work-list__item {
+	display: block;
+
+	& + & {
+		margin-top: 1rem;
+	}
+}
+
+.work-list__info {
+	margin-bottom: 0.5rem;
+}
+
+.work-list__link,
+.work-list__picture,
+.work-list__image {
+	display: block;
+}
+
+.work-list__link {
+
+}
+
+.work-list__picture {
+	border: 0.5rem solid $colour-link;
+	max-height: 50vw;
+	overflow: hidden;
+
+	@include bp("grizzly-bear") {
+		max-height: none;
+	}
+
+	&:hover,
+	&:focus {
+		border-color: $colour-link-hover;
+	}
+}
+
+.work-list__image {
+	width: 100%;
+}
+
+.work-list__title {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .constrain {
 	display: block;
 	max-width: 35rem;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+/**
+ * 404
+ **/
+
+.page-404 {
+	display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	height: 100vh;
+	width: 100vw;
+}
+
+.page-404__message {
+	font-size: 6vw;
+	text-align: center;
 }

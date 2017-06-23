@@ -7,11 +7,13 @@
   "author": "LiamWalshWeb <walshlv.business@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "blendid": "^4.1.1"
+    "blendid": "^4.1.1",
+    "sw-precache": "^5.2.0"
   },
   "scripts": {
     "start": "yarn run blendid",
-    "build": "yarn run blendid -- build",
-    "gh-pages": "yarn run blendid -- gh-pages"
+    "build": "yarn run blendid -- build && yarn run sw-precache-build",
+    "gh-pages": "yarn run blendid build && yarn run sw-precache-build && yarn run blendid -- gh-pages",
+    "sw-precache-build": "sw-precache --config=sw-precache-config.js --verbose && mv service-worker.js public/sw.js"
   }
 }
