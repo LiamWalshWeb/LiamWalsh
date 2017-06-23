@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "blendid": "^4.1.1",
+    "critical": "^0.8.4",
     "sw-precache": "^5.2.0"
   },
   "scripts": {
