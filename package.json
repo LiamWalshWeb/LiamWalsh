@@ -15,6 +15,7 @@
     "start": "yarn run blendid",
     "build": "yarn run blendid -- build && yarn run sw-precache-build",
     "gh-pages": "yarn run blendid build && yarn run sw-precache-build && yarn run blendid -- gh-pages",
-    "sw-precache-build": "sw-precache --config=sw-precache-config.js --verbose && mv service-worker.js public/sw.js"
+    "sw-precache-build": "sw-precache --config=sw-precache-config.js --verbose && mv service-worker.js public/sw.js",
+    "critical-build": "yarn run critical public/index.html --base public critical.css"
   }
 }
