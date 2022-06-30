@@ -1,0 +1,21 @@
+{
+  "title": "Liam Walsh - Software Engineer",
+  "url": "https://www.liamwalsh.co.uk/",
+  "language": "en",
+  "description": "A father, husband, entrepenuer, software engineer trying his best",
+  "feed": {
+    "subtitle": "A father, husband, entrepenuer, software engineer trying his best",
+    "filename": "feed.xml",
+    "path": "/feed/feed.xml",
+    "id": "https://www.liamwalsh.co.uk/"
+  },
+  "jsonfeed": {
+    "path": "/feed/feed.json",
+    "url": "https://www.liamwalsh.co.uk/feed/feed.json"
+  },
+  "author": {
+    "name": "Liam Walsh",
+    "email": "me@liamwalsh.co.uk",
+    "url": "https://www.liamwalsh.co.uk/about-me/"
+  }
+}

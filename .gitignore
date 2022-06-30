@@ -62,3 +62,7 @@ public/
 
 # System files
 .DS_Store
+
+# 11ty
+_site/
+

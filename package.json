@@ -1,21 +1,37 @@
 {
-  "name": "LiamWalsh",
-  "version": "2.0.0",
-  "description": "My personal website",
-  "main": "index.js",
-  "repository": "git@github.com:LiamWalshWeb/LiamWalsh.git",
-  "author": "LiamWalshWeb <me@liamwalsh.co.uk>",
-  "license": "MIT",
-  "dependencies": {
-    "blendid": "^4.1.1",
-    "critical": "^0.8.4",
-    "sw-precache": "^5.2.0"
-  },
+  "name": "liam-walsh",
+  "version": "1.0.0",
+  "description": "The online space for Liam Walsh",
   "scripts": {
-    "start": "yarn run blendid",
-    "build": "yarn run blendid -- build && yarn run sw-precache-build",
-    "gh-pages": "yarn run blendid build && yarn run sw-precache-build && yarn run blendid -- gh-pages",
-    "sw-precache-build": "sw-precache --config=sw-precache-config.js --verbose && mv service-worker.js public/sw.js",
-    "critical-build": "yarn run critical public/index.html --base public critical.css"
+    "build": "npx @11ty/eleventy",
+    "bench": "DEBUG=Eleventy:Benchmark* npx @11ty/eleventy",
+    "watch": "npx @11ty/eleventy --watch",
+    "serve": "npx @11ty/eleventy --serve",
+    "start": "npx @11ty/eleventy --serve",
+    "debug": "DEBUG=* npx @11ty/eleventy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LiamWalshWeb/LiamWalsh.git"
+  },
+  "author": {
+    "name": "Liam Walsh",
+    "email": "me@liamwalsh.co.uk",
+    "url": "https://www.liamwalsh.co.uk/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LiamWalshWeb/LiamWalsh/issues"
+  },
+  "homepage": "https://github.com/LiamWalshWeb/LiamWalsh#readme",
+  "dependencies": {
+    "@11ty/eleventy": "^1.0.1",
+    "@11ty/eleventy-navigation": "^0.3.3",
+    "@11ty/eleventy-plugin-rss": "^1.2.0",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^4.1.0",
+    "eleventy-plugin-gen-favicons": "^1.1.0",
+    "luxon": "^2.4.0",
+    "markdown-it": "^13.0.1",
+    "markdown-it-anchor": "^8.6.4"
   }
 }
