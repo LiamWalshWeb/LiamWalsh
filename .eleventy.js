@@ -12,7 +12,6 @@ const faviconsPlugin = require("eleventy-plugin-gen-favicons");
 module.exports = function (eleventyConfig) {
   // Copy the `img` and `css` folders to the output
   eleventyConfig.addPassthroughCopy("img");
-  eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("files");
 
   // Copy misc files
