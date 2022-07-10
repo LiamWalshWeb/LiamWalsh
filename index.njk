@@ -4,11 +4,42 @@ eleventyNavigation:
   key: Home
   order: 1
 ---
-{% set maxPosts = collections.posts.length | min(3) %}
-<h1>Latest {% if maxPosts == 1 %}Post{% else %}{{ maxPosts }} Posts{% endif %}</h1>
 
-{% set postslist = collections.posts | head(-3) %}
-{% set postslistCounter = collections.posts | length %}
-{% include "postslist.njk" %}
+<header class="px-5 md:px-10 lg:px-14 py-9 md:py-14 lg:py-16 text-white text-center">
+  <div class="container">
+    <h1 class="mb-5 md:mb-6 lg:mb-7 text-3xl md:text-4xl lg:text-5xl text-phthalo-green font-semibold">Hello there! 👋 <br/> The only thing you need to know about me right now is below 👇</h1>
 
-<p>More posts can be found in <a href="{{ '/posts/' | url }}">the archive</a>.</p>
+    <a class="inline-block border-none rounded-lg py-3 md:py-5 px-5 md:px-7 bg-bittersweet-shimmer text-xl md:text-2xl lg:text-3xl" href="https://southmeadhospitalcharity.enthuse.com/pf/jasper-ivy-astrid">Save lives 🦸‍♂️🦸‍♀️<a/>
+    </div>
+  </header>
+
+  <article class="px-5 md:px-10 lg:px-14 py-9 md:py-14 lg:py-16 bg-gradient-to-b from-phthalo-green to-hunter-green text-white">
+    <div class="container">
+      <section class="mb-10">
+        <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold mb-5">Haven't followed the link? Here's the deal 👨‍🏫</h2>
+        <p class="text-md md:text-lg lg:text-xl mb-4">I'm taking on the Yorkshire Three Peaks Challenge with some close friends. We're fundraising for <a class="text-lemon-yellow" href="https://southmeadhospitalcharity.enthuse.com/pf/jasper-ivy-astrid">Southmead Hospital's Maternity Bereavement Service<a/> and the amazing work they do.</p>
+          <p class="text-md md:text-lg lg:text-xl">Losing a loved one is difficult no matter the situation but losing a baby is unimagineable. Sadly baby loss for families in the UK is a potential reality. Services like Southmeads are essential to aiding those families and</p>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold mb-5">"Why is the fundraiser for special to you?"❓❔</h2>
+          <p class="text-md md:text-lg lg:text-xl mb-4">Good question 👍 my best friend, Phil, who was an usher at my wedding, Godfather to my son, the reason why I met my wife and much more suffered a tragic loss.</p>
+          <p class="text-md md:text-lg lg:text-xl mb-4">A man who I'd consider another brother is dealing with a loss that nobody should have to deal with. And what is a friend to do in this situation? Anything he can!</p>
+          <p class="text-md md:text-lg lg:text-xl mb-4">He invited me to join him, his wife and others to take on the Yorkshire Three Peaks. I suggested fundraising wanting to extend my support. They thought it was a great idea and so here we are!</p>
+          <p class="text-md md:text-lg lg:text-xl">Help me in supporting <a class="text-lemon-yellow" href="https://southmeadhospitalcharity.enthuse.com/pf/jasper-ivy-astrid">Southmead Hospital's Maternity Bereavement Service<a/> so they can continue to do their amazing work and save more little lives 👼</p>
+          </section>
+
+          <section class="mb-10">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold mb-5">A bit more about the Yorkshire Three Peaks Challenge ⛰⛰⛰</h2>
+            <p class="text-md md:text-lg lg:text-xl mb-4">The challenge is to complete a route that is roughly 40km long (26 miles, like walking a marathons length) having a total ascent of roughly 1600m (5200ft).</p>
+            <p class="text-md md:text-lg lg:text-xl mb-4">The challenge takes on the peaks Pen-y-ghent, Whernside and Ingleborough all located inside the Yorkshire Dales National Park.</p>
+            <p class="text-md md:text-lg lg:text-xl">If you're interested and want to know more <a class="text-lemon-yellow" href="https://www.threepeakschallenge.uk/yorkshire-three-peaks-challenge/">this website</a> is a good reference of information</p>
+          </section>
+
+          <section>
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold mb-5">Thanks in advance! 🙏</h2>
+            <p class="text-md md:text-lg lg:text-xl mb-4">I'd like to thank everyone who sees this and takes the time to read. If this time spent only amounts to raising awareness to such a cause then that is still good in my eyes.</p>
+            <p class="text-md md:text-lg lg:text-xl">To all those who do donate, thank you so much, every penny counts for these amazing services. It's no mean feat to have these specialised services in the UK and they make the world of difference to the people who use them.</p>
+          </section>
+        </div>
+      </article>

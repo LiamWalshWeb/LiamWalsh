@@ -17,5 +17,10 @@
     "name": "Liam Walsh",
     "email": "me@liamwalsh.co.uk",
     "url": "https://www.liamwalsh.co.uk/about-me/"
-  }
+  },
+  "email": "hello@liamwalsh.co.uk",
+  "linkedin": "https://www.linkedin.com/in/liamwalshweb/",
+  "twitter": "https://twitter.com/LiamWalshWeb",
+  "github": "https://github.com/LiamWalshWeb/",
+  "codepen": "http://codepen.io/liamwalsh/"
 }

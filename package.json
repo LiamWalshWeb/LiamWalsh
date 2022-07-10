@@ -5,9 +5,8 @@
   "scripts": {
     "build": "npm-run-all dev:css build:site",
     "bench": "DEBUG=Eleventy:Benchmark* npx @11ty/eleventy",
-    "watch": "npx @11ty/eleventy --watch",
     "serve": "run-p dev:*",
-    "start": "npx @11ty/eleventy --serve",
+    "start": "npm run serve",
     "debug": "DEBUG=* npx @11ty/eleventy",
     "build:site": "npx @11ty/eleventy",
     "dev:css": "npx tailwindcss -i css/tailwind.css -o _site/css/tailwind.css --watch --minify",
