@@ -1,0 +1,14 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Liam Walsh - Software Engineer",
+  "language": "en",
+  "home_page_url": "https://www.liamwalsh.co.uk/",
+  "feed_url": "https://www.liamwalsh.co.uk/feed/feed.json",
+  "description": "A father, husband, entrepenuer, software engineer trying his best",
+  "author": {
+    "name": "Liam Walsh",
+    "url": "https://www.liamwalsh.co.uk/about-me/"
+  },
+  "items": [
+  ]
+}

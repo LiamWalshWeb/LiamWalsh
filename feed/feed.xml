@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>Liam Walsh - Software Engineer</title>
+	<subtitle>A father, husband, entrepenuer, software engineer trying his best</subtitle>
+	
+	<link href="https://www.liamwalsh.co.uk/feed/feed.xml" rel="self"/>
+	<link href="https://www.liamwalsh.co.uk/"/>
+	<updated>2022-07-11T01:14:34Z</updated>
+	<id>https://www.liamwalsh.co.uk/</id>
+	<author>
+		<name>Liam Walsh</name>
+		<email>me@liamwalsh.co.uk</email>
+	</author>
+</feed>
