@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "The online space for Liam Walsh",
   "scripts": {
-    "build": "npm-run-all dev:css build:site",
+    "build": "npm-run-all -s build:*",
     "bench": "DEBUG=Eleventy:Benchmark* npx @11ty/eleventy",
     "serve": "run-p dev:*",
     "start": "npm run serve",
     "debug": "DEBUG=* npx @11ty/eleventy",
+    "build:css": "npx tailwindcss -i css/tailwind.css -o _site/css/tailwind.css --minify",
     "build:site": "npx @11ty/eleventy",
     "dev:css": "npx tailwindcss -i css/tailwind.css -o _site/css/tailwind.css --watch --minify",
     "dev:serve": "npx @11ty/eleventy --serve"
