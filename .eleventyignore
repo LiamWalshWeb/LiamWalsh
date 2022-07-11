@@ -1,7 +1,10 @@
 <!-- Misc files -->
+
 README.md
+MESSAGES.md
 
 <!-- Temporary ignore -->
+
 archive.njk
 page-list.njk
 tags-list.njk
