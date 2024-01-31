@@ -1,4 +1,3 @@
-LiamWalsh
-=========
+# LiamWalsh
 
-My personal website!
+My personal website
